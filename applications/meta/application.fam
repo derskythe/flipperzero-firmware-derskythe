@@ -65,7 +65,7 @@ App(
         #"GAME_Dice",
         "GAME_DOOM",
         # "GAME_FlappyBird",
-        # "GAME_GameOfLife",
+        "GAME_GameOfLife",
         # "GAME_MandelbrotSet",
         # "GAME_MontyHall",
         "GAME_Snake",
