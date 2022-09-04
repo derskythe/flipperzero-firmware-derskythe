@@ -22,8 +22,8 @@ App(
         "lfrfid",
         "nfc",
         "subghz",
-        #"bad_usb",
-        #"u2f",
+        "bad_usb",
+        "u2f",
     ],
 )
 
