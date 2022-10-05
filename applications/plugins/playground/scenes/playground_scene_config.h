@@ -1,0 +1,5 @@
+ADD_SCENE(playground, load_file, LoadFile)
+ADD_SCENE(playground, load_select, LoadSelect)
+ADD_SCENE(playground, save_name, SaveName)
+ADD_SCENE(playground, save_success, SaveSuccess)
+ADD_SCENE(playground, start, Start)
