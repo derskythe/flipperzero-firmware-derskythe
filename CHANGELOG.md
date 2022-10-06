@@ -1,12 +1,5 @@
 ### New changes
-* PR: SubGHz: Long press OK button in SubGHz Frequency analyzer to switch to Read menu (by @derskythe | PR #79)
-* PR: Increase Sub-GHz Remote label line length to 16 chars (by @alexberkowitz | PR #78)
-* Fixed clock AM/PM logic
-* Infrared: Update assets (by @Amec0e)
-* OFW: Furi Thread: fixed furi_thread_join, check if thread has not been started
-* OFW: (Returned back) Furi Thread: don't use thread pointer after FuriThreadStateStopped callback 
-* OFW: fbt: reproducible manifest builds & improvements
-* OFW PR: iButton GUI fixes (OFW PR 1805 by nminaylov)
+* Plugins: RFID Fuzzer - ability to change time delay (between cards), useful for slow readers, you can adjust it on the go
 
 #### [🎲 Download extra apps pack](https://download-directory.github.io/?url=https://github.com/UberGuidoZ/Flipper/tree/main/Applications/Unleashed)
 

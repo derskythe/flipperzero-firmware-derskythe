@@ -31,6 +31,8 @@ typedef enum {
 typedef enum {
     EM4100,
     HIDProx,
+    PAC,
+    H10301,
 } FlipFridProtos;
 
 typedef enum {
@@ -78,6 +80,8 @@ typedef struct {
     LFRFIDWorker* worker;
     ProtocolDict* dict;
     ProtocolId protocol;
+
+    uint8_t time_between_cards;
 
     // Used for custom dictionnary
     Stream* uids_stream;

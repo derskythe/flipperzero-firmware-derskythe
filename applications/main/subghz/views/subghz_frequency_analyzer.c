@@ -40,6 +40,25 @@ static const NotificationSequence sequence_saved = {
     &message_vibro_off,
     NULL,
 };
+
+static const NotificationSequence sequence_frequency = {
+    &message_display_backlight_on,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_blue_255,
+    &message_vibro_off,
+    &message_delay_100,
+    &message_blue_0,
+    &message_green_255,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_green_0,
+    &message_vibro_off,
+    NULL,
+};
+
 //static const NotificationSequence sequence_not_saved = {
 //    &message_blink_stop,
 //    &message_green_255,
@@ -194,7 +213,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
     uint32_t current = 0;
     uint32_t result = 0;
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
     FURI_LOG_D(TAG, "input: %d", input);
 #endif
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
@@ -274,7 +293,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     frequency_candidate = subghz_frequency_find_correct(frequency_candidate);
                 }
                 if(frequency_candidate > 0 && frequency_candidate != model->frequency_to_save) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
                     FURI_LOG_D(
                         TAG,
                         "frequency_to_save: %d, candidate: %d",
@@ -289,7 +308,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                 return true;
             });
 
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
         FURI_LOG_I(
             TAG,
             "updated: %d, long: %d, type: %d",
@@ -304,7 +323,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 
         // First device receive short, then when user release button we get long
         if(event->type == InputTypeLong) {
-#if FURI_DEBUG
+#ifdef FURI_DEBUG
             FURI_LOG_I(TAG, "Longpress!");
 #endif
             // Stop blinking
@@ -366,12 +385,13 @@ void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, 
 
             switch(instance->feedback_level) {
             case 1: // 1 - only vibro
-                notification_message(instance->notifications, &sequence_single_vibro);
+                notification_message(instance->notifications, &sequence_frequency);
                 break;
             case 2: // 2 - vibro and beep
                 notification_message(instance->notifications, &sequence_success);
                 break;
             default: // 0 - no feedback
+                notification_message(instance->notifications, &sequence_display_backlight_on);
                 break;
             }
 
