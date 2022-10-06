@@ -4,14 +4,6 @@
 
 #define TAG "PlayGroundSceneStart"
 
-uint32_t rand_range(uint32_t n, uint32_t m) {
-    // size of range, inclusive
-    const uint32_t length_of_range = m - n + 1;
-
-    // add n so that we don't return a number below our range
-    return (uint32_t)(rand() % length_of_range + n);
-}
-
 void playground_scene_start_callback(PlayGroundCustomEvent event, void* context) {
     furi_assert(context);
 
