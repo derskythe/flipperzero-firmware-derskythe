@@ -46,6 +46,7 @@ PlayGroundState* playground_alloc() {
     instance->view_dispatcher = view_dispatcher_alloc();
 
     instance->gui = furi_record_open(RECORD_GUI);
+    instance->storage = furi_record_open(RECORD_STORAGE);
 
     view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_set_event_callback_context(instance->view_dispatcher, instance);
@@ -141,6 +142,10 @@ void playground_free(PlayGroundState* instance) {
     // GUI
     furi_record_close(RECORD_GUI);
     instance->gui = NULL;
+
+    // Storage
+    furi_record_close(RECORD_STORAGE);
+    instance->storage = NULL;
 
     string_clear(instance->save_path);
 

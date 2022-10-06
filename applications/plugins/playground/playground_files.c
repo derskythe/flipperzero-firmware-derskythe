@@ -1,0 +1,143 @@
+#include "playground_files.h"
+#include "furi.h"
+#include "flipper_format_i.h"
+#include "flipper_format_stream_i.h"
+#include "file_stream.h"
+#include "subghz/types.h"
+
+bool load_file_playground(Storage* storage, FlipperFormat* fff_data, const char* file_path) {
+    furi_assert(storage);
+    furi_assert(fff_data);
+    furi_assert(file_path);
+
+    FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
+    Stream* fff_data_stream = flipper_format_get_raw_stream(fff_data);
+
+    string_t temp_str;
+    string_init(temp_str);
+    uint32_t temp_data32;
+    bool result = false;
+
+    do {
+        stream_clean(fff_data_stream);
+        if(!flipper_format_file_open_existing(fff_data_file, file_path)) {
+            FURI_LOG_E(TAG, "Error open file %s", file_path);
+            break;
+        }
+
+        if(!flipper_format_read_header(fff_data_file, temp_str, &temp_data32)) {
+            FURI_LOG_E(TAG, "Missing or incorrect header");
+            break;
+        }
+
+        if(((!strcmp(string_get_cstr(temp_str), SUBGHZ_KEY_FILE_TYPE)) ||
+            (!strcmp(string_get_cstr(temp_str), SUBGHZ_RAW_FILE_TYPE))) &&
+           temp_data32 == SUBGHZ_KEY_FILE_VERSION) {
+        } else {
+            FURI_LOG_E(TAG, "Type or version mismatch");
+            break;
+        }
+
+        if(!flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
+            FURI_LOG_E(TAG, "Missing Frequency");
+            break;
+        }
+
+        if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
+            FURI_LOG_E(TAG, "Missing Preset");
+            break;
+        }
+
+        if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
+            FURI_LOG_E(TAG, "Missing Protocol");
+            break;
+        }
+        stream_copy_full(
+            flipper_format_get_raw_stream(fff_data_file), flipper_format_get_raw_stream(fff_data));
+
+        result = true;
+    } while(0);
+
+    string_clear(temp_str);
+    flipper_format_free(fff_data_file);
+    //furi_record_close(RECORD_STORAGE);
+
+    return result;
+}
+
+bool write_file_split_playground(
+    Storage* storage,
+    FlipperFormat* flipper_string,
+    void* current_item,
+    const char* dir_path) {
+#ifdef FURI_DEBUG
+    FURI_LOG_W(TAG, "Save temp file splitted: %s", dir_path);
+#endif
+    const size_t buffer_size = 32;
+    uint8_t buffer[buffer_size];
+    Stream* src = flipper_format_get_raw_stream(flipper_string);
+    stream_rewind(src);
+
+    Stream* file = file_stream_alloc(storage);
+    bool result = file_stream_open(file, dir_path, FSAM_WRITE, FSOM_CREATE_ALWAYS);
+
+    if (result && flipper_format_stream_seek_to_key(src, "RAW Data", true)) {
+        bool is_negative_start = false;
+        bool is_negative_end = false;
+        bool found = false;
+
+        size_t offset_start = stream_tell(src);
+
+        while(!found) {
+            size_t was_read = stream_read(src, buffer, 1);
+break;
+        }
+        if (stream_seek(src, offset_start, StreamOffsetFromStart)) {
+            found = true;
+
+            do {
+                uint16_t bytes_were_read = stream_read(src, buffer, buffer_size);
+                if(bytes_were_read == 0) break;
+
+                bool error = false;
+                for(uint16_t i = 0; i < bytes_were_read; i++) {
+                    if(buffer[i] == flipper_format_eoln) {
+                        if(!stream_seek(src, i - bytes_were_read + 1, StreamOffsetFromCurrent)) {
+                            error = true;
+                            break;
+                        }
+                        string_push_back(str_result, buffer[i]);
+                        result = true;
+                        break;
+                    } else if(buffer[i] == flipper_format_eolr) {
+                        // Ignore
+                    } else {
+                        string_push_back(str_result, buffer[i]);
+                    }
+                }
+
+                if(result || error) {
+                    break;
+                }
+            } while(true);
+        }
+
+        result = found;
+    }
+
+    stream_free(file);
+//    if(stream_save_to_file(dst, storage, dir_path, FSOM_CREATE_ALWAYS) >
+//       0) {
+//        flipper_format_free(item->flipper_string);
+//        item->flipper_string = NULL;
+//#ifdef FURI_DEBUG
+//        FURI_LOG_I(TAG, "Save done!");
+//#endif
+//        // This item contains fake data to load from SD
+//        item->is_file = true;
+//    } else {
+//        FURI_LOG_E(TAG, "Stream copy failed!");
+//    }
+
+    return result;
+}

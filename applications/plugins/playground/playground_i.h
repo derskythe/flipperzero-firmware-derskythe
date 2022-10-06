@@ -73,6 +73,9 @@ struct PlayGroundState {
 
     // Scene
     SceneManager* scene_manager;
+
+    // Storage
+    Storage* storage;
 };
 
 void playground_show_loading_popup(void* context, bool show);
