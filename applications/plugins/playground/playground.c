@@ -1,11 +1,9 @@
 #include <furi.h>
 #include <furi_hal.h>
-#include <input/input.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/view_stack.h>
-#include <gui/scene_manager.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/widget.h>

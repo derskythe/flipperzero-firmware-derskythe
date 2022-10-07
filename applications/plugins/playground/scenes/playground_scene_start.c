@@ -1,6 +1,7 @@
 #include "../playground_i.h"
 #include "../playground_custom_event.h"
 #include "../views/playground_main_view.h"
+#include "../playground_files.h"
 
 #define TAG "PlayGroundSceneStart"
 
@@ -40,8 +41,15 @@ bool playground_scene_start_on_event(void* context, SceneManagerEvent event) {
             FuriString* value;
             value = furi_string_alloc_printf("%d", rand_range(100, 600));
             playground_main_view_add_item(instance->view_main, furi_string_get_cstr(value), 0);
-
             furi_string_free(value);
+
+            FlipperFormat* flipper_format = flipper_format_string_alloc();
+            Stream* stream = flipper_format_get_raw_stream(flipper_format);
+            stream_load_from_file(stream, instance->storage, EXT_PATH("subghz/temp/split.sub"));
+
+            write_file_split_playground(instance->storage, flipper_format, EXT_PATH("subghz/temp/split_proc.sub"));
+
+            flipper_format_free(flipper_format);
 
             consumed = true;
         } else if(event.event == PlayGroundCustomEventTypeLoadFile) {

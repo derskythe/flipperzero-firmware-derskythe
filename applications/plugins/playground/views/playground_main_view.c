@@ -11,7 +11,7 @@
 #define TAG "PlayGroundMainView"
 
 typedef struct {
-    string_t item_str;
+    FuriString* item_str;
     uint8_t type;
 } PlaygroundTextItem;
 

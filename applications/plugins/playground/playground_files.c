@@ -1,16 +1,221 @@
 #include "playground_files.h"
-#include "furi.h"
-#include "flipper_format_i.h"
+#include <furi.h>
+#include <inttypes.h>
+#include <toolbox/stream/stream.h>
 #include "flipper_format_stream_i.h"
-#include "file_stream.h"
-#include "subghz/types.h"
+
+#include <subghz/types.h>
+
+#define TAG "PlaygroundFiles"
 
 #define MAX_LINE 500
 #define RAND_MAX_VALUE 700
 #define RAND_MIN_VALUE 100
-#define RAW_KEY_NAME "RAW Data"
+#define RAW_KEY_NAME "RAW_Data"
 
 const size_t buffer_size = 32;
+
+static bool stream_read_valid_key_playground(Stream* stream, FuriString* key) {
+    furi_string_reset(key);
+    const size_t buffer_size = 32;
+    uint8_t buffer[buffer_size];
+
+    bool found = false;
+    bool error = false;
+    bool accumulate = true;
+    bool new_line = true;
+
+    while(true) {
+        size_t was_read = stream_read(stream, buffer, buffer_size);
+        if(was_read == 0) break;
+
+        for(size_t i = 0; i < was_read; i++) {
+            uint8_t data = buffer[i];
+            if(data == flipper_format_eoln) {
+                // EOL found, clean data, start accumulating data and set the new_line flag
+                furi_string_reset(key);
+                accumulate = true;
+                new_line = true;
+            } else if(data == flipper_format_eolr) {
+                // ignore
+            } else if(data == flipper_format_comment && new_line) {
+                // if there is a comment character and we are at the beginning of a new line
+                // do not accumulate comment data and reset the new_line flag
+                accumulate = false;
+                new_line = false;
+            } else if(data == flipper_format_delimiter) {
+                if(new_line) {
+                    // we are on a "new line" and found the delimiter
+                    // this can only be if we have previously found some kind of key, so
+                    // clear the data, set the flag that we no longer want to accumulate data
+                    // and reset the new_line flag
+                    furi_string_reset(key);
+                    accumulate = false;
+                    new_line = false;
+                } else {
+                    // parse the delimiter only if we are accumulating data
+                    if(accumulate) {
+                        // we found the delimiter, move the rw pointer to the delimiter location
+                        // and signal that we have found something
+                        if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
+                            error = true;
+                            break;
+                        }
+
+                        found = true;
+                        break;
+                    }
+                }
+            } else {
+                // just new symbol, reset the new_line flag
+                new_line = false;
+                if(accumulate) {
+                    // and accumulate data if we want
+                    furi_string_push_back(key, data);
+                }
+            }
+        }
+
+        if(found || error) break;
+    }
+
+    return found;
+}
+
+bool stream_seek_to_key_playground(Stream* stream, const char* key, bool strict_mode) {
+    bool found = false;
+    FuriString* read_key;
+
+    read_key = furi_string_alloc();
+
+    while(!stream_eof(stream)) {
+        if(stream_read_valid_key_playground(stream, read_key)) {
+            if(furi_string_cmp_str(read_key, key) == 0) {
+                if(!stream_seek(stream, 2, StreamOffsetFromCurrent)) break;
+
+                found = true;
+                break;
+            } else if(strict_mode) {
+                found = false;
+                break;
+            }
+        }
+    }
+    furi_string_free(read_key);
+
+    return found;
+}
+
+static inline bool is_space_playground(char c) {
+    return c == ' ' || c == '\t' || c == flipper_format_eolr;
+}
+
+static bool stream_read_value_playground(Stream* stream, FuriString* value, bool* last) {
+    enum { LeadingSpace, ReadValue, TrailingSpace } state = LeadingSpace;
+    const size_t buffer_size = 32;
+    uint8_t buffer[buffer_size];
+    bool result = false;
+    bool error = false;
+
+    furi_string_reset(value);
+
+    while(true) {
+        size_t was_read = stream_read(stream, buffer, buffer_size);
+
+        if(was_read == 0) {
+            if(state != LeadingSpace && stream_eof(stream)) {
+                result = true;
+                *last = true;
+            } else {
+                error = true;
+            }
+        }
+
+        for(uint16_t i = 0; i < was_read; i++) {
+            const uint8_t data = buffer[i];
+
+            if(state == LeadingSpace) {
+                if(is_space_playground(data)) {
+                    continue;
+                } else if(data == flipper_format_eoln) {
+                    stream_seek(stream, i - was_read, StreamOffsetFromCurrent);
+                    error = true;
+                    break;
+                } else {
+                    state = ReadValue;
+                    furi_string_push_back(value, data);
+                }
+            } else if(state == ReadValue) {
+                if(is_space_playground(data)) {
+                    state = TrailingSpace;
+                } else if(data == flipper_format_eoln) {
+                    if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
+                        error = true;
+                    } else {
+                        result = true;
+                        *last = true;
+                    }
+                    break;
+                } else {
+                    furi_string_push_back(value, data);
+                }
+            } else if(state == TrailingSpace) {
+                if(is_space_playground(data)) {
+                    continue;
+                } else if(!stream_seek(stream, i - was_read, StreamOffsetFromCurrent)) {
+                    error = true;
+                } else {
+                    *last = (data == flipper_format_eoln);
+                    result = true;
+                }
+                break;
+            }
+        }
+
+        if(error || result) break;
+    }
+
+    return result;
+}
+
+bool read_int32_playground(
+    Stream* stream,
+    int32_t* _data,
+    const uint16_t data_size) {
+
+    bool result = false;
+    result = true;
+    FuriString* value;
+    value = furi_string_alloc();
+
+    for(size_t i = 0; i < data_size; i++) {
+        bool last = false;
+        result = stream_read_value_playground(stream, value, &last);
+        if(result) {
+            int scan_values = 0;
+
+
+                int32_t* data = _data;
+                scan_values = sscanf(furi_string_get_cstr(value), "%" PRIi32, &data[i]);
+
+
+            if(scan_values != 1) {
+                result = false;
+                break;
+            }
+        } else {
+            break;
+        }
+
+        if(last && ((i + 1) != data_size)) {
+            result = false;
+            break;
+        }
+    }
+
+    furi_string_free(value);
+    return result;
+}
 
 uint32_t rand_range(uint32_t min, uint32_t max) {
     // size of range, inclusive
@@ -90,7 +295,7 @@ bool write_file_noise_playground(
         was_write = stream_write_format(file, "%s: ", RAW_KEY_NAME);
 
         if(was_write <= 0) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Can't write key!");
             return false;
         }
     }
@@ -112,7 +317,7 @@ bool write_file_noise_playground(
             rand_range(RAND_MIN_VALUE, RAND_MAX_VALUE) * second);
 
         if(was_write <= 0) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Can't write random values!");
             return false;
         }
 
@@ -122,85 +327,135 @@ bool write_file_noise_playground(
     // Step back to write \n instead of space
     size_t offset = stream_tell(file);
     if(stream_seek(file, offset - 1, StreamOffsetFromCurrent)) {
-        // TODO: Add error
+        FURI_LOG_E(TAG, "Step back failed!");
         return false;
     }
 
-    return stream_write_char(file, '\n') > 0;
+    return stream_write_char(file, flipper_format_eoln) > 0;
 }
 
-size_t write_file_data_playground(Stream* src, Stream* file, bool is_negative_start) {
-    size_t current_position = 0;
-    uint8_t buffer[buffer_size];
+bool write_file_data_playground(Stream* src, Stream* file, bool* is_negative_start, size_t* current_position) {
+    size_t offset_file = 0;
+//    uint8_t buffer[buffer_size];
     bool result = false;
-    bool current_negative = is_negative_start;
+    int32_t value = 0;
+
     do {
-        uint16_t bytes_were_read = stream_read(src, buffer, buffer_size);
-        if(bytes_were_read == 0) {
+        if (!read_int32_playground(src, &value, 1)) {
+            result = true;
             break;
         }
+        offset_file = stream_tell(file);
+        stream_write_format(file, "%d ", value);
+        *current_position = stream_tell(file) - offset_file;
 
-        bool error = false;
-        uint16_t last_positive_position = 0;
-        uint16_t last_negative_position = 0;
-        for(uint16_t i = 0; i < bytes_were_read; i++) {
-            if(buffer[i] == flipper_format_eoln) {
-                if(!stream_seek(src, i - bytes_were_read + 1, StreamOffsetFromCurrent)) {
-                    // TODO: Add error
-                    error = true;
-                    break;
-                }
-                result = true;
-                break;
-            } else if(buffer[i] == flipper_format_eolr) {
-                // Ignore
-            } else if (buffer[i] == '-') {
-                current_negative = true;
-                last_negative_position = i;
-            } else if (buffer[i] == ' ') {
-                current_negative = false;
-                last_positive_position = i;
-            }
-        }
-
-        if (error) {
-            break;
-        }
-
-        if (result) {
-            // Need to save current position for later purpose
-        } else if (current_position + bytes_were_read < MAX_LINE) {
-            // Simply add bytes to stream
-            stream_write(file, buffer, bytes_were_read);
-            current_position += bytes_were_read;
-        } else {
-            // We need to check line
-            size_t size = 0;
-            bool value_is_correct = false;
-            if (is_negative_start) {
-                // Last is positive number
-                size = last_positive_position - 1;
-                value_is_correct = last_positive_position < last_negative_position;
-            } else {
-                // Last is negative number
-                size = last_negative_position - 1;
-                value_is_correct = last_negative_position < last_positive_position;
+        if (*current_position>MAX_LINE) {
+            if(is_negative_start && value < 0) {
+                // Align values
+                continue;
             }
 
-            stream_write(file, buffer, size);
-            // But now we need to understand is it next number is correct
-            for(uint16_t i = 0; i < bytes_were_read; i++) {
-
+            if(stream_write_format(file, "\n%s: ", RAW_KEY_NAME) == 0) {
+                FURI_LOG_E(TAG, "Can't write new line!");
+                result = false;
+                break ;
             }
-        }
-        for(current_position; current_position < MAX_LINE; current_position++) {
-
+            current_position = 0;
         }
 
-        if(result || error) {
-            break;
-        }
+//        uint16_t bytes_were_read = stream_read(src, buffer, buffer_size);
+//        if(bytes_were_read == 0) {
+//            break;
+//        }
+
+//        bool error = false;
+//        int16_t first_positive_position = -1;
+//        int16_t prev_positive_position = -1;
+//        int16_t first_negative_position = -1;
+//        for(uint16_t i = 0; i < bytes_were_read; i++) {
+//            if(buffer[i] == flipper_format_eoln) {
+//                if(!stream_seek(src, i - bytes_were_read + 1, StreamOffsetFromCurrent)) {
+//                    // TODO: Add error
+//                    error = true;
+//                    break;
+//                }
+//                result = true;
+//                break;
+//            } else if(buffer[i] == flipper_format_eolr) {
+//                // Ignore
+//            } else if (first_negative_position == -1 || first_positive_position == -1 || (first_positive_position > 0 && i - first_positive_position == 1)) {
+//                if (buffer[i] == '-') {
+//                    current_negative = true;
+//                    first_negative_position = i;
+//
+//                    if(first_positive_position > 0 && i - first_positive_position == 1) {
+//                        // fix real positive position
+//                        first_positive_position = prev_positive_position;
+//                    }
+//                }
+//                else if(buffer[i] == ' ') {
+//                    current_negative = false;
+//                    prev_positive_position = first_positive_position;
+//                    first_positive_position = i;
+//                }
+//            }
+//        }
+//
+//        if (error) {
+//            break;
+//        }
+//
+//        if(!result && (first_negative_position == -1 || first_positive_position == -1)) {
+//            // TODO: Add error
+//            break;
+//        }
+//
+//        if (result) {
+//            // Need to save current position for later purpose
+//        } else if (current_position + bytes_were_read < MAX_LINE) {
+//            // Simply add bytes to stream
+//            stream_write(file, buffer, bytes_were_read);
+//            current_position += bytes_were_read;
+//        } else {
+//            // We need to check line
+//            size_t size = 0;
+//            bool value_is_correct = false;
+//            if (is_negative_start) {
+//                value_is_correct = first_positive_position < first_negative_position;
+//
+//                // Last is positive number
+//                size = value_is_correct ? first_negative_position : first_positive_position;
+//            } else {
+//                value_is_correct = first_negative_position < first_positive_position;
+//
+//                // Last is negative number
+//                size = value_is_correct ? first_positive_position : first_negative_position;
+//            }
+//
+//            // We are get correct values not in the middle of digit or something like that
+//            if (value_is_correct) {
+//                stream_write(file, buffer, size);
+//            } else {
+//
+//            }
+//            stream_write(file, buffer, size);
+//            // But now we need to understand is it next number is correct
+//            for(uint16_t i = 0; i < bytes_were_read; i++) {
+//
+//            }
+//        }
+//        for(current_position; current_position < MAX_LINE; current_position++) {
+//
+//        }
+//
+//        if(result || error) {
+//            break;
+//        }
     } while(true);
+
+    *is_negative_start = value < 0;
+
+    return result;
 }
 
 bool write_file_split_playground(
@@ -214,22 +469,23 @@ bool write_file_split_playground(
     Stream* src = flipper_format_get_raw_stream(flipper_string);
     stream_rewind(src);
 
-    Stream* file;
-    file = buffered_file_stream_alloc(storage);
+    FlipperFormat* flipper_format_file = flipper_format_buffered_file_alloc(storage);
     bool result;
-    result = buffered_file_stream_open(file, dir_path, FSAM_WRITE, FSOM_CREATE_ALWAYS);
+    result = flipper_format_file_open_always(flipper_format_file, dir_path);
 
     do {
         if(!result) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Can't open file for write!");
             break;
         }
-        if(!flipper_format_stream_seek_to_key(src, "RAW Data", true)) {
-            // TODO: Add error
+        Stream* file = flipper_format_get_raw_stream(flipper_format_file);
+
+        if(!stream_seek_to_key_playground(src, "RAW Data", true)) {
+            FURI_LOG_E(TAG, "Can't find key!");
             break;
         }
         bool is_negative_start = false;
-        bool is_negative_end = false;
+//        bool is_negative_end = false;
         bool found = false;
 
         size_t offset_start;
@@ -238,97 +494,71 @@ bool write_file_split_playground(
         // Check for negative value at the start and end to align file by correct values
         size_t was_read = stream_read(src, buffer, 1);
         if(was_read <= 0) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Can't obtain first mark!");
             break;
         }
 
         is_negative_start = buffer[0] == '-';
         // Goto end
-        stream_seek(src, 32, StreamOffsetFromEnd);
-        was_read = stream_read(src, buffer, buffer[buffer_size]);
-
-        if(was_read <= 0) {
-            // TODO: Add error
-            break;
-        }
-        // Seek for last value
-        for(size_t i = 0; i < was_read; i++) {
-            if(buffer[i] == flipper_format_eoln || buffer[i] == flipper_format_eolr) {
-                // End of line
-                break;
-            }
-            if(buffer[i] == ' ') {
-                is_negative_end = false;
-            } else if(buffer[i] == '-') {
-                is_negative_end = true
-            } else {
-                // Other values is digits
-            }
-        }
+//        stream_seek(src, 32, StreamOffsetFromEnd);
+//        was_read = stream_read(src, buffer, buffer[buffer_size]);
+//
+//        if(was_read <= 0) {
+//            FURI_LOG_E(TAG, "Can't obtain end mark!");
+//            break;
+//        }
+//        // Seek for last value
+//        for(size_t i = 0; i < was_read; i++) {
+//            if(buffer[i] == flipper_format_eoln || buffer[i] == flipper_format_eolr) {
+//                // End of line
+//                break;
+//            }
+//            if(buffer[i] == ' ') {
+//                is_negative_end = false;
+//            } else if(buffer[i] == '-') {
+//                is_negative_end = true
+//            } else {
+//                // Other values is digits
+//            }
+//        }
 
         // Ready to write stream to file
         size_t current_position;
         stream_rewind(src);
         current_position = stream_copy(src, file, offset_start - 1);
         if(current_position != offset_start + 1) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Invalid copy header data from one stream to another!");
             break;
         }
 
         if(!stream_seek(src, offset_start, StreamOffsetFromStart)) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Stream seek failed!");
             break;
         }
         found = true;
 
         current_position = 0;
         if(!write_file_noise_playground(file, is_negative_start, current_position, false)) {
-            // TODO: Add error
+            FURI_LOG_E(TAG, "Add start noise failed!");
             break;
         }
 
-        do {
-            uint16_t bytes_were_read = stream_read(src, buffer, buffer_size);
-            if(bytes_were_read == 0) break;
+        if(!write_file_data_playground(src, file, &is_negative_start, &current_position)) {
+            FURI_LOG_E(TAG, "Split by lines failed!");
+            break;
+        }
 
-            bool error = false;
-            for(uint16_t i = 0; i < bytes_were_read; i++) {
-                if(buffer[i] == flipper_format_eoln) {
-                    if(!stream_seek(src, i - bytes_were_read + 1, StreamOffsetFromCurrent)) {
-                        error = true;
-                        break;
-                    }
-                    string_push_back(str_result, buffer[i]);
-                    result = true;
-                    break;
-                } else if(buffer[i] == flipper_format_eolr) {
-                    // Ignore
-                } else {
-                    string_push_back(str_result, buffer[i]);
-                }
-            }
-
-            if(result || error) {
-                break;
-            }
-        } while(true);
+        if(!write_file_noise_playground(file, is_negative_start, current_position, false) &&
+           write_file_noise_playground(file, is_negative_start, current_position, true)) {
+            FURI_LOG_E(TAG, "Add end noise failed!");
+            break;
+        }
 
         result = found;
     } while(false);
-
-    stream_free(file);
-    //    if(stream_save_to_file(dst, storage, dir_path, FSOM_CREATE_ALWAYS) >
-    //       0) {
-    //        flipper_format_free(item->flipper_string);
-    //        item->flipper_string = NULL;
-    //#ifdef FURI_DEBUG
-    //        FURI_LOG_I(TAG, "Save done!");
-    //#endif
-    //        // This item contains fake data to load from SD
-    //        item->is_file = true;
-    //    } else {
-    //        FURI_LOG_E(TAG, "Stream copy failed!");
-    //    }
+    flipper_format_file_close(flipper_format_file);
+    flipper_format_free(flipper_format_file);
 
     return result;
 }
+

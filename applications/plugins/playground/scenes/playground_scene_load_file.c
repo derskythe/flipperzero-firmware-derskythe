@@ -25,8 +25,8 @@ void playground_scene_load_file_on_enter(void* context) {
     FURI_LOG_D(
         TAG,
         "save_path: %s, app_folder: %s",
-        string_get_cstr(save_path),
-        string_get_cstr(app_folder));
+        furi_string_get_cstr(save_path),
+        furi_string_get_cstr(app_folder));
 #endif
     if(res) {
         load_result = 0;

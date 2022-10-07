@@ -22,7 +22,7 @@ void playground_scene_save_name_on_enter(void* context) {
         playground_text_input_callback,
         instance,
         instance->text_store,
-        PLAYGROUND_MAX_LEN_NAME,
+        sizeof(instance->text_store),
         true);
 
     furi_string_set_str(instance->save_path, PLAYGROUND_PATH);
@@ -48,7 +48,7 @@ bool playground_scene_save_name_on_event(void* context, SceneManagerEvent event)
         FURI_LOG_D(TAG, "Saving: %s", instance->text_store);
 #endif
         bool success = false;
-        if(furi_string_cmp_str(instance->text_store, "")) {
+        if(strcmp(instance->text_store, "")) {
             furi_string_cat_printf(
                 instance->save_path, "/%s%s", instance->text_store, PLAYGROUND_FILE_EXT);
 
