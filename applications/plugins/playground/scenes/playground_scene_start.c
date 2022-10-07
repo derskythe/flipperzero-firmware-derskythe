@@ -37,11 +37,11 @@ bool playground_scene_start_on_event(void* context, SceneManagerEvent event) {
 
             // playground_main_view_set_index(instance->view_main, index);
             // scene_manager_next_scene(instance->scene_manager, PlayGroundSceneStart);
-            string_t value;
-            string_init_printf(value, "%d", rand_range(100, 600));
-            playground_main_view_add_item(instance->view_main, string_get_cstr(value), 0);
+            FuriString* value;
+            value = furi_string_alloc_printf("%d", rand_range(100, 600));
+            playground_main_view_add_item(instance->view_main, furi_string_get_cstr(value), 0);
 
-            string_clear(value);
+            furi_string_free(value);
 
             consumed = true;
         } else if(event.event == PlayGroundCustomEventTypeLoadFile) {

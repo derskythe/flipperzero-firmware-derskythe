@@ -71,7 +71,7 @@ void playground_main_view_draw(Canvas* canvas, PlayGroundMainViewModel* model) {
                 9 + (item_position * line_height) + STATUS_BAR_Y_SHIFT,
                 AlignLeft,
                 AlignCenter,
-                string_get_cstr(current->item_str));
+                furi_string_get_cstr(current->item_str));
         }
     }
 }
@@ -95,7 +95,7 @@ bool playground_main_view_input(InputEvent* event, void* context) {
         instance->view, (PlayGroundMainViewModel * model) {
             index = model->index;
             return false;
-        });
+        })
 
     furi_assert(index != 100);
     if((event->type == InputTypeShort) || (event->type == InputTypeRepeat)) {
@@ -103,7 +103,7 @@ bool playground_main_view_input(InputEvent* event, void* context) {
             instance->view, (PlayGroundMainViewModel * model) {
                 model->index = index;
                 return true;
-            });
+            })
 
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
             if(index == 255) {
@@ -143,7 +143,7 @@ PlayGroundMainView* playground_main_view_alloc() {
             model->items = malloc(sizeof(PlaygroundText));
             PlaygroundTextItemArray_init(model->items->data);
             return true;
-        });
+        })
 
     return instance;
 }
@@ -155,13 +155,13 @@ void playground_main_view_free(PlayGroundMainView* instance) {
         instance->view, (PlayGroundMainViewModel * model) {
                 for
                     M_EACH(item_menu, model->items->data, PlaygroundTextItemArray_t) {
-                        string_clear(item_menu->item_str);
+                        furi_string_free(item_menu->item_str);
                         item_menu->type = 0;
                     }
                 PlaygroundTextItemArray_clear(model->items->data);
                 free(model->items);
                 return false;
-        });
+        })
 
     view_free(instance->view);
     free(instance);
@@ -174,11 +174,12 @@ View* playground_main_view_get_view(PlayGroundMainView* instance) {
 
 void playground_main_view_set_index(PlayGroundMainView* instance, uint8_t idx) {
     furi_assert(instance);
+    furi_assert(idx);
     with_view_model(
         instance->view, (PlayGroundMainViewModel * model) {
             model->index = idx;
             return true;
-        });
+        })
 }
 
 void playground_main_view_add_item(PlayGroundMainView* instance, const char* name, uint8_t type) {
@@ -186,12 +187,12 @@ void playground_main_view_add_item(PlayGroundMainView* instance, const char* nam
     with_view_model(
         instance->view, (PlayGroundMainViewModel * model) {
             PlaygroundTextItem* item_menu = PlaygroundTextItemArray_push_raw(model->items->data);
-            string_init_printf(item_menu->item_str, "%s", name);
+            item_menu->item_str = furi_string_alloc_printf("%s", name);
             item_menu->type = type;
             model->index++;
 
             return true;
-        });
+        })
 }
 
 uint8_t playground_main_view_get_index(PlayGroundMainView* instance) {
@@ -202,7 +203,7 @@ uint8_t playground_main_view_get_index(PlayGroundMainView* instance) {
         instance->view, (PlayGroundMainViewModel * model) {
             idx = model->index;
             return false;
-        });
+        })
 
     return idx;
 }

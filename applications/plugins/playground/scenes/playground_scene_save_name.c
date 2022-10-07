@@ -1,4 +1,4 @@
-#include <m-string.h>
+#include <string.h>
 #include <subghz/types.h>
 #include <lib/toolbox/random_name.h>
 #include <gui/modules/validators.h>
@@ -25,10 +25,10 @@ void playground_scene_save_name_on_enter(void* context) {
         PLAYGROUND_MAX_LEN_NAME,
         true);
 
-    string_set_str(instance->save_path, PLAYGROUND_PATH);
+    furi_string_set_str(instance->save_path, PLAYGROUND_PATH);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        string_get_cstr(instance->save_path), PLAYGROUND_FILE_EXT, "");
+        furi_string_get_cstr(instance->save_path), PLAYGROUND_FILE_EXT, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(instance->view_dispatcher, PlayGroundViewTextInput);
@@ -48,11 +48,11 @@ bool playground_scene_save_name_on_event(void* context, SceneManagerEvent event)
         FURI_LOG_D(TAG, "Saving: %s", instance->text_store);
 #endif
         bool success = false;
-        if(strcmp(instance->text_store, "")) {
-            string_cat_printf(
+        if(furi_string_cmp_str(instance->text_store, "")) {
+            furi_string_cat_printf(
                 instance->save_path, "/%s%s", instance->text_store, PLAYGROUND_FILE_EXT);
 
-            //if(playground_device_save_file(instance, string_get_cstr(instance->save_path))) {
+            //if(playground_device_save_file(instance, furi_string_cmp(instance->save_path))) {
                 scene_manager_next_scene(instance->scene_manager, PlayGroundSceneSaveSuccess);
                 success = true;
                 consumed = true;
@@ -78,5 +78,5 @@ void playground_scene_save_name_on_exit(void* context) {
 
     text_input_reset(instance->text_input);
 
-    string_reset(instance->save_path);
+    furi_string_reset(instance->save_path);
 }

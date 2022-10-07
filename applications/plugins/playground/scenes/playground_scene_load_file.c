@@ -9,10 +9,11 @@ void playground_scene_load_file_on_enter(void* context) {
     PlayGroundState* instance = (PlayGroundState*)context;
 
     // Input events and views are managed by file_browser
-    string_t app_folder;
-    string_t save_path;
-    string_init(save_path);
-    string_init_set_str(app_folder, PLAYGROUND_PATH);
+    FuriString* save_path;
+    FuriString* app_folder;
+
+    save_path = furi_string_alloc();
+    app_folder = furi_string_alloc_set_str(PLAYGROUND_PATH);
 
     DialogsFileBrowserOptions browser_options;
     dialog_file_browser_set_basic_options(&browser_options, PLAYGROUND_FILE_EXT, &I_sub1_10px);
@@ -35,21 +36,21 @@ void playground_scene_load_file_on_enter(void* context) {
         } else {
             FURI_LOG_E(TAG, "Returned error: %d", load_result);
 
-            string_t dialog_msg;
-            string_init_set(dialog_msg, "Cannot parse file");
-            dialog_message_show_storage_error(instance->dialogs, string_get_cstr(dialog_msg));
+            FuriString* dialog_msg;
+            dialog_msg = furi_string_alloc_set_str("Cannot parse file");
+            dialog_message_show_storage_error(instance->dialogs, furi_string_get_cstr(dialog_msg));
             scene_manager_search_and_switch_to_previous_scene(
                 instance->scene_manager, PlayGroundSceneStart);
 
-            string_clear(dialog_msg);
+            furi_string_free(dialog_msg);
         }
     } else {
         scene_manager_search_and_switch_to_previous_scene(
             instance->scene_manager, PlayGroundSceneStart);
     }
 
-    string_clear(app_folder);
-    string_clear(save_path);
+    furi_string_free(app_folder);
+    furi_string_free(save_path);
 }
 
 void playground_scene_load_file_on_exit(void* context) {

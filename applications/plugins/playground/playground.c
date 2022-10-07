@@ -1,7 +1,6 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
-#include <m-string.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -41,7 +40,7 @@ static void playground_tick_event_callback(void* context) {
 PlayGroundState* playground_alloc() {
     PlayGroundState* instance = malloc(sizeof(PlayGroundState));
 
-    string_init(instance->save_path);
+    instance->save_path = furi_string_alloc();
     instance->scene_manager = scene_manager_alloc(&playground_scene_handlers, instance);
     instance->view_dispatcher = view_dispatcher_alloc();
 
@@ -147,7 +146,7 @@ void playground_free(PlayGroundState* instance) {
     furi_record_close(RECORD_STORAGE);
     instance->storage = NULL;
 
-    string_clear(instance->save_path);
+    furi_string_free(instance->save_path);
 
     // The rest
     free(instance);

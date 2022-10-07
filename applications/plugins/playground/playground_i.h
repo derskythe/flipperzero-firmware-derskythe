@@ -7,7 +7,7 @@
 #include "lib/toolbox/path.h"
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
-#include <m-string.h>
+#include <string.h>
 
 #include <lib/toolbox/stream/stream.h>
 #include <stream_buffer.h>
@@ -65,7 +65,7 @@ struct PlayGroundState {
 
     // Other
     char text_store[PLAYGROUND_MAX_LEN_NAME];
-    string_t save_path;
+    FuriString* save_path;
 
     // Views
     PlayGroundMainView* view_main;
