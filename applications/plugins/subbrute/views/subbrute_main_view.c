@@ -225,14 +225,6 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                 ret);
         }
 
-#ifdef FURI_DEBUG
-        with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
-        FURI_LOG_I(TAG, "Index: %d", index);
-#endif
 
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
             if(index == SubBruteAttackLoadFile) {
@@ -262,15 +254,6 @@ bool subbrute_main_view_input(InputEvent* event, void* context) {
                 },
                 true);
         }
-
-#ifdef FURI_DEBUG
-        with_view_model(
-            instance->view, (SubBruteMainViewModel * model) {
-                index = model->index;
-                return false;
-            });
-        FURI_LOG_I(TAG, "Index: %d", index);
-#endif
 
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
             instance->callback(SubBruteCustomEventTypeIndexSelected, instance->context);
