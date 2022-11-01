@@ -11,9 +11,16 @@ static bool favorite_fap_selector_item_callback(
     uint8_t** icon_ptr,
     FuriString* item_name) {
     UNUSED(context);
+#ifdef APP_FAP_LOADER
     Storage* storage = furi_record_open(RECORD_STORAGE);
     bool success = fap_loader_load_name_and_icon(file_path, storage, icon_ptr, item_name);
     furi_record_close(RECORD_STORAGE);
+#else
+    UNUSED(file_path);
+    UNUSED(icon_ptr);
+    UNUSED(item_name);
+    bool success = false;
+#endif
     return success;
 }
 
@@ -113,6 +120,7 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
                 }
             }
 
+            submenu_reset(app->submenu);
             if(dialog_file_browser_show(app->dialogs, temp_path, temp_path, &browser_options)) {
                 if(primary_favorite) {
                     app->settings.favorite_primary.is_external = true;

@@ -1,3 +1,4 @@
+# to use manual settings and prevent them from being deleted on upgrade, rename *_user.example files to *_user
 Filetype: Flipper SubGhz Setting File
 Version: 1
 
@@ -26,6 +27,7 @@ Frequency: 314000000
 Frequency: 314350000
 Frequency: 315000000
 Frequency: 318000000
+Frequency: 330000000
 Frequency: 345000000
 Frequency: 348000000
 Frequency: 387000000
@@ -38,7 +40,9 @@ Frequency: 433657070
 Frequency: 433889000
 Frequency: 433920000
 Frequency: 434176948
+Frequency: 434190000
 Frequency: 434420000
+Frequency: 434620000
 Frequency: 434775000
 Frequency: 438900000
 Frequency: 464000000
@@ -55,7 +59,6 @@ Frequency: 928000000
 # Frequencies used for hopping mode (keep this list small or flipper will miss signal) - they added after default ones if enabled in Add_standard_frequencies
 Hopper_frequency: 310000000
 Hopper_frequency: 315000000
-Hopper_frequency: 313000000
 Hopper_frequency: 318000000
 Hopper_frequency: 390000000
 Hopper_frequency: 433920000

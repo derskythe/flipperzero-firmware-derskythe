@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <gui/gui.h>
+#include <assets_icons.h>
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
 #include <gui/modules/loading.h>
@@ -101,7 +102,7 @@ static bool fap_loader_run_selected_app(FapLoader* loader) {
         }
 
         FURI_LOG_I(TAG, "Loaded in %ums", (size_t)(furi_get_tick() - start));
-        FURI_LOG_I(TAG, "FAP Loader is staring app");
+        FURI_LOG_I(TAG, "FAP Loader is starting app");
 
         FuriThread* thread = flipper_application_spawn(loader->app, NULL);
         furi_thread_start(thread);

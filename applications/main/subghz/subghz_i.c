@@ -102,8 +102,8 @@ static bool subghz_tx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
     furi_hal_subghz_idle();
     furi_hal_subghz_set_frequency_and_path(frequency);
+    furi_hal_gpio_write(&gpio_cc1101_g0, false);
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_cc1101_g0, true);
     bool ret = furi_hal_subghz_tx();
     subghz->txrx->txrx_state = SubGhzTxRxStateTx;
     return ret;
@@ -431,7 +431,7 @@ bool subghz_save_protocol_to_file(
     do {
         //removing additional fields
         flipper_format_delete_key(flipper_format, "Repeat");
-        flipper_format_delete_key(flipper_format, "Manufacture");
+        //flipper_format_delete_key(flipper_format, "Manufacture");
 
         // Create subghz folder directory if necessary
         if(!storage_simply_mkdir(storage, furi_string_get_cstr(file_dir))) {

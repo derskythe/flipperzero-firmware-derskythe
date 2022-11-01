@@ -1,5 +1,5 @@
 entry,status,name,type,params
-Version,+,3.2,,
+Version,+,8.2,,
 Header,+,applications/services/bt/bt_service/bt.h,,
 Header,+,applications/services/cli/cli.h,,
 Header,+,applications/services/cli/cli_vcp.h,,
@@ -114,6 +114,9 @@ Header,+,lib/drivers/nrf24.h,,
 Header,+,lib/flipper_application/flipper_application.h,,
 Header,+,lib/flipper_format/flipper_format.h,,
 Header,+,lib/flipper_format/flipper_format_i.h,,
+Header,+,lib/infrared/encoder_decoder/infrared.h,,
+Header,+,lib/infrared/worker/infrared_transmit.h,,
+Header,+,lib/infrared/worker/infrared_worker.h,,
 Header,+,lib/lfrfid/lfrfid_dict_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_file.h,,
 Header,+,lib/lfrfid/lfrfid_raw_worker.h,,
@@ -128,10 +131,17 @@ Header,+,lib/one_wire/one_wire_host.h,,
 Header,+,lib/one_wire/one_wire_host_timing.h,,
 Header,+,lib/one_wire/one_wire_slave.h,,
 Header,+,lib/print/wrappers.h,,
+Header,+,lib/subghz/blocks/const.h,,
+Header,+,lib/subghz/blocks/decoder.h,,
+Header,+,lib/subghz/blocks/encoder.h,,
+Header,+,lib/subghz/blocks/generic.h,,
+Header,+,lib/subghz/blocks/math.h,,
 Header,+,lib/subghz/environment.h,,
+Header,+,lib/subghz/protocols/protocol_items.h,,
 Header,+,lib/subghz/protocols/raw.h,,
-Header,+,lib/subghz/protocols/registry.h,,
 Header,+,lib/subghz/receiver.h,,
+Header,+,lib/subghz/registry.h,,
+Header,+,lib/subghz/subghz_setting.h,,
 Header,+,lib/subghz/subghz_tx_rx_worker.h,,
 Header,+,lib/subghz/subghz_worker.h,,
 Header,+,lib/subghz/transmitter.h,,
@@ -260,6 +270,8 @@ Function,-,__eprintf,void,"const char*, const char*, unsigned int, const char*"
 Function,+,__errno,int*,
 Function,-,__fpclassifyd,int,double
 Function,-,__fpclassifyf,int,float
+Function,+,__furi_crash,void,
+Function,+,__furi_halt,void,
 Function,-,__getdelim,ssize_t,"char**, size_t*, int, FILE*"
 Function,-,__getline,ssize_t,"char**, size_t*, FILE*"
 Function,-,__isinfd,int,double
@@ -905,7 +917,6 @@ Function,-,ftello,off_t,FILE*
 Function,-,ftrylockfile,int,FILE*
 Function,-,funlockfile,void,FILE*
 Function,-,funopen,FILE*,"const void*, int (*)(void*, char*, int), int (*)(void*, const char*, int), fpos_t (*)(void*, fpos_t, int), int (*)(void*)"
-Function,+,furi_crash,void,const char*
 Function,+,furi_delay_ms,void,uint32_t
 Function,+,furi_delay_tick,void,uint32_t
 Function,+,furi_delay_until_tick,FuriStatus,uint32_t
@@ -949,6 +960,7 @@ Function,+,furi_hal_bt_nvm_sram_sem_release,void,
 Function,+,furi_hal_bt_reinit,void,
 Function,+,furi_hal_bt_serial_notify_buffer_is_empty,void,
 Function,+,furi_hal_bt_serial_set_event_callback,void,"uint16_t, FuriHalBtSerialCallback, void*"
+Function,+,furi_hal_bt_serial_set_rpc_status,void,FuriHalBtSerialRpcStatus
 Function,+,furi_hal_bt_serial_start,void,
 Function,+,furi_hal_bt_serial_stop,void,
 Function,+,furi_hal_bt_serial_tx,_Bool,"uint8_t*, uint16_t"
@@ -989,7 +1001,7 @@ Function,-,furi_hal_compress_icon_decode,void,"const uint8_t*, uint8_t**"
 Function,-,furi_hal_compress_icon_init,void,
 Function,+,furi_hal_console_disable,void,
 Function,+,furi_hal_console_enable,void,
-Function,-,furi_hal_console_init,void,
+Function,+,furi_hal_console_init,void,
 Function,+,furi_hal_console_printf,void,"const char[], ..."
 Function,+,furi_hal_console_puts,void,const char*
 Function,+,furi_hal_console_set_tx_callback,void,"FuriHalConsoleTxCallback, void*"
@@ -998,6 +1010,9 @@ Function,+,furi_hal_console_tx_with_new_line,void,"const uint8_t*, size_t"
 Function,+,furi_hal_cortex_delay_us,void,uint32_t
 Function,-,furi_hal_cortex_init_early,void,
 Function,+,furi_hal_cortex_instructions_per_microsecond,uint32_t,
+Function,+,furi_hal_cortex_timer_get,FuriHalCortexTimer,uint32_t
+Function,+,furi_hal_cortex_timer_is_expired,_Bool,FuriHalCortexTimer
+Function,+,furi_hal_cortex_timer_wait,void,FuriHalCortexTimer
 Function,+,furi_hal_crypto_decrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
 Function,+,furi_hal_crypto_encrypt,_Bool,"const uint8_t*, uint8_t*, size_t"
 Function,-,furi_hal_crypto_init,void,
@@ -1314,7 +1329,6 @@ Function,+,furi_hal_version_uid,const uint8_t*,
 Function,+,furi_hal_version_uid_size,size_t,
 Function,-,furi_hal_vibro_init,void,
 Function,+,furi_hal_vibro_on,void,_Bool
-Function,+,furi_halt,void,const char*
 Function,-,furi_init,void,
 Function,+,furi_kernel_get_tick_frequency,uint32_t,
 Function,+,furi_kernel_lock,int32_t,
@@ -1541,6 +1555,42 @@ Function,-,ilogbl,int,long double
 Function,-,index,char*,"const char*, int"
 Function,-,infinity,double,
 Function,-,infinityf,float,
+Function,+,infrared_alloc_decoder,InfraredDecoderHandler*,
+Function,+,infrared_alloc_encoder,InfraredEncoderHandler*,
+Function,+,infrared_check_decoder_ready,const InfraredMessage*,InfraredDecoderHandler*
+Function,+,infrared_decode,const InfraredMessage*,"InfraredDecoderHandler*, _Bool, uint32_t"
+Function,+,infrared_encode,InfraredStatus,"InfraredEncoderHandler*, uint32_t*, _Bool*"
+Function,+,infrared_free_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_free_encoder,void,InfraredEncoderHandler*
+Function,+,infrared_get_protocol_address_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_by_name,InfraredProtocol,const char*
+Function,+,infrared_get_protocol_command_length,uint8_t,InfraredProtocol
+Function,+,infrared_get_protocol_duty_cycle,float,InfraredProtocol
+Function,+,infrared_get_protocol_frequency,uint32_t,InfraredProtocol
+Function,+,infrared_get_protocol_name,const char*,InfraredProtocol
+Function,+,infrared_is_protocol_valid,_Bool,InfraredProtocol
+Function,+,infrared_reset_decoder,void,InfraredDecoderHandler*
+Function,+,infrared_reset_encoder,void,"InfraredEncoderHandler*, const InfraredMessage*"
+Function,+,infrared_send,void,"const InfraredMessage*, int"
+Function,+,infrared_send_raw,void,"const uint32_t[], uint32_t, _Bool"
+Function,+,infrared_send_raw_ext,void,"const uint32_t[], uint32_t, _Bool, uint32_t, float"
+Function,+,infrared_worker_alloc,InfraredWorker*,
+Function,+,infrared_worker_free,void,InfraredWorker*
+Function,+,infrared_worker_get_decoded_signal,const InfraredMessage*,const InfraredWorkerSignal*
+Function,+,infrared_worker_get_raw_signal,void,"const InfraredWorkerSignal*, const uint32_t**, size_t*"
+Function,+,infrared_worker_rx_enable_blink_on_receiving,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_enable_signal_decoding,void,"InfraredWorker*, _Bool"
+Function,+,infrared_worker_rx_set_received_signal_callback,void,"InfraredWorker*, InfraredWorkerReceivedSignalCallback, void*"
+Function,+,infrared_worker_rx_start,void,InfraredWorker*
+Function,+,infrared_worker_rx_stop,void,InfraredWorker*
+Function,+,infrared_worker_set_decoded_signal,void,"InfraredWorker*, const InfraredMessage*"
+Function,+,infrared_worker_set_raw_signal,void,"InfraredWorker*, const uint32_t*, size_t"
+Function,+,infrared_worker_signal_is_decoded,_Bool,const InfraredWorkerSignal*
+Function,+,infrared_worker_tx_get_signal_steady_callback,InfraredWorkerGetSignalResponse,"void*, InfraredWorker*"
+Function,+,infrared_worker_tx_set_get_signal_callback,void,"InfraredWorker*, InfraredWorkerGetSignalCallback, void*"
+Function,+,infrared_worker_tx_set_signal_sent_callback,void,"InfraredWorker*, InfraredWorkerMessageSentCallback, void*"
+Function,+,infrared_worker_tx_start,void,InfraredWorker*
+Function,+,infrared_worker_tx_stop,void,InfraredWorker*
 Function,+,init_mutex,_Bool,"ValueMutex*, void*, size_t"
 Function,-,initstate,char*,"unsigned, char*, size_t"
 Function,+,input_get_key_name,const char*,InputKey
@@ -2120,6 +2170,7 @@ Function,-,select,int,"int, fd_set*, fd_set*, fd_set*, timeval*"
 Function,-,serial_svc_is_started,_Bool,
 Function,-,serial_svc_notify_buffer_is_empty,void,
 Function,-,serial_svc_set_callbacks,void,"uint16_t, SerialServiceEventCallback, void*"
+Function,+,serial_svc_set_rpc_status,void,SerialServiceRpcStatus
 Function,-,serial_svc_start,void,
 Function,-,serial_svc_stop,void,
 Function,-,serial_svc_update_tx,_Bool,"uint8_t*, uint16_t"
@@ -2289,14 +2340,20 @@ Function,-,strupr,char*,char*
 Function,-,strverscmp,int,"const char*, const char*"
 Function,-,strxfrm,size_t,"char*, const char*, size_t"
 Function,-,strxfrm_l,size_t,"char*, const char*, size_t, locale_t"
+Function,+,subghz_block_generic_deserialize,_Bool,"SubGhzBlockGeneric*, FlipperFormat*"
+Function,+,subghz_block_generic_get_preset_name,void,"const char*, FuriString*"
+Function,+,subghz_block_generic_serialize,_Bool,"SubGhzBlockGeneric*, FlipperFormat*, SubGhzRadioPreset*"
 Function,+,subghz_environment_alloc,SubGhzEnvironment*,
 Function,+,subghz_environment_free,void,SubGhzEnvironment*
-Function,-,subghz_environment_get_came_atomo_rainbow_table_file_name,const char*,SubGhzEnvironment*
-Function,-,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
-Function,-,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_came_atomo_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_keystore,SubGhzKeystore*,SubGhzEnvironment*
+Function,+,subghz_environment_get_nice_flor_s_rainbow_table_file_name,const char*,SubGhzEnvironment*
+Function,+,subghz_environment_get_protocol_name_registry,const char*,"SubGhzEnvironment*, size_t"
+Function,+,subghz_environment_get_protocol_registry,void*,SubGhzEnvironment*
 Function,+,subghz_environment_load_keystore,_Bool,"SubGhzEnvironment*, const char*"
-Function,-,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
-Function,-,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_came_atomo_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_nice_flor_s_rainbow_table_file_name,void,"SubGhzEnvironment*, const char*"
+Function,+,subghz_environment_set_protocol_registry,void,"SubGhzEnvironment*, void*"
 Function,-,subghz_keystore_alloc,SubGhzKeystore*,
 Function,-,subghz_keystore_free,void,SubGhzKeystore*
 Function,-,subghz_keystore_get_data,SubGhzKeyArray_t*,SubGhzKeystore*
@@ -2304,10 +2361,31 @@ Function,-,subghz_keystore_load,_Bool,"SubGhzKeystore*, const char*"
 Function,-,subghz_keystore_raw_encrypted_save,_Bool,"const char*, const char*, uint8_t*"
 Function,-,subghz_keystore_raw_get_data,_Bool,"const char*, size_t, uint8_t*, size_t"
 Function,-,subghz_keystore_save,_Bool,"SubGhzKeystore*, const char*, uint8_t*"
+Function,+,subghz_protocol_blocks_add_bit,void,"SubGhzBlockDecoder*, uint8_t"
+Function,+,subghz_protocol_blocks_add_bytes,uint8_t,"const uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_add_to_128_bit,void,"SubGhzBlockDecoder*, uint8_t, uint64_t*"
+Function,+,subghz_protocol_blocks_crc16,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_crc16lsb,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_crc4,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc7,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc8,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_crc8le,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_get_bit_array,_Bool,"uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_get_hash_data,uint8_t,"SubGhzBlockDecoder*, size_t"
+Function,+,subghz_protocol_blocks_get_parity,uint8_t,"uint64_t, uint8_t"
+Function,+,subghz_protocol_blocks_get_upload,size_t,"uint8_t[], size_t, LevelDuration*, size_t, uint32_t"
+Function,+,subghz_protocol_blocks_lfsr_digest16,uint16_t,"const uint8_t[], size_t, uint16_t, uint16_t"
+Function,+,subghz_protocol_blocks_lfsr_digest8,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_lfsr_digest8_reflect,uint8_t,"const uint8_t[], size_t, uint8_t, uint8_t"
+Function,+,subghz_protocol_blocks_parity8,uint8_t,uint8_t
+Function,+,subghz_protocol_blocks_parity_bytes,uint8_t,"const uint8_t[], size_t"
+Function,+,subghz_protocol_blocks_reverse_key,uint64_t,"uint64_t, uint8_t"
+Function,+,subghz_protocol_blocks_set_bit_array,void,"_Bool, uint8_t[], size_t, size_t"
+Function,+,subghz_protocol_blocks_xor_bytes,uint8_t,"const uint8_t[], size_t"
 Function,-,subghz_protocol_decoder_base_deserialize,_Bool,"SubGhzProtocolDecoderBase*, FlipperFormat*"
-Function,-,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDecoderBase*
-Function,-,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, FuriString*"
-Function,+,subghz_protocol_decoder_base_serialize,_Bool,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,+,subghz_protocol_decoder_base_get_hash_data,uint8_t,SubGhzProtocolDecoderBase*
+Function,+,subghz_protocol_decoder_base_get_string,_Bool,"SubGhzProtocolDecoderBase*, FuriString*"
+Function,+,subghz_protocol_decoder_base_serialize,_Bool,"SubGhzProtocolDecoderBase*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_base_set_decoder_callback,void,"SubGhzProtocolDecoderBase*, SubGhzProtocolDecoderBaseRxCallback, void*"
 Function,-,subghz_protocol_decoder_bett_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_bett_deserialize,_Bool,"void*, FlipperFormat*"
@@ -2316,7 +2394,7 @@ Function,-,subghz_protocol_decoder_bett_free,void,void*
 Function,-,subghz_protocol_decoder_bett_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_bett_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_bett_reset,void,void*
-Function,-,subghz_protocol_decoder_bett_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_bett_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_came_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_came_atomo_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_came_atomo_deserialize,_Bool,"void*, FlipperFormat*"
@@ -2325,14 +2403,14 @@ Function,-,subghz_protocol_decoder_came_atomo_free,void,void*
 Function,-,subghz_protocol_decoder_came_atomo_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_came_atomo_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_atomo_reset,void,void*
-Function,-,subghz_protocol_decoder_came_atomo_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_came_atomo_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_came_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_came_feed,void,"void*, _Bool, uint32_t"
 Function,-,subghz_protocol_decoder_came_free,void,void*
 Function,-,subghz_protocol_decoder_came_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_came_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_reset,void,void*
-Function,-,subghz_protocol_decoder_came_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_came_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_came_twee_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_came_twee_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_came_twee_feed,void,"void*, _Bool, uint32_t"
@@ -2340,7 +2418,7 @@ Function,-,subghz_protocol_decoder_came_twee_free,void,void*
 Function,-,subghz_protocol_decoder_came_twee_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_came_twee_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_came_twee_reset,void,void*
-Function,-,subghz_protocol_decoder_came_twee_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_came_twee_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_chamb_code_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_chamb_code_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_chamb_code_feed,void,"void*, _Bool, uint32_t"
@@ -2348,7 +2426,7 @@ Function,-,subghz_protocol_decoder_chamb_code_free,void,void*
 Function,-,subghz_protocol_decoder_chamb_code_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_chamb_code_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_chamb_code_reset,void,void*
-Function,-,subghz_protocol_decoder_chamb_code_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_chamb_code_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_clemsa_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_clemsa_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_clemsa_feed,void,"void*, _Bool, uint32_t"
@@ -2356,7 +2434,7 @@ Function,-,subghz_protocol_decoder_clemsa_free,void,void*
 Function,-,subghz_protocol_decoder_clemsa_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_clemsa_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_clemsa_reset,void,void*
-Function,-,subghz_protocol_decoder_clemsa_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_clemsa_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_doitrand_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_doitrand_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_doitrand_feed,void,"void*, _Bool, uint32_t"
@@ -2364,7 +2442,7 @@ Function,-,subghz_protocol_decoder_doitrand_free,void,void*
 Function,-,subghz_protocol_decoder_doitrand_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_doitrand_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_doitrand_reset,void,void*
-Function,-,subghz_protocol_decoder_doitrand_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_doitrand_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_faac_slh_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_faac_slh_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_faac_slh_feed,void,"void*, _Bool, uint32_t"
@@ -2372,7 +2450,7 @@ Function,-,subghz_protocol_decoder_faac_slh_free,void,void*
 Function,-,subghz_protocol_decoder_faac_slh_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_faac_slh_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_faac_slh_reset,void,void*
-Function,-,subghz_protocol_decoder_faac_slh_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_faac_slh_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_gate_tx_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_gate_tx_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_gate_tx_feed,void,"void*, _Bool, uint32_t"
@@ -2380,7 +2458,7 @@ Function,-,subghz_protocol_decoder_gate_tx_free,void,void*
 Function,-,subghz_protocol_decoder_gate_tx_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_gate_tx_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_gate_tx_reset,void,void*
-Function,-,subghz_protocol_decoder_gate_tx_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_gate_tx_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_holtek_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_holtek_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_holtek_feed,void,"void*, _Bool, uint32_t"
@@ -2388,7 +2466,7 @@ Function,-,subghz_protocol_decoder_holtek_free,void,void*
 Function,-,subghz_protocol_decoder_holtek_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_holtek_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_holtek_reset,void,void*
-Function,-,subghz_protocol_decoder_holtek_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_holtek_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_honeywell_wdb_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_feed,void,"void*, _Bool, uint32_t"
@@ -2396,7 +2474,7 @@ Function,-,subghz_protocol_decoder_honeywell_wdb_free,void,void*
 Function,-,subghz_protocol_decoder_honeywell_wdb_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_honeywell_wdb_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_honeywell_wdb_reset,void,void*
-Function,-,subghz_protocol_decoder_honeywell_wdb_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_honeywell_wdb_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_hormann_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_hormann_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_hormann_feed,void,"void*, _Bool, uint32_t"
@@ -2404,7 +2482,7 @@ Function,-,subghz_protocol_decoder_hormann_free,void,void*
 Function,-,subghz_protocol_decoder_hormann_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_hormann_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_hormann_reset,void,void*
-Function,-,subghz_protocol_decoder_hormann_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_hormann_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_ido_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_ido_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_ido_feed,void,"void*, _Bool, uint32_t"
@@ -2412,7 +2490,7 @@ Function,-,subghz_protocol_decoder_ido_free,void,void*
 Function,-,subghz_protocol_decoder_ido_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_ido_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_ido_reset,void,void*
-Function,-,subghz_protocol_decoder_ido_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_ido_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_intertechno_v3_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_intertechno_v3_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_intertechno_v3_feed,void,"void*, _Bool, uint32_t"
@@ -2420,7 +2498,7 @@ Function,-,subghz_protocol_decoder_intertechno_v3_free,void,void*
 Function,-,subghz_protocol_decoder_intertechno_v3_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_intertechno_v3_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_intertechno_v3_reset,void,void*
-Function,-,subghz_protocol_decoder_intertechno_v3_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_intertechno_v3_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_keeloq_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_keeloq_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_keeloq_feed,void,"void*, _Bool, uint32_t"
@@ -2428,7 +2506,7 @@ Function,-,subghz_protocol_decoder_keeloq_free,void,void*
 Function,-,subghz_protocol_decoder_keeloq_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_keeloq_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_keeloq_reset,void,void*
-Function,-,subghz_protocol_decoder_keeloq_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_keeloq_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_kia_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_kia_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_kia_feed,void,"void*, _Bool, uint32_t"
@@ -2436,7 +2514,7 @@ Function,-,subghz_protocol_decoder_kia_free,void,void*
 Function,-,subghz_protocol_decoder_kia_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_kia_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_kia_reset,void,void*
-Function,-,subghz_protocol_decoder_kia_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_kia_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_linear_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_linear_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_linear_feed,void,"void*, _Bool, uint32_t"
@@ -2444,15 +2522,15 @@ Function,-,subghz_protocol_decoder_linear_free,void,void*
 Function,-,subghz_protocol_decoder_linear_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_linear_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_linear_reset,void,void*
-Function,-,subghz_protocol_decoder_linear_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
-Function,-,subghz_protocol_decoder_magellen_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_decoder_magellen_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_decoder_magellen_feed,void,"void*, _Bool, uint32_t"
-Function,-,subghz_protocol_decoder_magellen_free,void,void*
-Function,-,subghz_protocol_decoder_magellen_get_hash_data,uint8_t,void*
-Function,-,subghz_protocol_decoder_magellen_get_string,void,"void*, FuriString*"
-Function,-,subghz_protocol_decoder_magellen_reset,void,void*
-Function,-,subghz_protocol_decoder_magellen_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_linear_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_decoder_magellan_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_decoder_magellan_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_decoder_magellan_feed,void,"void*, _Bool, uint32_t"
+Function,-,subghz_protocol_decoder_magellan_free,void,void*
+Function,-,subghz_protocol_decoder_magellan_get_hash_data,uint8_t,void*
+Function,-,subghz_protocol_decoder_magellan_get_string,void,"void*, FuriString*"
+Function,-,subghz_protocol_decoder_magellan_reset,void,void*
+Function,-,subghz_protocol_decoder_magellan_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_marantec_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_marantec_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_marantec_feed,void,"void*, _Bool, uint32_t"
@@ -2460,7 +2538,7 @@ Function,-,subghz_protocol_decoder_marantec_free,void,void*
 Function,-,subghz_protocol_decoder_marantec_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_marantec_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_marantec_reset,void,void*
-Function,-,subghz_protocol_decoder_marantec_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_marantec_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_megacode_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_megacode_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_megacode_feed,void,"void*, _Bool, uint32_t"
@@ -2468,7 +2546,7 @@ Function,-,subghz_protocol_decoder_megacode_free,void,void*
 Function,-,subghz_protocol_decoder_megacode_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_megacode_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_megacode_reset,void,void*
-Function,-,subghz_protocol_decoder_megacode_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_megacode_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_nero_radio_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_nero_radio_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_nero_radio_feed,void,"void*, _Bool, uint32_t"
@@ -2476,7 +2554,7 @@ Function,-,subghz_protocol_decoder_nero_radio_free,void,void*
 Function,-,subghz_protocol_decoder_nero_radio_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_nero_radio_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nero_radio_reset,void,void*
-Function,-,subghz_protocol_decoder_nero_radio_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_nero_radio_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_nero_sketch_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_nero_sketch_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_nero_sketch_feed,void,"void*, _Bool, uint32_t"
@@ -2484,7 +2562,7 @@ Function,-,subghz_protocol_decoder_nero_sketch_free,void,void*
 Function,-,subghz_protocol_decoder_nero_sketch_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_nero_sketch_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nero_sketch_reset,void,void*
-Function,-,subghz_protocol_decoder_nero_sketch_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_nero_sketch_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_nice_flo_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_nice_flo_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_nice_flo_feed,void,"void*, _Bool, uint32_t"
@@ -2492,7 +2570,7 @@ Function,-,subghz_protocol_decoder_nice_flo_free,void,void*
 Function,-,subghz_protocol_decoder_nice_flo_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_nice_flo_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nice_flo_reset,void,void*
-Function,-,subghz_protocol_decoder_nice_flo_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_nice_flo_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_nice_flor_s_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_nice_flor_s_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_nice_flor_s_feed,void,"void*, _Bool, uint32_t"
@@ -2500,7 +2578,7 @@ Function,-,subghz_protocol_decoder_nice_flor_s_free,void,void*
 Function,-,subghz_protocol_decoder_nice_flor_s_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_nice_flor_s_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_nice_flor_s_reset,void,void*
-Function,-,subghz_protocol_decoder_nice_flor_s_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_nice_flor_s_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_phoenix_v2_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_phoenix_v2_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_phoenix_v2_feed,void,"void*, _Bool, uint32_t"
@@ -2508,7 +2586,7 @@ Function,-,subghz_protocol_decoder_phoenix_v2_free,void,void*
 Function,-,subghz_protocol_decoder_phoenix_v2_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_phoenix_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_phoenix_v2_reset,void,void*
-Function,-,subghz_protocol_decoder_phoenix_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_phoenix_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_power_smart_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_power_smart_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_power_smart_feed,void,"void*, _Bool, uint32_t"
@@ -2516,7 +2594,7 @@ Function,-,subghz_protocol_decoder_power_smart_free,void,void*
 Function,-,subghz_protocol_decoder_power_smart_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_power_smart_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_power_smart_reset,void,void*
-Function,-,subghz_protocol_decoder_power_smart_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_power_smart_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_princeton_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_princeton_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_princeton_feed,void,"void*, _Bool, uint32_t"
@@ -2524,7 +2602,7 @@ Function,-,subghz_protocol_decoder_princeton_free,void,void*
 Function,-,subghz_protocol_decoder_princeton_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_princeton_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_princeton_reset,void,void*
-Function,-,subghz_protocol_decoder_princeton_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_princeton_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_raw_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_raw_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_raw_feed,void,"void*, _Bool, uint32_t"
@@ -2532,7 +2610,7 @@ Function,-,subghz_protocol_decoder_raw_free,void,void*
 Function,-,subghz_protocol_decoder_raw_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_raw_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_raw_reset,void,void*
-Function,-,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_raw_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_raw_set_auto_mode,void,"void*, _Bool"
 Function,-,subghz_protocol_decoder_raw_set_rssi_threshold,void,"void*, int"
 Function,-,subghz_protocol_decoder_raw_write_data,_Bool,"void*, _Bool, uint32_t"
@@ -2543,7 +2621,7 @@ Function,-,subghz_protocol_decoder_scher_khan_free,void,void*
 Function,-,subghz_protocol_decoder_scher_khan_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_scher_khan_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_scher_khan_reset,void,void*
-Function,-,subghz_protocol_decoder_scher_khan_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_scher_khan_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_secplus_v1_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_secplus_v1_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_secplus_v1_feed,void,"void*, _Bool, uint32_t"
@@ -2551,7 +2629,7 @@ Function,-,subghz_protocol_decoder_secplus_v1_free,void,void*
 Function,-,subghz_protocol_decoder_secplus_v1_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_secplus_v1_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v1_reset,void,void*
-Function,-,subghz_protocol_decoder_secplus_v1_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_secplus_v1_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_secplus_v2_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_secplus_v2_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_secplus_v2_feed,void,"void*, _Bool, uint32_t"
@@ -2559,7 +2637,7 @@ Function,-,subghz_protocol_decoder_secplus_v2_free,void,void*
 Function,-,subghz_protocol_decoder_secplus_v2_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_secplus_v2_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_secplus_v2_reset,void,void*
-Function,-,subghz_protocol_decoder_secplus_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_secplus_v2_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_somfy_keytis_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_somfy_keytis_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_somfy_keytis_feed,void,"void*, _Bool, uint32_t"
@@ -2567,7 +2645,7 @@ Function,-,subghz_protocol_decoder_somfy_keytis_free,void,void*
 Function,-,subghz_protocol_decoder_somfy_keytis_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_somfy_keytis_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_somfy_keytis_reset,void,void*
-Function,-,subghz_protocol_decoder_somfy_keytis_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_somfy_keytis_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_somfy_telis_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_somfy_telis_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_somfy_telis_feed,void,"void*, _Bool, uint32_t"
@@ -2575,7 +2653,7 @@ Function,-,subghz_protocol_decoder_somfy_telis_free,void,void*
 Function,-,subghz_protocol_decoder_somfy_telis_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_somfy_telis_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_somfy_telis_reset,void,void*
-Function,-,subghz_protocol_decoder_somfy_telis_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_somfy_telis_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_decoder_star_line_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_decoder_star_line_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_decoder_star_line_feed,void,"void*, _Bool, uint32_t"
@@ -2583,7 +2661,7 @@ Function,-,subghz_protocol_decoder_star_line_free,void,void*
 Function,-,subghz_protocol_decoder_star_line_get_hash_data,uint8_t,void*
 Function,-,subghz_protocol_decoder_star_line_get_string,void,"void*, FuriString*"
 Function,-,subghz_protocol_decoder_star_line_reset,void,void*
-Function,-,subghz_protocol_decoder_star_line_serialize,_Bool,"void*, FlipperFormat*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_decoder_star_line_serialize,_Bool,"void*, FlipperFormat*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_encoder_bett_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_bett_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_bett_free,void,void*
@@ -2660,11 +2738,11 @@ Function,-,subghz_protocol_encoder_linear_deserialize,_Bool,"void*, FlipperForma
 Function,-,subghz_protocol_encoder_linear_free,void,void*
 Function,-,subghz_protocol_encoder_linear_stop,void,void*
 Function,-,subghz_protocol_encoder_linear_yield,LevelDuration,void*
-Function,-,subghz_protocol_encoder_magellen_alloc,void*,SubGhzEnvironment*
-Function,-,subghz_protocol_encoder_magellen_deserialize,_Bool,"void*, FlipperFormat*"
-Function,-,subghz_protocol_encoder_magellen_free,void,void*
-Function,-,subghz_protocol_encoder_magellen_stop,void,void*
-Function,-,subghz_protocol_encoder_magellen_yield,LevelDuration,void*
+Function,-,subghz_protocol_encoder_magellan_alloc,void*,SubGhzEnvironment*
+Function,-,subghz_protocol_encoder_magellan_deserialize,_Bool,"void*, FlipperFormat*"
+Function,-,subghz_protocol_encoder_magellan_free,void,void*
+Function,-,subghz_protocol_encoder_magellan_stop,void,void*
+Function,-,subghz_protocol_encoder_magellan_yield,LevelDuration,void*
 Function,-,subghz_protocol_encoder_marantec_alloc,void*,SubGhzEnvironment*
 Function,-,subghz_protocol_encoder_marantec_deserialize,_Bool,"void*, FlipperFormat*"
 Function,-,subghz_protocol_encoder_marantec_free,void,void*
@@ -2730,21 +2808,22 @@ Function,-,subghz_protocol_encoder_star_line_deserialize,_Bool,"void*, FlipperFo
 Function,-,subghz_protocol_encoder_star_line_free,void,void*
 Function,-,subghz_protocol_encoder_star_line_stop,void,void*
 Function,-,subghz_protocol_encoder_star_line_yield,LevelDuration,void*
-Function,-,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, uint32_t, const char*, SubGhzPresetDefinition*"
-Function,-,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzPresetDefinition*"
-Function,-,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_faac_slh_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, uint32_t, const char*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_keeloq_bft_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, uint32_t, const char*, SubGhzRadioPreset*"
+Function,-,subghz_protocol_keeloq_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,-,subghz_protocol_nice_flor_s_encrypt,uint64_t,"uint64_t, const char*"
 Function,-,subghz_protocol_raw_file_encoder_worker_set_callback_end,void,"SubGhzProtocolEncoderRAW*, SubGhzProtocolEncoderRAWCallbackEnd, void*"
 Function,+,subghz_protocol_raw_gen_fff_data,void,"FlipperFormat*, const char*"
-Function,-,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
-Function,-,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzPresetDefinition*"
-Function,-,subghz_protocol_raw_save_to_file_stop,void,SubGhzProtocolDecoderRAW*
-Function,-,subghz_protocol_registry_count,size_t,
-Function,-,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,size_t
-Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,const char*
+Function,+,subghz_protocol_raw_get_sample_write,size_t,SubGhzProtocolDecoderRAW*
+Function,+,subghz_protocol_raw_save_to_file_init,_Bool,"SubGhzProtocolDecoderRAW*, const char*, SubGhzRadioPreset*"
+Function,+,subghz_protocol_raw_save_to_file_pause,void,"SubGhzProtocolDecoderRAW*, _Bool"
+Function,+,subghz_protocol_raw_save_to_file_stop,void,SubGhzProtocolDecoderRAW*
+Function,+,subghz_protocol_registry_count,size_t,const SubGhzProtocolRegistry*
+Function,+,subghz_protocol_registry_get_by_index,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, size_t"
+Function,+,subghz_protocol_registry_get_by_name,const SubGhzProtocol*,"const SubGhzProtocolRegistry*, const char*"
 Function,-,subghz_protocol_secplus_v1_check_fixed,_Bool,uint32_t
-Function,-,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzPresetDefinition*"
-Function,-,subghz_protocol_star_line_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzPresetDefinition*"
+Function,-,subghz_protocol_secplus_v2_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint32_t, SubGhzRadioPreset*"
+Function,-,subghz_protocol_star_line_create_data,_Bool,"void*, FlipperFormat*, uint32_t, uint8_t, uint16_t, const char*, SubGhzRadioPreset*"
 Function,+,subghz_receiver_alloc_init,SubGhzReceiver*,SubGhzEnvironment*
 Function,+,subghz_receiver_decode,void,"SubGhzReceiver*, _Bool, uint32_t"
 Function,+,subghz_receiver_free,void,SubGhzReceiver*
@@ -2753,6 +2832,24 @@ Function,+,subghz_receiver_reset,void,SubGhzReceiver*
 Function,+,subghz_receiver_search_decoder_base_by_name,SubGhzProtocolDecoderBase*,"SubGhzReceiver*, const char*"
 Function,+,subghz_receiver_set_filter,void,"SubGhzReceiver*, SubGhzProtocolFlag"
 Function,+,subghz_receiver_set_rx_callback,void,"SubGhzReceiver*, SubGhzReceiverCallback, void*"
+Function,+,subghz_setting_alloc,SubGhzSetting*,
+Function,+,subghz_setting_delete_custom_preset,_Bool,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_free,void,SubGhzSetting*
+Function,+,subghz_setting_get_default_frequency,uint32_t,SubGhzSetting*
+Function,+,subghz_setting_get_frequency,uint32_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_frequency_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_frequency_default_index,uint32_t,SubGhzSetting*
+Function,+,subghz_setting_get_hopper_frequency,uint32_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_hopper_frequency_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_inx_preset_by_name,int,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_get_preset_count,size_t,SubGhzSetting*
+Function,+,subghz_setting_get_preset_data,uint8_t*,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_preset_data_by_name,uint8_t*,"SubGhzSetting*, const char*"
+Function,+,subghz_setting_get_preset_data_size,size_t,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_get_preset_name,const char*,"SubGhzSetting*, size_t"
+Function,+,subghz_setting_load,void,"SubGhzSetting*, const char*, _Bool"
+Function,+,subghz_setting_load_custom_preset,_Bool,"SubGhzSetting*, const char*, FlipperFormat*"
+Function,+,subghz_setting_set_default_frequency,void,"SubGhzSetting*, uint32_t"
 Function,+,subghz_transmitter_alloc_init,SubGhzTransmitter*,"SubGhzEnvironment*, const char*"
 Function,+,subghz_transmitter_deserialize,_Bool,"SubGhzTransmitter*, FlipperFormat*"
 Function,+,subghz_transmitter_free,void,SubGhzTransmitter*
@@ -3999,6 +4096,7 @@ Function,+,variable_item_list_set_enter_callback,void,"VariableItemList*, Variab
 Function,+,variable_item_list_set_selected_item,void,"VariableItemList*, uint8_t"
 Function,+,variable_item_set_current_value_index,void,"VariableItem*, uint8_t"
 Function,+,variable_item_set_current_value_text,void,"VariableItem*, const char*"
+Function,+,variable_item_set_values_count,void,"VariableItem*, uint8_t"
 Function,-,vasiprintf,int,"char**, const char*, __gnuc_va_list"
 Function,-,vasniprintf,char*,"char*, size_t*, const char*, __gnuc_va_list"
 Function,-,vasnprintf,char*,"char*, size_t*, const char*, __gnuc_va_list"
@@ -4044,17 +4142,17 @@ Function,+,view_port_alloc,ViewPort*,
 Function,+,view_port_draw_callback_set,void,"ViewPort*, ViewPortDrawCallback, void*"
 Function,+,view_port_enabled_set,void,"ViewPort*, _Bool"
 Function,+,view_port_free,void,ViewPort*
-Function,-,view_port_get_height,uint8_t,ViewPort*
+Function,+,view_port_get_height,uint8_t,ViewPort*
 Function,+,view_port_get_orientation,ViewPortOrientation,const ViewPort*
 Function,+,view_port_get_width,uint8_t,ViewPort*
 Function,+,view_port_input_callback_set,void,"ViewPort*, ViewPortInputCallback, void*"
 Function,+,view_port_is_enabled,_Bool,ViewPort*
-Function,-,view_port_set_height,void,"ViewPort*, uint8_t"
+Function,+,view_port_set_height,void,"ViewPort*, uint8_t"
 Function,+,view_port_set_orientation,void,"ViewPort*, ViewPortOrientation"
 Function,+,view_port_set_width,void,"ViewPort*, uint8_t"
 Function,+,view_port_update,void,ViewPort*
 Function,+,view_set_context,void,"View*, void*"
-Function,-,view_set_custom_callback,void,"View*, ViewCustomCallback"
+Function,+,view_set_custom_callback,void,"View*, ViewCustomCallback"
 Function,+,view_set_draw_callback,void,"View*, ViewDrawCallback"
 Function,+,view_set_enter_callback,void,"View*, ViewCallback"
 Function,+,view_set_exit_callback,void,"View*, ViewCallback"
@@ -4152,189 +4250,7 @@ Function,-,yn,double,"int, double"
 Function,-,ynf,float,"int, float"
 Variable,-,AHBPrescTable,const uint32_t[16],
 Variable,-,APBPrescTable,const uint32_t[8],
-Variable,+,A_125khz_14,const Icon,
-Variable,+,A_BadUsb_14,const Icon,
-Variable,+,A_Clock_14,const Icon,
-Variable,+,A_Debug_14,const Icon,
-Variable,+,A_FileManager_14,const Icon,
-Variable,+,A_GPIO_14,const Icon,
-Variable,+,A_Infrared_14,const Icon,
-Variable,+,A_Levelup1_128x64,const Icon,
-Variable,+,A_Levelup2_128x64,const Icon,
-Variable,+,A_Loading_24,const Icon,
-Variable,+,A_NFC_14,const Icon,
-Variable,+,A_Plugins_14,const Icon,
-Variable,+,A_Round_loader_8x8,const Icon,
-Variable,+,A_Settings_14,const Icon,
-Variable,+,A_Sub1ghz_14,const Icon,
-Variable,+,A_U2F_14,const Icon,
-Variable,+,A_UniRFRemix_14,const Icon,
-Variable,+,A_iButton_14,const Icon,
 Variable,-,ITM_RxBuffer,volatile int32_t,
-Variable,+,I_125_10px,const Icon,
-Variable,+,I_ActiveConnection_50x64,const Icon,
-Variable,+,I_Apps_10px,const Icon,
-Variable,+,I_ArrowC_1_36x36,const Icon,
-Variable,+,I_ArrowDownEmpty_14x15,const Icon,
-Variable,+,I_ArrowDownFilled_14x15,const Icon,
-Variable,+,I_ArrowUpEmpty_14x15,const Icon,
-Variable,+,I_ArrowUpFilled_14x15,const Icon,
-Variable,+,I_Attention_5x8,const Icon,
-Variable,+,I_Auth_62x31,const Icon,
-Variable,+,I_BLE_Pairing_128x64,const Icon,
-Variable,+,I_Background_128x11,const Icon,
-Variable,+,I_BatteryBody_52x28,const Icon,
-Variable,+,I_Battery_16x16,const Icon,
-Variable,+,I_Battery_26x8,const Icon,
-Variable,+,I_Ble_connected_15x15,const Icon,
-Variable,+,I_Ble_disconnected_15x15,const Icon,
-Variable,+,I_Bluetooth_Connected_16x8,const Icon,
-Variable,+,I_Bluetooth_Idle_5x8,const Icon,
-Variable,+,I_ButtonCenter_7x7,const Icon,
-Variable,+,I_ButtonDown_7x4,const Icon,
-Variable,+,I_ButtonLeftSmall_3x5,const Icon,
-Variable,+,I_ButtonLeft_4x7,const Icon,
-Variable,+,I_ButtonRightSmall_3x5,const Icon,
-Variable,+,I_ButtonRight_4x7,const Icon,
-Variable,+,I_ButtonUp_7x4,const Icon,
-Variable,+,I_Button_18x18,const Icon,
-Variable,+,I_Certification1_103x56,const Icon,
-Variable,+,I_Certification2_98x33,const Icon,
-Variable,+,I_Charging_lightning_9x10,const Icon,
-Variable,+,I_Charging_lightning_mask_9x10,const Icon,
-Variable,+,I_Circles_47x47,const Icon,
-Variable,+,I_Clock_18x18,const Icon,
-Variable,+,I_Connect_me_62x31,const Icon,
-Variable,+,I_Connected_62x31,const Icon,
-Variable,+,I_Cry_dolph_55x52,const Icon,
-Variable,+,I_DFU_128x50,const Icon,
-Variable,+,I_Detailed_chip_17x13,const Icon,
-Variable,+,I_DolphinCommon_56x48,const Icon,
-Variable,+,I_DolphinMafia_115x62,const Icon,
-Variable,+,I_DolphinNice_96x59,const Icon,
-Variable,+,I_DolphinReadingSuccess_59x63,const Icon,
-Variable,+,I_DolphinWait_61x59,const Icon,
-Variable,+,I_DoorLeft_70x55,const Icon,
-Variable,+,I_DoorRight_70x55,const Icon,
-Variable,+,I_Down_25x27,const Icon,
-Variable,+,I_Down_hvr_25x27,const Icon,
-Variable,+,I_Drive_112x35,const Icon,
-Variable,+,I_Error_18x18,const Icon,
-Variable,+,I_Error_62x31,const Icon,
-Variable,+,I_EviSmile1_18x21,const Icon,
-Variable,+,I_EviSmile2_18x21,const Icon,
-Variable,+,I_EviWaiting1_18x21,const Icon,
-Variable,+,I_EviWaiting2_18x21,const Icon,
-Variable,+,I_FaceCharging_29x14,const Icon,
-Variable,+,I_FaceConfused_29x14,const Icon,
-Variable,+,I_FaceNopower_29x14,const Icon,
-Variable,+,I_FaceNormal_29x14,const Icon,
-Variable,+,I_GameMode_11x8,const Icon,
-Variable,+,I_Health_16x16,const Icon,
-Variable,+,I_InfraredArrowDown_4x8,const Icon,
-Variable,+,I_InfraredArrowUp_4x8,const Icon,
-Variable,+,I_InfraredLearnShort_128x31,const Icon,
-Variable,+,I_KeyBackspaceSelected_16x9,const Icon,
-Variable,+,I_KeyBackspace_16x9,const Icon,
-Variable,+,I_KeySaveSelected_24x11,const Icon,
-Variable,+,I_KeySave_24x11,const Icon,
-Variable,+,I_Keychain_39x36,const Icon,
-Variable,+,I_Left_mouse_icon_9x9,const Icon,
-Variable,+,I_Lock_7x8,const Icon,
-Variable,+,I_Lock_8x8,const Icon,
-Variable,+,I_MHz_25x11,const Icon,
-Variable,+,I_Medium_chip_22x21,const Icon,
-Variable,+,I_Mode_25x27,const Icon,
-Variable,+,I_Mode_hvr_25x27,const Icon,
-Variable,+,I_Modern_reader_18x34,const Icon,
-Variable,+,I_Move_flipper_26x39,const Icon,
-Variable,+,I_Mute_25x27,const Icon,
-Variable,+,I_Mute_hvr_25x27,const Icon,
-Variable,+,I_NFC_manual_60x50,const Icon,
-Variable,+,I_Nfc_10px,const Icon,
-Variable,+,I_Ok_btn_9x9,const Icon,
-Variable,+,I_Ok_btn_pressed_13x13,const Icon,
-Variable,+,I_Percent_10x14,const Icon,
-Variable,+,I_Pin_arrow_down_7x9,const Icon,
-Variable,+,I_Pin_arrow_left_9x7,const Icon,
-Variable,+,I_Pin_arrow_right_9x7,const Icon,
-Variable,+,I_Pin_arrow_up_7x9,const Icon,
-Variable,+,I_Pin_attention_dpad_29x29,const Icon,
-Variable,+,I_Pin_back_arrow_10x8,const Icon,
-Variable,+,I_Pin_back_full_40x8,const Icon,
-Variable,+,I_Pin_cell_13x13,const Icon,
-Variable,+,I_Pin_pointer_5x3,const Icon,
-Variable,+,I_Pin_star_7x7,const Icon,
-Variable,+,I_Power_25x27,const Icon,
-Variable,+,I_Power_hvr_25x27,const Icon,
-Variable,+,I_Pressed_Button_13x13,const Icon,
-Variable,+,I_Quest_7x8,const Icon,
-Variable,+,I_RFIDDolphinReceive_97x61,const Icon,
-Variable,+,I_RFIDDolphinSend_97x61,const Icon,
-Variable,+,I_RFIDDolphinSuccess_108x57,const Icon,
-Variable,+,I_RFIDSmallChip_14x14,const Icon,
-Variable,+,I_Release_arrow_18x15,const Icon,
-Variable,+,I_Restoring_38x32,const Icon,
-Variable,+,I_Right_mouse_icon_9x9,const Icon,
-Variable,+,I_Rotate_25x27,const Icon,
-Variable,+,I_Rotate_hvr_25x27,const Icon,
-Variable,+,I_SDQuestion_35x43,const Icon,
-Variable,+,I_SDcardFail_11x8,const Icon,
-Variable,+,I_SDcardMounted_11x8,const Icon,
-Variable,+,I_Scanning_123x52,const Icon,
-Variable,+,I_SmallArrowDown_3x5,const Icon,
-Variable,+,I_SmallArrowDown_4x7,const Icon,
-Variable,+,I_SmallArrowUp_3x5,const Icon,
-Variable,+,I_SmallArrowUp_4x7,const Icon,
-Variable,+,I_Smile_18x18,const Icon,
-Variable,+,I_Space_65x18,const Icon,
-Variable,+,I_Swing_25x27,const Icon,
-Variable,+,I_Swing_hvr_25x27,const Icon,
-Variable,+,I_Tap_reader_36x38,const Icon,
-Variable,+,I_Temperature_16x16,const Icon,
-Variable,+,I_Timer_25x27,const Icon,
-Variable,+,I_Timer_hvr_25x27,const Icon,
-Variable,+,I_Unlock_7x8,const Icon,
-Variable,+,I_Unplug_bg_bottom_128x10,const Icon,
-Variable,+,I_Unplug_bg_top_128x14,const Icon,
-Variable,+,I_Up_25x27,const Icon,
-Variable,+,I_Up_hvr_25x27,const Icon,
-Variable,+,I_Updating_32x40,const Icon,
-Variable,+,I_UsbTree_48x22,const Icon,
-Variable,+,I_Vol_down_25x27,const Icon,
-Variable,+,I_Vol_down_hvr_25x27,const Icon,
-Variable,+,I_Vol_up_25x27,const Icon,
-Variable,+,I_Vol_up_hvr_25x27,const Icon,
-Variable,+,I_Voldwn_6x6,const Icon,
-Variable,+,I_Voltage_16x16,const Icon,
-Variable,+,I_Volup_8x6,const Icon,
-Variable,+,I_WarningDolphin_45x42,const Icon,
-Variable,+,I_Warning_30x23,const Icon,
-Variable,+,I_back_10px,const Icon,
-Variable,+,I_badusb_10px,const Icon,
-Variable,+,I_dir_10px,const Icon,
-Variable,+,I_iButtonDolphinVerySuccess_108x52,const Icon,
-Variable,+,I_iButtonKey_49x44,const Icon,
-Variable,+,I_ibutt_10px,const Icon,
-Variable,+,I_ir_10px,const Icon,
-Variable,+,I_keyboard_10px,const Icon,
-Variable,+,I_loading_10px,const Icon,
-Variable,+,I_music_10px,const Icon,
-Variable,+,I_passport_bad1_46x49,const Icon,
-Variable,+,I_passport_bad2_46x49,const Icon,
-Variable,+,I_passport_bad3_46x49,const Icon,
-Variable,+,I_passport_bottom_128x18,const Icon,
-Variable,+,I_passport_happy1_46x49,const Icon,
-Variable,+,I_passport_happy2_46x49,const Icon,
-Variable,+,I_passport_happy3_46x49,const Icon,
-Variable,+,I_passport_left_6x46,const Icon,
-Variable,+,I_passport_okay1_46x49,const Icon,
-Variable,+,I_passport_okay2_46x49,const Icon,
-Variable,+,I_passport_okay3_46x49,const Icon,
-Variable,+,I_sub1_10px,const Icon,
-Variable,+,I_u2f_10px,const Icon,
-Variable,+,I_unknown_10px,const Icon,
-Variable,+,I_update_10px,const Icon,
 Variable,-,MSIRangeTable,const uint32_t[16],
 Variable,-,SmpsPrescalerTable,const uint32_t[4][6],
 Variable,+,SystemCoreClock,uint32_t,
@@ -4653,9 +4569,9 @@ Variable,-,subghz_protocol_kia_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_linear,const SubGhzProtocol,
 Variable,-,subghz_protocol_linear_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_linear_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_magellen,const SubGhzProtocol,
-Variable,-,subghz_protocol_magellen_decoder,const SubGhzProtocolDecoder,
-Variable,-,subghz_protocol_magellen_encoder,const SubGhzProtocolEncoder,
+Variable,-,subghz_protocol_magellan,const SubGhzProtocol,
+Variable,-,subghz_protocol_magellan_decoder,const SubGhzProtocolDecoder,
+Variable,-,subghz_protocol_magellan_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_marantec,const SubGhzProtocol,
 Variable,-,subghz_protocol_marantec_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_marantec_encoder,const SubGhzProtocolEncoder,
@@ -4674,7 +4590,6 @@ Variable,-,subghz_protocol_nice_flo_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_nice_flor_s,const SubGhzProtocol,
 Variable,-,subghz_protocol_nice_flor_s_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_nice_flor_s_encoder,const SubGhzProtocolEncoder,
-Variable,-,subghz_protocol_oregon2,const SubGhzProtocol,
 Variable,-,subghz_protocol_phoenix_v2,const SubGhzProtocol,
 Variable,-,subghz_protocol_phoenix_v2_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_phoenix_v2_encoder,const SubGhzProtocolEncoder,
@@ -4687,6 +4602,7 @@ Variable,-,subghz_protocol_princeton_encoder,const SubGhzProtocolEncoder,
 Variable,-,subghz_protocol_raw,const SubGhzProtocol,
 Variable,-,subghz_protocol_raw_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_raw_encoder,const SubGhzProtocolEncoder,
+Variable,+,subghz_protocol_registry,const SubGhzProtocolRegistry,
 Variable,-,subghz_protocol_scher_khan,const SubGhzProtocol,
 Variable,-,subghz_protocol_scher_khan_decoder,const SubGhzProtocolDecoder,
 Variable,-,subghz_protocol_scher_khan_encoder,const SubGhzProtocolEncoder,
