@@ -2,6 +2,7 @@
 
 #include <gui/view.h>
 #include "../helpers/subghz_custom_event.h"
+#include "../helpers/subghz_txrx.h"
 
 typedef enum {
     SubGHzFrequencyAnalyzerFeedbackLevelAll,
@@ -18,7 +19,7 @@ void subghz_frequency_analyzer_set_callback(
     SubGhzFrequencyAnalyzerCallback callback,
     void* context);
 
-SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc();
+SubGhzFrequencyAnalyzer* subghz_frequency_analyzer_alloc(SubGhzTxRx* txrx);
 
 void subghz_frequency_analyzer_free(SubGhzFrequencyAnalyzer* subghz_static);
 
@@ -30,3 +31,5 @@ SubGHzFrequencyAnalyzerFeedbackLevel subghz_frequency_analyzer_feedback_level(
     SubGhzFrequencyAnalyzer* instance,
     SubGHzFrequencyAnalyzerFeedbackLevel level,
     bool update);
+
+float subghz_frequency_analyzer_get_trigger_level(SubGhzFrequencyAnalyzer* instance);

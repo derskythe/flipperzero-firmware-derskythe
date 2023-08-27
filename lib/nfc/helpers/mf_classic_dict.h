@@ -6,9 +6,13 @@
 #include <lib/toolbox/stream/file_stream.h>
 #include <lib/toolbox/stream/buffered_file_stream.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     MfClassicDictTypeUser,
-    MfClassicDictTypeFlipper,
+    MfClassicDictTypeSystem,
     MfClassicDictTypeUnitTest,
 } MfClassicDictType;
 
@@ -97,3 +101,7 @@ bool mf_classic_dict_find_index_str(MfClassicDict* dict, FuriString* key, uint32
  * @return     true on success
  */
 bool mf_classic_dict_delete_index(MfClassicDict* dict, uint32_t target);
+
+#ifdef __cplusplus
+}
+#endif

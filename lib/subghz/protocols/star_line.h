@@ -11,10 +11,6 @@ extern const SubGhzProtocolDecoder subghz_protocol_star_line_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_star_line_encoder;
 extern const SubGhzProtocol subghz_protocol_star_line;
 
-void star_line_reset_mfname();
-
-void star_line_reset_kl_type();
-
 /**
  * Allocate SubGhzProtocolEncoderStarLine.
  * @param environment Pointer to a SubGhzEnvironment instance
@@ -54,7 +50,8 @@ bool subghz_protocol_star_line_create_data(
  * @param flipper_format Pointer to a FlipperFormat instance
  * @return true On success
  */
-bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -108,9 +105,9 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderStarLine instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_star_line_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -119,9 +116,10 @@ bool subghz_protocol_decoder_star_line_serialize(
  * Deserialize data SubGhzProtocolDecoderStarLine.
  * @param context Pointer to a SubGhzProtocolDecoderStarLine instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_star_line_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

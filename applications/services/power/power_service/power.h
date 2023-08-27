@@ -37,10 +37,12 @@ typedef struct {
 typedef struct {
     bool gauge_is_ok;
     bool is_charging;
+    bool is_shutdown_requested;
 
     float current_charger;
     float current_gauge;
 
+    float voltage_battery_charge_limit;
     float voltage_charger;
     float voltage_gauge;
     float voltage_vbus;
@@ -86,12 +88,18 @@ FuriPubSub* power_get_pubsub(Power* power);
  */
 bool power_is_battery_healthy(Power* power);
 
-/** Enable or disable battery low level notification mesage
+/** Enable or disable battery low level notification message
  *
  * @param power     Power instance
  * @param enable    true - enable, false - disable
  */
 void power_enable_low_battery_level_notification(Power* power, bool enable);
+
+/** Trigger UI update for changing battery layout
+ *
+ * @param power     Power instance
+ */
+void power_trigger_ui_update(Power* power);
 
 #ifdef __cplusplus
 }

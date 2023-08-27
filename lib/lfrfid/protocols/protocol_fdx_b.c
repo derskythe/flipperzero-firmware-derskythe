@@ -4,6 +4,7 @@
 #include <toolbox/manchester_decoder.h>
 #include <lfrfid/tools/bit_lib.h>
 #include "lfrfid_protocols.h"
+#include <furi_hal_rtc.h>
 
 #define FDX_B_ENCODED_BIT_SIZE (128)
 #define FDX_B_ENCODED_BYTE_SIZE (((FDX_B_ENCODED_BIT_SIZE) / 8))
@@ -244,7 +245,7 @@ LevelDuration protocol_fdx_b_encoder_yield(ProtocolFDXB* protocol) {
 static uint64_t protocol_fdx_b_get_national_code(const uint8_t* data) {
     uint64_t national_code = bit_lib_get_bits_32(data, 0, 32);
     national_code = national_code << 32;
-    national_code |= bit_lib_get_bits_32(data, 32, 6) << (32 - 6);
+    national_code |= (uint64_t)bit_lib_get_bits_32(data, 32, 6) << (32 - 6);
     bit_lib_reverse_bits((uint8_t*)&national_code, 0, 64);
     return national_code;
 }
@@ -323,8 +324,12 @@ void protocol_fdx_b_render_brief_data(ProtocolFDXB* protocol, FuriString* result
 
     float temperature;
     if(protocol_fdx_b_get_temp(protocol->data, &temperature)) {
-        float temperature_c = (temperature - 32) / 1.8;
-        furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
+        if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+            float temperature_c = (temperature - 32.0f) / 1.8f;
+            furi_string_cat_printf(result, "T: %.2fC", (double)temperature_c);
+        } else {
+            furi_string_cat_printf(result, "T: %.2fF", (double)temperature);
+        }
     } else {
         furi_string_cat_printf(result, "T: ---");
     }

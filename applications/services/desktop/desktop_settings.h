@@ -8,7 +8,7 @@
 #include <toolbox/saved_struct.h>
 #include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (6)
+#define DESKTOP_SETTINGS_VER (13)
 
 #define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
@@ -36,7 +36,35 @@
 #define MIN_PIN_SIZE 4
 #define MAX_APP_LENGTH 128
 
-#define FAP_LOADER_APP_NAME "Applications"
+#define DISPLAY_BATTERY_BAR 0
+#define DISPLAY_BATTERY_PERCENT 1
+#define DISPLAY_BATTERY_INVERTED_PERCENT 2
+#define DISPLAY_BATTERY_RETRO_3 3
+#define DISPLAY_BATTERY_RETRO_5 4
+#define DISPLAY_BATTERY_BAR_PERCENT 5
+
+typedef enum {
+    FavoriteAppLeftShort = 0,
+    FavoriteAppLeftLong,
+    FavoriteAppRightShort,
+    FavoriteAppRightLong,
+
+    FavoriteAppNumber,
+} FavoriteAppShortcut;
+
+typedef enum {
+    DummyAppLeft = 0,
+    DummyAppLeftLong,
+    DummyAppRight,
+    DummyAppRightLong,
+    DummyAppUpLong,
+    DummyAppDown,
+    DummyAppDownLong,
+    DummyAppOk,
+    DummyAppOkLong,
+
+    DummyAppNumber,
+} DummyAppShortcut;
 
 typedef struct {
     InputKey data[MAX_PIN_SIZE];
@@ -44,16 +72,15 @@ typedef struct {
 } PinCode;
 
 typedef struct {
-    bool is_external;
     char name_or_path[MAX_APP_LENGTH];
 } FavoriteApp;
 
 typedef struct {
-    FavoriteApp favorite_primary;
-    FavoriteApp favorite_secondary;
     PinCode pin_code;
-    uint8_t is_locked;
     uint32_t auto_lock_delay_ms;
     uint8_t displayBatteryPercentage;
     uint8_t dummy_mode;
+    uint8_t display_clock;
+    FavoriteApp favorite_apps[FavoriteAppNumber];
+    FavoriteApp dummy_apps[DummyAppNumber];
 } DesktopSettings;

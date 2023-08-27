@@ -1,8 +1,8 @@
 #include "../subghz_i.h"
 #include "../views/transmitter.h"
 #include <dolphin/dolphin.h>
-#include <lib/subghz/protocols/keeloq.h>
-#include <lib/subghz/protocols/star_line.h>
+
+#include <lib/subghz/blocks/custom_btn.h>
 
 void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
@@ -11,47 +11,43 @@ void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
 }
 
 bool subghz_scene_transmitter_update_data_show(void* context) {
-    //ToDo Fix
     SubGhz* subghz = context;
+    bool ret = false;
+    SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
 
-    if(subghz->txrx->decoder_result) {
-        FuriString* key_str;
-        FuriString* frequency_str;
-        FuriString* modulation_str;
+    if(decoder) {
+        FuriString* key_str = furi_string_alloc();
+        FuriString* frequency_str = furi_string_alloc();
+        FuriString* modulation_str = furi_string_alloc();
 
-        key_str = furi_string_alloc();
-        frequency_str = furi_string_alloc();
-        modulation_str = furi_string_alloc();
-        uint8_t show_button = 0;
+        if(subghz_protocol_decoder_base_deserialize(
+               decoder, subghz_txrx_get_fff_data(subghz->txrx)) == SubGhzProtocolStatusOk) {
+            subghz_protocol_decoder_base_get_string(decoder, key_str);
 
-        subghz_protocol_decoder_base_deserialize(
-            subghz->txrx->decoder_result, subghz->txrx->fff_data);
-        subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, key_str);
-
-        if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
-           SubGhzProtocolFlag_Send) {
-            show_button = 1;
+            subghz_txrx_get_frequency_and_modulation(
+                subghz->txrx, frequency_str, modulation_str, false);
+            subghz_view_transmitter_add_data_to_show(
+                subghz->subghz_transmitter,
+                furi_string_get_cstr(key_str),
+                furi_string_get_cstr(frequency_str),
+                furi_string_get_cstr(modulation_str),
+                subghz_txrx_protocol_is_transmittable(subghz->txrx, false));
+            ret = true;
         }
-
-        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
-        subghz_view_transmitter_add_data_to_show(
-            subghz->subghz_transmitter,
-            furi_string_get_cstr(key_str),
-            furi_string_get_cstr(frequency_str),
-            furi_string_get_cstr(modulation_str),
-            show_button);
-
         furi_string_free(frequency_str);
         furi_string_free(modulation_str);
         furi_string_free(key_str);
-
-        return true;
     }
-    return false;
+    subghz_view_transmitter_set_radio_device_type(
+        subghz->subghz_transmitter, subghz_txrx_radio_device_get(subghz->txrx));
+    return ret;
 }
 
 void subghz_scene_transmitter_on_enter(void* context) {
     SubGhz* subghz = context;
+
+    subghz_custom_btns_reset();
+
     if(!subghz_scene_transmitter_update_data_show(subghz)) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventViewTransmitterError);
@@ -69,25 +65,24 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                subghz_rx_end(subghz);
-            }
-            if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
-               (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-                if(!subghz_tx_start(subghz, subghz->txrx->fff_data)) {
-                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
-                } else {
-                    subghz->state_notifications = SubGhzNotificationStateTx;
-                    subghz_scene_transmitter_update_data_show(subghz);
-                    DOLPHIN_DEED(DolphinDeedSubGhzSend);
-                }
+
+            if(subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx))) {
+                subghz->state_notifications = SubGhzNotificationStateTx;
+                subghz_scene_transmitter_update_data_show(subghz);
+                dolphin_deed(DolphinDeedSubGhzSend);
             }
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterSendStop) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
-                subghz_tx_stop(subghz);
-                subghz_sleep(subghz);
+            subghz_txrx_stop(subghz->txrx);
+            if(subghz_custom_btn_get() != SUBGHZ_CUSTOM_BTN_OK) {
+                subghz_custom_btn_set(SUBGHZ_CUSTOM_BTN_OK);
+                uint8_t tmp_counter = furi_hal_subghz_get_rolling_counter_mult();
+                furi_hal_subghz_set_rolling_counter_mult(0);
+                // Calling restore!
+                subghz_tx_start(subghz, subghz_txrx_get_fff_data(subghz->txrx));
+                subghz_txrx_stop(subghz->txrx);
+                furi_hal_subghz_set_rolling_counter_mult(tmp_counter);
             }
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterBack) {
@@ -111,8 +106,6 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
     subghz->state_notifications = SubGhzNotificationStateIDLE;
-    keeloq_reset_mfname();
-    keeloq_reset_kl_type();
-    star_line_reset_mfname();
-    star_line_reset_kl_type();
+
+    subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);
 }

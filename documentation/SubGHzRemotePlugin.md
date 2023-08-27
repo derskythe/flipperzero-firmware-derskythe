@@ -1,10 +1,20 @@
-# UniRF Remix / Sub-GHz Remote
+# Sub-GHz Remote
 
-### The UniRF Tool *requires* the creation of custom user map with `.txt` extension in the `unirf` folder on the sdcard. 
+
+# UPDATE!!!!!!
+## Now you can create and edit map files directly on flipper, go into Sub-GHz Remote and click back button
+
+<br>
+<br>
+<br>
+
+
+### The SubGHz Remote Tool *requires* the creation of custom user map with `.txt` extension in the `subghz_remote` folder on the sdcard. 
 
 #### If these files are not exist or not configured properly, **you will receive an error each time you try to select wrong file in the UniRF Tool**.
 
 ## You can add as many `.txt` map files as you want, file name doesn't matter!
+
 
 ## Incorrect or unconfigured file error
 
@@ -20,7 +30,7 @@ Press Back to Exit
 
 
 
-## Setting up the `unirf/example.txt` file:
+## Setting up the `subghz_remote/example.txt` file:
 
 ```
 UP: /ext/subghz/Up.sub
@@ -59,8 +69,8 @@ OKLABEL: Garage CLOSE
   - Press a button to send the assigned capture file.
   - Press Back button to exit app.
 
-* ##### Universal RF Map
+* ##### SubGHz Remote Map
   - File path should not have any spaces or special characters (- and _ excluded).
-  - Labels are limited to 12 characters.
+  - Labels are limited to 16 characters.
     - Why? This is to prevent overlapping elements on screen.
     - For example: If you set your label or file to ```WWWWWWWWWWWWWWW``` you'll be over the screen limits.

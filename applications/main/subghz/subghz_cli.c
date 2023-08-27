@@ -10,6 +10,10 @@
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
 #include <lib/subghz/protocols/protocol_items.h>
+#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
+#include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
+#include <lib/subghz/devices/devices.h>
+#include <lib/subghz/devices/cc1101_configs.h>
 
 #include "helpers/subghz_chat.h"
 
@@ -18,6 +22,32 @@
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
+
+// Tx/Rx Carrier | only internal module
+// Tx/Rx command | both
+// Rx RAW        | only internal module
+// Chat          | both
+
+#define TAG "SubGhz CLI"
+
+static void subghz_cli_radio_device_power_on() {
+    uint8_t attempts = 5;
+    while(--attempts > 0) {
+        if(furi_hal_power_enable_otg()) break;
+    }
+    if(attempts == 0) {
+        if(furi_hal_power_get_usb_voltage() < 4.5f) {
+            FURI_LOG_E(
+                "TAG",
+                "Error power otg enable. BQ2589 check otg fault = %d",
+                furi_hal_power_check_otg_fault() ? 1 : 0);
+        }
+    }
+}
+
+static void subghz_cli_radio_device_power_off() {
+    if(furi_hal_power_is_otg_enabled()) furi_hal_power_disable_otg();
+}
 
 void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
@@ -39,7 +69,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
     }
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
@@ -83,7 +113,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, FuriString* args, void* context) {
     }
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     printf("Receiving at frequency %lu Hz\r\n", frequency);
     printf("Press CTRL+C to stop\r\n");
@@ -104,54 +134,86 @@ void subghz_cli_command_rx_carrier(Cli* cli, FuriString* args, void* context) {
     furi_hal_subghz_sleep();
 }
 
+static const SubGhzDevice* subghz_cli_command_get_device(uint32_t* device_ind) {
+    const SubGhzDevice* device = NULL;
+    switch(*device_ind) {
+    case 1:
+        subghz_cli_radio_device_power_on();
+        device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_EXT_NAME);
+        break;
+
+    default:
+        device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+        break;
+    }
+    //check if the device is connected
+    if(!subghz_devices_is_connect(device)) {
+        subghz_cli_radio_device_power_off();
+        device = subghz_devices_get_by_name(SUBGHZ_DEVICE_CC1101_INT_NAME);
+        *device_ind = 0;
+    }
+    return device;
+}
+
 void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     uint32_t repeat = 10;
     uint32_t te = 403;
+    uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
 
     if(furi_string_size(args)) {
-        int ret =
-            sscanf(furi_string_get_cstr(args), "%lx %lu %lu %lu", &key, &frequency, &te, &repeat);
-        if(ret != 4) {
+        int ret = sscanf(
+            furi_string_get_cstr(args),
+            "%lx %lu %lu %lu %lu",
+            &key,
+            &frequency,
+            &te,
+            &repeat,
+            &device_ind);
+        if(ret != 5) {
             printf(
-                "sscanf returned %d, key: %lx, frequency: %lu, te:%lu, repeat: %lu\r\n",
+                "sscanf returned %d, key: %lx, frequency: %lu, te: %lu, repeat: %lu, device: %lu\r\n ",
                 ret,
                 key,
                 frequency,
                 te,
-                repeat);
+                repeat,
+                device_ind);
             cli_print_usage(
                 "subghz tx",
-                "<3 Byte Key: in hex> <Frequency: in Hz> <Te us> <Repeat count>",
+                "<3 Byte Key: in hex> <Frequency: in Hz> <Te us> <Repeat count> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
                 furi_string_get_cstr(args));
             return;
         }
-        if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-            printf(
-                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
-                frequency);
-            return;
-        }
     }
-
+    subghz_devices_init();
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
+    if(!subghz_devices_is_frequency_valid(device, frequency)) {
+        printf(
+            "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
+        return;
+    }
     printf(
-        "Transmitting at %lu, key %lx, te %lu, repeat %lu. Press CTRL+C to stop\r\n",
+        "Transmitting at %lu, key %lx, te %lu, repeat %lu device %lu. Press CTRL+C to stop\r\n",
         frequency,
         key,
         te,
-        repeat);
+        repeat,
+        device_ind);
 
     FuriString* flipper_format_string = furi_string_alloc_printf(
         "Protocol: Princeton\n"
         "Bit: 24\n"
         "Key: 00 00 00 00 00 %02X %02X %02X\n"
-        "TE: %ld\n"
-        "Repeat: %ld\n",
-        (uint8_t)((key >> 16) & 0xFF),
-        (uint8_t)((key >> 8) & 0xFF),
-        (uint8_t)(key & 0xFF),
+        "TE: %lu\n"
+        "Repeat: %lu\n",
+        (uint8_t)((key >> 16) & 0xFFU),
+        (uint8_t)((key >> 8) & 0xFFU),
+        (uint8_t)(key & 0xFFU),
         te,
         repeat);
     FlipperFormat* flipper_format = flipper_format_string_alloc();
@@ -165,21 +227,28 @@ void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
     SubGhzTransmitter* transmitter = subghz_transmitter_alloc_init(environment, "Princeton");
     subghz_transmitter_deserialize(transmitter, flipper_format);
 
-    furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
-    frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+    subghz_devices_begin(device);
+    subghz_devices_reset(device);
+    subghz_devices_load_preset(device, FuriHalSubGhzPresetOok650Async, NULL);
+    frequency = subghz_devices_set_frequency(device, frequency);
 
     furi_hal_power_suppress_charge_enter();
+    if(subghz_devices_start_async_tx(device, subghz_transmitter_yield, transmitter)) {
+        while(!(subghz_devices_is_async_complete_tx(device) || cli_cmd_interrupt_received(cli))) {
+            printf(".");
+            fflush(stdout);
+            furi_delay_ms(333);
+        }
+        subghz_devices_stop_async_tx(device);
 
-    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
-
-    while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
-        printf(".");
-        fflush(stdout);
-        furi_delay_ms(333);
+    } else {
+        printf("Frequency is outside of default range. Check docs.\r\n");
     }
-    furi_hal_subghz_stop_async_tx();
-    furi_hal_subghz_sleep();
+
+    subghz_devices_sleep(device);
+    subghz_devices_end(device);
+    subghz_devices_deinit();
+    subghz_cli_radio_device_power_off();
 
     furi_hal_power_suppress_charge_exit();
 
@@ -214,8 +283,7 @@ static void subghz_cli_command_rx_callback(
     SubGhzCliCommandRx* instance = context;
     instance->packet_count++;
 
-    FuriString* text;
-    text = furi_string_alloc();
+    FuriString* text = furi_string_alloc();
     subghz_protocol_decoder_base_get_string(decoder_base, text);
     subghz_receiver_reset(receiver);
     printf("%s", furi_string_get_cstr(text));
@@ -223,6 +291,104 @@ static void subghz_cli_command_rx_callback(
 }
 
 void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
+    UNUSED(context);
+    uint32_t frequency = 433920000;
+    uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
+
+    if(furi_string_size(args)) {
+        int ret = sscanf(furi_string_get_cstr(args), "%lu %lu", &frequency, &device_ind);
+        if(ret != 2) {
+            printf(
+                "sscanf returned %d, frequency: %lu device: %lu\r\n", ret, frequency, device_ind);
+            cli_print_usage(
+                "subghz rx",
+                "<Frequency: in Hz> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
+                furi_string_get_cstr(args));
+            return;
+        }
+    }
+    subghz_devices_init();
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
+    if(!subghz_devices_is_frequency_valid(device, frequency)) {
+        printf(
+            "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
+        return;
+    }
+
+    // Allocate context and buffers
+    SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
+    instance->stream =
+        furi_stream_buffer_alloc(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
+    furi_check(instance->stream);
+
+    SubGhzEnvironment* environment = subghz_environment_alloc();
+    subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_NAME);
+    subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_USER_NAME);
+    subghz_environment_set_came_atomo_rainbow_table_file_name(
+        environment, SUBGHZ_CAME_ATOMO_DIR_NAME);
+    subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+        environment, SUBGHZ_ALUTECH_AT_4N_DIR_NAME);
+    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+        environment, SUBGHZ_NICE_FLOR_S_DIR_NAME);
+    subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
+
+    SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
+    subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
+    subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
+
+    // Configure radio
+    subghz_devices_begin(device);
+    subghz_devices_reset(device);
+    subghz_devices_load_preset(device, FuriHalSubGhzPresetOok650Async, NULL);
+    frequency = subghz_devices_set_frequency(device, frequency);
+
+    furi_hal_power_suppress_charge_enter();
+
+    // Prepare and start RX
+    subghz_devices_start_async_rx(device, subghz_cli_command_rx_capture_callback, instance);
+
+    // Wait for packets to arrive
+    printf(
+        "Listening at frequency: %lu device: %lu. Press CTRL+C to stop\r\n",
+        frequency,
+        device_ind);
+    LevelDuration level_duration;
+    while(!cli_cmd_interrupt_received(cli)) {
+        int ret = furi_stream_buffer_receive(
+            instance->stream, &level_duration, sizeof(LevelDuration), 10);
+        if(ret == sizeof(LevelDuration)) {
+            if(level_duration_is_reset(level_duration)) {
+                printf(".");
+                subghz_receiver_reset(receiver);
+            } else {
+                bool level = level_duration_get_level(level_duration);
+                uint32_t duration = level_duration_get_duration(level_duration);
+                subghz_receiver_decode(receiver, level, duration);
+            }
+        }
+    }
+
+    // Shutdown radio
+    subghz_devices_stop_async_rx(device);
+    subghz_devices_sleep(device);
+    subghz_devices_end(device);
+    subghz_devices_deinit();
+    subghz_cli_radio_device_power_off();
+
+    furi_hal_power_suppress_charge_exit();
+
+    printf("\r\nPackets received %zu\r\n", instance->packet_count);
+
+    // Cleanup
+    subghz_receiver_free(receiver);
+    subghz_environment_free(environment);
+    furi_stream_buffer_free(instance->stream);
+    free(instance);
+}
+
+void subghz_cli_command_rx_raw(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
     uint32_t frequency = 433920000;
 
@@ -247,22 +413,9 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
         furi_stream_buffer_alloc(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
     furi_check(instance->stream);
 
-    SubGhzEnvironment* environment = subghz_environment_alloc();
-    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
-    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
-    subghz_environment_set_came_atomo_rainbow_table_file_name(
-        environment, EXT_PATH("subghz/assets/came_atomo"));
-    subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        environment, EXT_PATH("subghz/assets/nice_flor_s"));
-    subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
-
-    SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
-    subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
-    subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
-
     // Configure radio
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
+    furi_hal_subghz_load_custom_preset(subghz_device_cc1101_preset_ook_650khz_async_regs);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
@@ -274,18 +427,29 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
     // Wait for packets to arrive
     printf("Listening at %lu. Press CTRL+C to stop\r\n", frequency);
     LevelDuration level_duration;
+    size_t counter = 0;
     while(!cli_cmd_interrupt_received(cli)) {
         int ret = furi_stream_buffer_receive(
             instance->stream, &level_duration, sizeof(LevelDuration), 10);
-        if(ret == sizeof(LevelDuration)) {
-            if(level_duration_is_reset(level_duration)) {
-                printf(".");
-                subghz_receiver_reset(receiver);
-            } else {
-                bool level = level_duration_get_level(level_duration);
-                uint32_t duration = level_duration_get_duration(level_duration);
-                subghz_receiver_decode(receiver, level, duration);
-            }
+        if(ret == 0) {
+            continue;
+        }
+        if(ret != sizeof(LevelDuration)) {
+            puts("stream corrupt");
+            break;
+        }
+        if(level_duration_is_reset(level_duration)) {
+            puts(". ");
+        } else {
+            bool level = level_duration_get_level(level_duration);
+            uint32_t duration = level_duration_get_duration(level_duration);
+            printf("%c%lu ", level ? '+' : '-', duration);
+        }
+        furi_thread_stdout_flush();
+        counter++;
+        if(counter > 255) {
+            puts("\r\n");
+            counter = 0;
         }
     }
 
@@ -295,25 +459,19 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
 
     furi_hal_power_suppress_charge_exit();
 
-    printf("\r\nPackets recieved %u\r\n", instance->packet_count);
-
     // Cleanup
-    subghz_receiver_free(receiver);
-    subghz_environment_free(environment);
     furi_stream_buffer_free(instance->stream);
     free(instance);
 }
 
 void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    FuriString* file_name;
-    file_name = furi_string_alloc();
+    FuriString* file_name = furi_string_alloc();
     furi_string_set(file_name, ANY_PATH("subghz/test.sub"));
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
-    FuriString* temp_str;
-    temp_str = furi_string_alloc();
+    FuriString* temp_str = furi_string_alloc();
     uint32_t temp_data32;
     bool check_file = false;
 
@@ -357,23 +515,23 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
         SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
 
         SubGhzEnvironment* environment = subghz_environment_alloc();
-        if(subghz_environment_load_keystore(
-               environment, EXT_PATH("subghz/assets/keeloq_mfcodes"))) {
+        if(subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_NAME)) {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes \033[0;32mOK\033[0m\r\n");
         } else {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes \033[0;31mERROR\033[0m\r\n");
         }
-        if(subghz_environment_load_keystore(
-               environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"))) {
+        if(subghz_environment_load_keystore(environment, SUBGHZ_KEYSTORE_DIR_USER_NAME)) {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes_user \033[0;32mOK\033[0m\r\n");
         } else {
             printf(
                 "SubGhz decode_raw: Load_keystore keeloq_mfcodes_user \033[0;31mERROR\033[0m\r\n");
         }
         subghz_environment_set_came_atomo_rainbow_table_file_name(
-            environment, EXT_PATH("subghz/assets/came_atomo"));
+            environment, SUBGHZ_CAME_ATOMO_DIR_NAME);
+        subghz_environment_set_alutech_at_4n_rainbow_table_file_name(
+            environment, SUBGHZ_ALUTECH_AT_4N_DIR_NAME);
         subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-            environment, EXT_PATH("subghz/assets/nice_flor_s"));
+            environment, SUBGHZ_NICE_FLOR_S_DIR_NAME);
         subghz_environment_set_protocol_registry(environment, (void*)&subghz_protocol_registry);
 
         SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
@@ -381,7 +539,8 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
         subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
 
         SubGhzFileEncoderWorker* file_worker_encoder = subghz_file_encoder_worker_alloc();
-        if(subghz_file_encoder_worker_start(file_worker_encoder, furi_string_get_cstr(file_name))) {
+        if(subghz_file_encoder_worker_start(
+               file_worker_encoder, furi_string_get_cstr(file_name), NULL)) {
             //the worker needs a file in order to open and read part of the file
             furi_delay_ms(100);
         }
@@ -403,7 +562,7 @@ void subghz_cli_command_decode_raw(Cli* cli, FuriString* args, void* context) {
             }
         }
 
-        printf("\r\nPackets recieved \033[0;32m%u\033[0m\r\n", instance->packet_count);
+        printf("\r\nPackets received \033[0;32m%u\033[0m\r\n", instance->packet_count);
 
         // Cleanup
         subghz_receiver_free(receiver);
@@ -423,17 +582,19 @@ static void subghz_cli_command_print_usage() {
     printf("subghz <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
 
-    printf("\tchat <frequency:in Hz>\t - Chat with other Flippers\r\n");
     printf(
-        "\ttx <3 byte Key: in hex> <frequency: in Hz> <te: us> <repeat: count>\t - Transmitting key\r\n");
-    printf("\trx <frequency:in Hz>\t - Reception key\r\n");
+        "\tchat <frequency:in Hz> <device: 0 - CC1101_INT, 1 - CC1101_EXT>\t - Chat with other Flippers\r\n");
+    printf(
+        "\ttx <3 byte Key: in hex> <frequency: in Hz> <te: us> <repeat: count> <device: 0 - CC1101_INT, 1 - CC1101_EXT>\t - Transmitting key\r\n");
+    printf("\trx <frequency:in Hz> <device: 0 - CC1101_INT, 1 - CC1101_EXT>\t - Receive\r\n");
+    printf("\trx_raw <frequency:in Hz>\t - Receive RAW\r\n");
     printf("\tdecode_raw <file_name: path_RAW_file>\t - Testing\r\n");
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         printf("\r\n");
         printf("  debug cmd:\r\n");
         printf("\ttx_carrier <frequency:in Hz>\t - Transmit carrier\r\n");
-        printf("\trx_carrier <frequency:in Hz>\t - Receiv carrier\r\n");
+        printf("\trx_carrier <frequency:in Hz>\t - Receive carrier\r\n");
         printf(
             "\tencrypt_keeloq <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
         printf(
@@ -445,10 +606,8 @@ static void subghz_cli_command_encrypt_keeloq(Cli* cli, FuriString* args) {
     UNUSED(cli);
     uint8_t iv[16];
 
-    FuriString* source;
-    FuriString* destination;
-    source = furi_string_alloc();
-    destination = furi_string_alloc();
+    FuriString* source = furi_string_alloc();
+    FuriString* destination = furi_string_alloc();
 
     SubGhzKeystore* keystore = subghz_keystore_alloc();
 
@@ -488,10 +647,8 @@ static void subghz_cli_command_encrypt_raw(Cli* cli, FuriString* args) {
     UNUSED(cli);
     uint8_t iv[16];
 
-    FuriString* source;
-    FuriString* destination;
-    source = furi_string_alloc();
-    destination = furi_string_alloc();
+    FuriString* source = furi_string_alloc();
+    FuriString* destination = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, source)) {
@@ -523,21 +680,31 @@ static void subghz_cli_command_encrypt_raw(Cli* cli, FuriString* args) {
 
 static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
     uint32_t frequency = 433920000;
+    uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
 
     if(furi_string_size(args)) {
-        int ret = sscanf(furi_string_get_cstr(args), "%lu", &frequency);
-        if(ret != 1) {
-            printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
-            cli_print_usage("subghz chat", "<Frequency: in Hz>", furi_string_get_cstr(args));
-            return;
-        }
-        if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-            printf(
-                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
-                frequency);
+        int ret = sscanf(furi_string_get_cstr(args), "%lu %lu", &frequency, &device_ind);
+        if(ret != 2) {
+            printf("sscanf returned %d, Frequency: %lu\r\n", ret, frequency);
+            printf("sscanf returned %d, Device: %lu\r\n", ret, device_ind);
+            cli_print_usage(
+                "subghz chat",
+                "<Frequency: in Hz> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
+                furi_string_get_cstr(args));
             return;
         }
     }
+    subghz_devices_init();
+    const SubGhzDevice* device = subghz_cli_command_get_device(&device_ind);
+    if(!subghz_devices_is_frequency_valid(device, frequency)) {
+        printf(
+            "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n", frequency);
+        subghz_devices_deinit();
+        subghz_cli_radio_device_power_off();
+        return;
+    }
+
+    // TODO
     if(!furi_hal_subghz_is_tx_allowed(frequency)) {
         printf(
             "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
@@ -547,7 +714,8 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
     }
 
     SubGhzChatWorker* subghz_chat = subghz_chat_worker_alloc(cli);
-    if(!subghz_chat_worker_start(subghz_chat, frequency)) {
+
+    if(!subghz_chat_worker_start(subghz_chat, device, frequency)) {
         printf("Startup error SubGhzChatWorker\r\n");
 
         if(subghz_chat_worker_is_running(subghz_chat)) {
@@ -564,14 +732,10 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 
     size_t message_max_len = 64;
     uint8_t message[64] = {0};
-    FuriString* input;
-    input = furi_string_alloc();
-    FuriString* name;
-    name = furi_string_alloc();
-    FuriString* output;
-    output = furi_string_alloc();
-    FuriString* sysmsg;
-    sysmsg = furi_string_alloc();
+    FuriString* input = furi_string_alloc();
+    FuriString* name = furi_string_alloc();
+    FuriString* output = furi_string_alloc();
+    FuriString* sysmsg = furi_string_alloc();
     bool exit = false;
     SubGhzChatEvent chat_event;
 
@@ -693,6 +857,10 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
     furi_string_free(name);
     furi_string_free(output);
     furi_string_free(sysmsg);
+
+    subghz_devices_deinit();
+    subghz_cli_radio_device_power_off();
+
     furi_hal_power_suppress_charge_exit();
     furi_record_close(RECORD_NOTIFICATION);
 
@@ -704,8 +872,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
 }
 
 static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
-    FuriString* cmd;
-    cmd = furi_string_alloc();
+    FuriString* cmd = furi_string_alloc();
 
     do {
         if(!args_read_string_and_trim(args, cmd)) {
@@ -725,6 +892,11 @@ static void subghz_cli_command(Cli* cli, FuriString* args, void* context) {
 
         if(furi_string_cmp_str(cmd, "rx") == 0) {
             subghz_cli_command_rx(cli, args, context);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "rx_raw") == 0) {
+            subghz_cli_command_rx_raw(cli, args, context);
             break;
         }
 

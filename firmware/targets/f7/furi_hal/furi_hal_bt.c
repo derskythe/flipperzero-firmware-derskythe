@@ -7,20 +7,29 @@
 #include <furi_hal_version.h>
 #include <furi_hal_bt_hid.h>
 #include <furi_hal_bt_serial.h>
+#include <furi_hal_bus.c>
 #include "battery_service.h"
 
 #include <furi.h>
 
 #define TAG "FuriHalBt"
 
-#define FURI_HAL_BT_DEFAULT_MAC_ADDR \
-    { 0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72 }
-
 /* Time, in ms, to wait for mode transition before crashing */
 #define C2_MODE_SWITCH_TIMEOUT 10000
 
-FuriMutex* furi_hal_bt_core2_mtx = NULL;
-static FuriHalBtStack furi_hal_bt_stack = FuriHalBtStackUnknown;
+#define FURI_HAL_BT_HARDFAULT_INFO_MAGIC 0x1170FD0F
+
+typedef struct {
+    FuriMutex* core2_mtx;
+    FuriTimer* hardfault_check_timer;
+    FuriHalBtStack stack;
+} FuriHalBt;
+
+static FuriHalBt furi_hal_bt = {
+    .core2_mtx = NULL,
+    .hardfault_check_timer = NULL,
+    .stack = FuriHalBtStackUnknown,
+};
 
 typedef void (*FuriHalBtProfileStart)(void);
 typedef void (*FuriHalBtProfileStop)(void);
@@ -77,29 +86,46 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
 };
 FuriHalBtProfileConfig* current_profile = NULL;
 
+static void furi_hal_bt_hardfault_check(void* context) {
+    UNUSED(context);
+    if(furi_hal_bt_get_hardfault_info()) {
+        furi_crash("ST(R) Copro(R) HardFault");
+    }
+}
+
 void furi_hal_bt_init() {
-    if(!furi_hal_bt_core2_mtx) {
-        furi_hal_bt_core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
-        furi_assert(furi_hal_bt_core2_mtx);
+    furi_hal_bus_enable(FuriHalBusHSEM);
+    furi_hal_bus_enable(FuriHalBusIPCC);
+    furi_hal_bus_enable(FuriHalBusAES2);
+    furi_hal_bus_enable(FuriHalBusPKA);
+    furi_hal_bus_enable(FuriHalBusCRC);
+
+    if(!furi_hal_bt.core2_mtx) {
+        furi_hal_bt.core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
+        furi_assert(furi_hal_bt.core2_mtx);
+    }
+
+    if(!furi_hal_bt.hardfault_check_timer) {
+        furi_hal_bt.hardfault_check_timer =
+            furi_timer_alloc(furi_hal_bt_hardfault_check, FuriTimerTypePeriodic, NULL);
+        furi_timer_start(furi_hal_bt.hardfault_check_timer, 5000);
     }
 
     // Explicitly tell that we are in charge of CLK48 domain
-    if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
-        furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
-    }
+    furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
 
     // Start Core2
     ble_glue_init();
 }
 
 void furi_hal_bt_lock_core2() {
-    furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever) == FuriStatusOk);
+    furi_assert(furi_hal_bt.core2_mtx);
+    furi_check(furi_mutex_acquire(furi_hal_bt.core2_mtx, FuriWaitForever) == FuriStatusOk);
 }
 
 void furi_hal_bt_unlock_core2() {
-    furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(furi_mutex_release(furi_hal_bt_core2_mtx) == FuriStatusOk);
+    furi_assert(furi_hal_bt.core2_mtx);
+    furi_check(furi_mutex_release(furi_hal_bt.core2_mtx) == FuriStatusOk);
 }
 
 static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
@@ -107,31 +133,29 @@ static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
     if(info->StackType == INFO_STACK_TYPE_BLE_LIGHT) {
         if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
            info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
-            furi_hal_bt_stack = FuriHalBtStackLight;
+            furi_hal_bt.stack = FuriHalBtStackLight;
             supported = true;
         }
     } else if(info->StackType == INFO_STACK_TYPE_BLE_FULL) {
         if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
            info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
-            furi_hal_bt_stack = FuriHalBtStackFull;
+            furi_hal_bt.stack = FuriHalBtStackFull;
             supported = true;
         }
     } else {
-        furi_hal_bt_stack = FuriHalBtStackUnknown;
+        furi_hal_bt.stack = FuriHalBtStackUnknown;
     }
     return supported;
 }
 
 bool furi_hal_bt_start_radio_stack() {
     bool res = false;
-    furi_assert(furi_hal_bt_core2_mtx);
+    furi_assert(furi_hal_bt.core2_mtx);
 
-    furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever);
+    furi_mutex_acquire(furi_hal_bt.core2_mtx, FuriWaitForever);
 
     // Explicitly tell that we are in charge of CLK48 domain
-    if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
-        furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
-    }
+    furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
 
     do {
         // Wait until C2 is started or timeout
@@ -162,17 +186,17 @@ bool furi_hal_bt_start_radio_stack() {
         }
         res = true;
     } while(false);
-    furi_mutex_release(furi_hal_bt_core2_mtx);
+    furi_mutex_release(furi_hal_bt.core2_mtx);
 
     return res;
 }
 
 FuriHalBtStack furi_hal_bt_get_radio_stack() {
-    return furi_hal_bt_stack;
+    return furi_hal_bt.stack;
 }
 
 bool furi_hal_bt_is_ble_gatt_gap_supported() {
-    if(furi_hal_bt_stack == FuriHalBtStackLight || furi_hal_bt_stack == FuriHalBtStackFull) {
+    if(furi_hal_bt.stack == FuriHalBtStackLight || furi_hal_bt.stack == FuriHalBtStackFull) {
         return true;
     } else {
         return false;
@@ -180,7 +204,7 @@ bool furi_hal_bt_is_ble_gatt_gap_supported() {
 }
 
 bool furi_hal_bt_is_testing_supported() {
-    if(furi_hal_bt_stack == FuriHalBtStackFull) {
+    if(furi_hal_bt.stack == FuriHalBtStackFull) {
         return true;
     } else {
         return false;
@@ -201,26 +225,40 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             FURI_LOG_E(TAG, "Can't start Ble App - unsupported radio stack");
             break;
         }
-        // Set mac address
-        memcpy(
-            profile_config[profile].config.mac_address,
-            furi_hal_version_get_ble_mac(),
-            sizeof(profile_config[profile].config.mac_address));
-        // Set advertise name
-        strlcpy(
-            profile_config[profile].config.adv_name,
-            furi_hal_version_get_ble_local_device_name_ptr(),
-            FURI_HAL_VERSION_DEVICE_NAME_LENGTH);
-        // Configure GAP
         GapConfig* config = &profile_config[profile].config;
+        // Configure GAP
         if(profile == FuriHalBtProfileSerial) {
+            // Set mac address
+            memcpy(
+                config->mac_address, furi_hal_version_get_ble_mac(), sizeof(config->mac_address));
+            // Set advertise name
+            strlcpy(
+                config->adv_name,
+                furi_hal_version_get_ble_local_device_name_ptr(),
+                FURI_HAL_BT_ADV_NAME_LENGTH);
+
             config->adv_service_uuid |= furi_hal_version_get_hw_color();
         } else if(profile == FuriHalBtProfileHidKeyboard) {
             // Change MAC address for HID profile
-            config->mac_address[2]++;
+            const uint8_t* normal_mac = furi_hal_version_get_ble_mac();
+            uint8_t empty_mac[sizeof(config->mac_address)] = FURI_HAL_BT_EMPTY_MAC_ADDR;
+            uint8_t default_mac[sizeof(config->mac_address)] = FURI_HAL_BT_DEFAULT_MAC_ADDR;
+            if(memcmp(config->mac_address, empty_mac, sizeof(config->mac_address)) == 0 ||
+               memcmp(config->mac_address, normal_mac, sizeof(config->mac_address)) == 0 ||
+               memcmp(config->mac_address, default_mac, sizeof(config->mac_address)) == 0) {
+                memcpy(config->mac_address, normal_mac, sizeof(config->mac_address));
+                config->mac_address[2]++;
+            }
             // Change name Flipper -> Control
-            const char* clicker_str = "Control";
-            memcpy(&config->adv_name[1], clicker_str, strlen(clicker_str));
+            if(strnlen(config->adv_name, FURI_HAL_BT_ADV_NAME_LENGTH) < 2 ||
+               strnlen(config->adv_name + 1, FURI_HAL_BT_ADV_NAME_LENGTH - 1) < 1) {
+                snprintf(
+                    config->adv_name,
+                    FURI_HAL_BT_ADV_NAME_LENGTH,
+                    "%cControl %s",
+                    AD_TYPE_COMPLETE_LOCAL_NAME,
+                    furi_hal_version_get_name_ptr());
+            }
         }
         if(!gap_init(config, event_cb, context)) {
             gap_thread_stop();
@@ -258,6 +296,12 @@ void furi_hal_bt_reinit() {
     furi_delay_ms(100);
     ble_glue_thread_stop();
 
+    furi_hal_bus_disable(FuriHalBusHSEM);
+    furi_hal_bus_disable(FuriHalBusIPCC);
+    furi_hal_bus_disable(FuriHalBusAES2);
+    furi_hal_bus_disable(FuriHalBusPKA);
+    furi_hal_bus_disable(FuriHalBusCRC);
+
     FURI_LOG_I(TAG, "Start BT initialization");
     furi_hal_bt_init();
 
@@ -280,6 +324,10 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb,
 
 bool furi_hal_bt_is_active() {
     return gap_get_state() > GapStateIdle;
+}
+
+bool furi_hal_bt_is_connected() {
+    return gap_get_state() == GapStateConnected;
 }
 
 void furi_hal_bt_start_advertising() {
@@ -415,9 +463,79 @@ float furi_hal_bt_get_rssi() {
             val += 6.0;
             rssi >>= 1;
         }
-        val += (417 * rssi + 18080) >> 10;
+        val += (float)((417 * rssi + 18080) >> 10);
     }
     return val;
+}
+
+/** fill the RSSI of the remote host of the bt connection and returns the last 
+ *  time the RSSI was updated
+ * 
+*/
+uint32_t furi_hal_bt_get_conn_rssi(uint8_t* rssi) {
+    int8_t ret_rssi = 0;
+    uint32_t since = gap_get_remote_conn_rssi(&ret_rssi);
+
+    if(ret_rssi == 127 || since == 0) return 0;
+
+    *rssi = (uint8_t)abs(ret_rssi);
+
+    return since;
+}
+
+void furi_hal_bt_reverse_mac_addr(uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
+    uint8_t tmp;
+    for(size_t i = 0; i < GAP_MAC_ADDR_SIZE / 2; i++) {
+        tmp = mac_addr[i];
+        mac_addr[i] = mac_addr[GAP_MAC_ADDR_SIZE - 1 - i];
+        mac_addr[GAP_MAC_ADDR_SIZE - 1 - i] = tmp;
+    }
+}
+
+void furi_hal_bt_set_profile_adv_name(
+    FuriHalBtProfile profile,
+    const char name[FURI_HAL_BT_ADV_NAME_LENGTH]) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    furi_assert(name);
+
+    if(strlen(name) == 0) {
+        memset(&(profile_config[profile].config.adv_name[1]), 0, FURI_HAL_BT_ADV_NAME_LENGTH - 1);
+    } else {
+        profile_config[profile].config.adv_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
+        strlcpy(
+            &(profile_config[profile].config.adv_name[1]),
+            name,
+            FURI_HAL_BT_ADV_NAME_LENGTH - 1 /* BLE symbol */);
+    }
+}
+
+const char* furi_hal_bt_get_profile_adv_name(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return &(profile_config[profile].config.adv_name[1]);
+}
+
+void furi_hal_bt_set_profile_mac_addr(
+    FuriHalBtProfile profile,
+    const uint8_t mac_addr[GAP_MAC_ADDR_SIZE]) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    furi_assert(mac_addr);
+
+    memcpy(profile_config[profile].config.mac_address, mac_addr, GAP_MAC_ADDR_SIZE);
+}
+
+const uint8_t* furi_hal_bt_get_profile_mac_addr(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return profile_config[profile].config.mac_address;
+}
+
+void furi_hal_bt_set_profile_pairing_method(FuriHalBtProfile profile, GapPairing pairing_method) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    profile_config[profile].config.pairing_method = pairing_method;
+}
+
+GapPairing furi_hal_bt_get_profile_pairing_method(FuriHalBtProfile profile) {
+    furi_assert(profile < FuriHalBtProfileNumber);
+    return profile_config[profile].config.pairing_method;
 }
 
 uint32_t furi_hal_bt_get_transmitted_packets() {
@@ -443,4 +561,13 @@ bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode) {
 
     FURI_LOG_E(TAG, "Failed to switch C2 mode: %d", fw_start_res);
     return false;
+}
+
+const FuriHalBtHardfaultInfo* furi_hal_bt_get_hardfault_info() {
+    /* AN5289, 4.8.2 */
+    const FuriHalBtHardfaultInfo* info = (FuriHalBtHardfaultInfo*)(SRAM2A_BASE);
+    if(info->magic != FURI_HAL_BT_HARDFAULT_INFO_MAGIC) {
+        return NULL;
+    }
+    return info;
 }

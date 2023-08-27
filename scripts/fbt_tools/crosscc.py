@@ -1,21 +1,19 @@
-from SCons.Errors import StopError
-from SCons.Tool import asm
-from SCons.Tool import gcc
-from SCons.Tool import gxx
-from SCons.Tool import ar
-from SCons.Tool import gnulink
-import strip
+import subprocess
+
 import gdb
 import objdump
+import shutil
 
+import strip
 from SCons.Action import _subproc
-import subprocess
+from SCons.Errors import StopError
+from SCons.Tool import ar, asm, gcc, gnulink, gxx
 
 
 def prefix_commands(env, command_prefix, cmd_list):
     for command in cmd_list:
         if command in env:
-            env[command] = command_prefix + env[command]
+            env[command] = shutil.which(command_prefix + env[command])
 
 
 def _get_tool_version(env, tool):
@@ -37,6 +35,21 @@ def _get_tool_version(env, tool):
 
 
 def generate(env, **kw):
+    if not env.get("VERBOSE", False):
+        env.SetDefault(
+            CCCOMSTR="\tCC\t${SOURCE}",
+            CXXCOMSTR="\tCPP\t${SOURCE}",
+            ASCOMSTR="\tASM\t${SOURCE}",
+            ARCOMSTR="\tAR\t${TARGET}",
+            RANLIBCOMSTR="\tRANLIB\t${TARGET}",
+            LINKCOMSTR="\tLINK\t${TARGET}",
+            INSTALLSTR="\tINSTALL\t${TARGET}",
+            APPSCOMSTR="\tAPPS\t${TARGET}",
+            VERSIONCOMSTR="\tVERSION\t${TARGET}",
+            STRIPCOMSTR="\tSTRIP\t${TARGET}",
+            OBJDUMPCOMSTR="\tOBJDUMP\t${TARGET}",
+        )
+
     for orig_tool in (asm, gcc, gxx, ar, gnulink, strip, gdb, objdump):
         orig_tool.generate(env)
     env.SetDefault(

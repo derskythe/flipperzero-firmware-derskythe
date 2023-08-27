@@ -65,7 +65,7 @@ const char* version_get_builddate(const Version* v);
  */
 const char* version_get_version(const Version* v);
 
-/** Get custom flipper name if set in ENV
+/** Get custom flipper name if set in version_set_custom_name
  *
  * @param      v     pointer to Version data. NULL for currently running
  *                   software.
@@ -73,6 +73,14 @@ const char* version_get_version(const Version* v);
  * @return     custom name or NULL
  */
 const char* version_get_custom_name(const Version* v);
+
+/** Set custom flipper name
+ *
+ * @param      v     pointer to Version data. NULL for currently running
+ *                   software.
+ * @param      name  Custom name or NULL
+ */
+void version_set_custom_name(Version* v, const char* name);
 
 /** Get hardware target this firmware was built for
  *
@@ -91,6 +99,17 @@ uint8_t version_get_target(const Version* v);
  * @return     build date
  */
 bool version_get_dirty_flag(const Version* v);
+
+/** 
+ * Get firmware origin. "Official" for mainline firmware, fork name for forks.
+ * Set by FIRMWARE_ORIGIN fbt argument.
+*/
+const char* version_get_firmware_origin(const Version* v);
+
+/** 
+ * Get git repo origin
+*/
+const char* version_get_git_origin(const Version* v);
 
 #ifdef __cplusplus
 }

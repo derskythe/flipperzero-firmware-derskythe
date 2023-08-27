@@ -2,12 +2,15 @@
 
 #include "nfc_device.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct NfcWorker NfcWorker;
 
 typedef enum {
     // Init states
     NfcWorkerStateNone,
-    NfcWorkerStateBroken,
     NfcWorkerStateReady,
     // Main worker states
     NfcWorkerStateRead,
@@ -19,6 +22,10 @@ typedef enum {
     NfcWorkerStateReadMfUltralightReadAuth,
     NfcWorkerStateMfClassicDictAttack,
     NfcWorkerStateAnalyzeReader,
+    NfcWorkerStateNfcVEmulate,
+    NfcWorkerStateNfcVUnlock,
+    NfcWorkerStateNfcVUnlockAndSave,
+    NfcWorkerStateNfcVSniff,
     // Debug
     NfcWorkerStateEmulateApdu,
     NfcWorkerStateField,
@@ -41,6 +48,7 @@ typedef enum {
     NfcWorkerEventReadMfClassicLoadKeyCache,
     NfcWorkerEventReadMfClassicDictAttackRequired,
     NfcWorkerEventReadBankCard,
+    NfcWorkerEventReadNfcV,
 
     // Nfc worker common events
     NfcWorkerEventSuccess,
@@ -56,6 +64,9 @@ typedef enum {
     NfcWorkerEventNewDictKeyBatch,
     NfcWorkerEventFoundKeyA,
     NfcWorkerEventFoundKeyB,
+    NfcWorkerEventKeyAttackStart,
+    NfcWorkerEventKeyAttackStop,
+    NfcWorkerEventKeyAttackNextSector,
 
     // Write Mifare Classic events
     NfcWorkerEventWrongCard,
@@ -66,8 +77,11 @@ typedef enum {
     NfcWorkerEventDetectReaderMfkeyCollected,
 
     // Mifare Ultralight events
-    NfcWorkerEventMfUltralightPassKey,
-
+    NfcWorkerEventMfUltralightPassKey, // NFC worker requesting manual key
+    NfcWorkerEventMfUltralightPwdAuth, // Reader sent auth command
+    NfcWorkerEventNfcVPassKey, // NFC worker requesting manual key
+    NfcWorkerEventNfcVCommandExecuted,
+    NfcWorkerEventNfcVContentChanged,
 } NfcWorkerEvent;
 
 typedef bool (*NfcWorkerCallback)(NfcWorkerEvent event, void* context);
@@ -86,3 +100,10 @@ void nfc_worker_start(
     void* context);
 
 void nfc_worker_stop(NfcWorker* nfc_worker);
+void nfc_worker_nfcv_unlock(NfcWorker* nfc_worker);
+void nfc_worker_nfcv_emulate(NfcWorker* nfc_worker);
+void nfc_worker_nfcv_sniff(NfcWorker* nfc_worker);
+
+#ifdef __cplusplus
+}
+#endif

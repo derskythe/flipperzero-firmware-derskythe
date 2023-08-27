@@ -19,7 +19,7 @@ extern "C" {
 #define ELEMENTS_MAX_LINES_NUM (7)
 #define ELEMENTS_BOLD_MARKER '#'
 #define ELEMENTS_MONO_MARKER '*'
-#define ELEMENTS_INVERSED_MARKER '!'
+#define ELEMENTS_INVERSE_MARKER '!'
 
 /** Draw progress bar.
  *
@@ -30,6 +30,23 @@ extern "C" {
  * @param   progress    progress (0.0 - 1.0)
  */
 void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, float progress);
+
+/** Draw progress bar with text.
+ *
+ * @param   canvas      Canvas instance
+ * @param   x           progress bar position on X axis
+ * @param   y           progress bar position on Y axis
+ * @param   width       progress bar width
+ * @param   progress    progress (0.0 - 1.0)
+ * @param   text        text to draw
+ */
+void elements_progress_bar_with_text(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    float progress,
+    const char* text);
 
 /** Draw scrollbar on canvas at specific position.
  *
@@ -90,7 +107,7 @@ void elements_button_center(Canvas* canvas, const char* str);
  *
  * @param   canvas                  Canvas instance
  * @param   x, y                    coordinates based on align param
- * @param   horizontal, vertical    aligment of multiline text
+ * @param   horizontal, vertical    alignment of multiline text
  * @param   text                    string (possible multiline)
  */
 void elements_multiline_text_aligned(
@@ -192,6 +209,35 @@ void elements_bubble_str(
  */
 void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width);
 
+/** Draw scrollable text line
+ *
+ * @param      canvas    The canvas
+ * @param[in]  x         X coordinate
+ * @param[in]  y         Y coordinate
+ * @param[in]  width     The width
+ * @param      string    The string
+ * @param[in]  scroll    The scroll counter: 0 - no scroll, any other number - scroll. Just count up, everything else will be calculated on the inside.
+ * @param[in]  ellipsis  The ellipsis flag: true to add ellipse
+ */
+void elements_scrollable_text_line(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    FuriString* string,
+    size_t scroll,
+    bool ellipsis);
+
+void elements_scrollable_text_line_str(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    const char* string,
+    size_t scroll,
+    bool ellipsis,
+    bool centered);
+
 /** Draw text box element
  *
  * @param       canvas          Canvas instance
@@ -204,7 +250,7 @@ void elements_string_fit_width(Canvas* canvas, FuriString* string, uint8_t width
  * @param[in]   text            Formatted text. The following formats are available:
  *                              "\e#Bold text\e#" - bold font is used
  *                              "\e*Monospaced text\e*" - monospaced font is used
- *                              "\e!Inversed text\e!" - white text on black background
+ *                              "\e!Inverted text\e!" - white text on black background
  * @param      strip_to_dots    Strip text to ... if does not fit to width
  */
 void elements_text_box(

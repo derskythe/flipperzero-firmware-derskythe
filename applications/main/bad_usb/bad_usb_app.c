@@ -33,9 +33,26 @@ static void bad_usb_load_settings(BadUsbApp* app) {
               !storage_file_eof(settings_file) && !isspace(chr)) {
             furi_string_push_back(app->keyboard_layout, chr);
         }
+    } else {
+        furi_string_reset(app->keyboard_layout);
     }
     storage_file_close(settings_file);
     storage_file_free(settings_file);
+
+    if(!furi_string_empty(app->keyboard_layout)) {
+        Storage* fs_api = furi_record_open(RECORD_STORAGE);
+        FileInfo layout_file_info;
+        FS_Error file_check_err = storage_common_stat(
+            fs_api, furi_string_get_cstr(app->keyboard_layout), &layout_file_info);
+        furi_record_close(RECORD_STORAGE);
+        if(file_check_err != FSE_OK) {
+            furi_string_reset(app->keyboard_layout);
+            return;
+        }
+        if(layout_file_info.size != 256) {
+            furi_string_reset(app->keyboard_layout);
+        }
+    }
 }
 
 static void bad_usb_save_settings(BadUsbApp* app) {
@@ -98,8 +115,12 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 
     if(furi_hal_usb_is_locked()) {
         app->error = BadUsbAppErrorCloseRpc;
+        app->usb_if_prev = NULL;
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
     } else {
+        app->usb_if_prev = furi_hal_usb_get_config();
+        furi_check(furi_hal_usb_set_config(NULL, NULL));
+
         if(!furi_string_empty(app->file_path)) {
             app->bad_usb_script = bad_usb_script_open(app->file_path);
             bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
@@ -146,6 +167,10 @@ void bad_usb_app_free(BadUsbApp* app) {
 
     furi_string_free(app->file_path);
     furi_string_free(app->keyboard_layout);
+
+    if(app->usb_if_prev) {
+        furi_check(furi_hal_usb_set_config(app->usb_if_prev, NULL));
+    }
 
     free(app);
 }

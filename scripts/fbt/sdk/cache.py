@@ -1,20 +1,13 @@
-import operator
-import os
 import csv
 import operator
-
-from enum import Enum, auto
-from typing import Set, ClassVar, Any
+import os
 from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Any, ClassVar, Set
 
 from ansi.color import fg
 
-from . import (
-    ApiEntries,
-    ApiEntryFunction,
-    ApiEntryVariable,
-    ApiHeader,
-)
+from . import ApiEntries, ApiEntryFunction, ApiEntryVariable, ApiHeader
 
 
 @dataclass(frozen=True)
@@ -89,6 +82,9 @@ class SdkCache:
         syms.update(map(lambda e: e.name, self.get_variables()))
         return syms
 
+    def get_disabled_names(self):
+        return set(map(lambda e: e.name, self.disabled_entries))
+
     def get_functions(self):
         return self._filter_enabled(self.sdk.functions)
 
@@ -134,7 +130,7 @@ class SdkCache:
                     f"API version is still WIP: {self.version}. Review the changes and re-run command."
                 )
             )
-            print(f"CSV file entries to mark up:")
+            print("CSV file entries to mark up:")
             print(
                 fg.yellow(
                     "\n".join(
@@ -241,6 +237,7 @@ class SdkCache:
         removed_entries = known_set - new_set
         if removed_entries:
             print(f"Removed: {removed_entries}")
+            self.loaded_dirty_version = True
             known_set -= removed_entries
             # If any of removed entries was a part of active API, that's a major bump
             if update_version and any(

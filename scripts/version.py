@@ -1,19 +1,24 @@
 #!/usb/bin/env python3
 
-from flipper.app import App
-
-import subprocess
-import os
 import json
+import os
+import subprocess
 from datetime import date, datetime
+
+from flipper.app import App
 
 
 class GitVersion:
+    REVISION_SUFFIX_LENGTH = 8
+
     def __init__(self, source_dir):
         self.source_dir = source_dir
 
     def get_version_info(self):
-        commit = self._exec_git("rev-parse --short HEAD") or "unknown"
+        commit = (
+            self._exec_git(f"rev-parse --short={self.REVISION_SUFFIX_LENGTH} HEAD")
+            or "unknown"
+        )
 
         dirty = False
         try:
@@ -30,35 +35,52 @@ class GitVersion:
             or "unknown"
         )
 
-        branch_num = self._exec_git("rev-list --count HEAD") or "n/a"
-
         version = (
             os.environ.get("DIST_SUFFIX", None)
             or "unknown"
         )
 
-        custom_fz_name = (
-            os.environ.get("CUSTOM_FLIPPER_NAME", None)
+        force_no_dirty = (
+            os.environ.get("FORCE_NO_DIRTY", None)
             or ""
         )
+        if (force_no_dirty != ""):
+            dirty = False
 
-        if (custom_fz_name != "") and (len(custom_fz_name) <= 8) and (custom_fz_name.isalnum()) and (custom_fz_name.isascii()):
-            return {
-                "GIT_COMMIT": commit,
-                "GIT_BRANCH": branch,
-                "GIT_BRANCH_NUM": branch_num,
-                "FURI_CUSTOM_FLIPPER_NAME": custom_fz_name,
-                "VERSION": version,
-                "BUILD_DIRTY": dirty and 1 or 0,
-            }
+        if "SOURCE_DATE_EPOCH" in os.environ:
+            commit_date = datetime.utcfromtimestamp(
+                int(os.environ["SOURCE_DATE_EPOCH"])
+            )
         else:
-            return {
-                "GIT_COMMIT": commit,
-                "GIT_BRANCH": branch,
-                "GIT_BRANCH_NUM": branch_num,
-                "VERSION": version,
-                "BUILD_DIRTY": dirty and 1 or 0,
-            }
+            commit_date = datetime.strptime(
+                self._exec_git("log -1 --format=%cd").strip(),
+                "%a %b %d %H:%M:%S %Y %z",
+            )
+
+        return {
+            "GIT_COMMIT": commit,
+            "GIT_BRANCH": branch,
+            "VERSION": version,
+            "BUILD_DIRTY": dirty and 1 or 0,
+            "GIT_ORIGIN": "https://github.com/DarkFlippers/unleashed-firmware.git",
+            "GIT_COMMIT_DATE": commit_date,
+        }
+    
+    # "GIT_ORIGIN": ",".join(self._get_git_origins()),
+
+    def _get_git_origins(self):
+        try:
+            remotes = self._exec_git("remote -v")
+        except subprocess.CalledProcessError:
+            return set()
+        origins = set()
+        for line in remotes.split("\n"):
+            if not line:
+                continue
+            _, destination = line.split("\t")
+            url, _ = destination.split(" ")
+            origins.add(url)
+        return origins
 
     def _exec_git(self, args):
         cmd = ["git"]
@@ -87,23 +109,34 @@ class Main(App):
             help="hardware target",
             required=True,
         )
+        self.parser_generate.add_argument(
+            "-fw-origin",
+            dest="firmware_origin",
+            type=str,
+            help="firmware origin",
+            required=True,
+        )
         self.parser_generate.add_argument("--dir", dest="sourcedir", required=True)
         self.parser_generate.set_defaults(func=self.generate)
 
     def generate(self):
         current_info = GitVersion(self.args.sourcedir).get_version_info()
 
-        if "SOURCE_DATE_EPOCH" in os.environ:
-            build_date = datetime.utcfromtimestamp(int(os.environ["SOURCE_DATE_EPOCH"]))
-        else:
-            build_date = date.today()
+        build_date = (
+            date.today()
+            if current_info["BUILD_DIRTY"]
+            else current_info["GIT_COMMIT_DATE"]
+        )
 
         current_info.update(
             {
                 "BUILD_DATE": build_date.strftime("%d-%m-%Y"),
                 "TARGET": self.args.target,
+                "FIRMWARE_ORIGIN": self.args.firmware_origin,
             }
         )
+
+        del current_info["GIT_COMMIT_DATE"]
 
         version_values = []
         for key in current_info:
@@ -142,6 +175,7 @@ class Main(App):
             "firmware_commit": current_info["GIT_COMMIT"],
             "firmware_branch": current_info["GIT_BRANCH"],
             "firmware_target": current_info["TARGET"],
+            "firmware_version": current_info["VERSION"],
         }
         with open(version_json_name, "w", newline="\n") as file:
             json.dump(version_json, file, indent=4)

@@ -1,6 +1,7 @@
 #include "../infrared_i.h"
 
 #include "common/infrared_scene_universal_common.h"
+#include <furi_hal_rtc.h>
 
 void infrared_scene_universal_ac_on_enter(void* context) {
     infrared_scene_universal_common_on_enter(context);
@@ -11,7 +12,6 @@ void infrared_scene_universal_ac_on_enter(void* context) {
 
     infrared_brute_force_set_db_filename(brute_force, EXT_PATH("infrared/assets/ac.ir"));
 
-    //TODO Improve A/C universal remote
     button_panel_reserve(button_panel, 2, 3);
     uint32_t i = 0;
     button_panel_add_item(
@@ -19,78 +19,109 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         i,
         0,
         0,
-        3,
-        24,
-        &I_Power_25x27,
-        &I_Power_hvr_25x27,
+        6,
+        15,
+        &I_power_19x20,
+        &I_power_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "POWER");
+    button_panel_add_icon(button_panel, 4, 37, &I_power_text_24x5);
+    infrared_brute_force_add_record(brute_force, i++, "Off");
     button_panel_add_item(
         button_panel,
         i,
         1,
         0,
-        36,
-        24,
-        &I_Mode_25x27,
-        &I_Mode_hvr_25x27,
+        39,
+        15,
+        &I_dry_19x20,
+        &I_dry_hover_19x20,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "MODE");
+    button_panel_add_icon(button_panel, 41, 37, &I_dry_text_15x5);
+    infrared_brute_force_add_record(brute_force, i++, "Dh");
     button_panel_add_item(
         button_panel,
         i,
         0,
         1,
         3,
-        66,
-        &I_Vol_up_25x27,
-        &I_Vol_up_hvr_25x27,
+        49,
+        &I_max_24x23,
+        &I_max_hover_24x23,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "TEMP+");
+    infrared_brute_force_add_record(brute_force, i++, "Cool_hi");
     button_panel_add_item(
         button_panel,
         i,
         1,
         1,
-        36,
-        66,
-        &I_Vol_down_25x27,
-        &I_Vol_down_hvr_25x27,
+        37,
+        49,
+        &I_max_24x23,
+        &I_max_hover_24x23,
         infrared_scene_universal_common_item_callback,
         context);
-    infrared_brute_force_add_record(brute_force, i++, "TEMP-");
-    button_panel_add_item(
-        button_panel,
-        i,
-        0,
-        2,
-        3,
-        98,
-        &I_Swing_25x27,
-        &I_Swing_hvr_25x27,
-        infrared_scene_universal_common_item_callback,
-        context);
-    infrared_brute_force_add_record(brute_force, i++, "SWING");
-    button_panel_add_item(
-        button_panel,
-        i,
-        1,
-        2,
-        36,
-        98,
-        &I_Timer_25x27,
-        &I_Timer_hvr_25x27,
-        infrared_scene_universal_common_item_callback,
-        context);
-    infrared_brute_force_add_record(brute_force, i++, "TIMER");
+    infrared_brute_force_add_record(brute_force, i++, "Heat_hi");
+    if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+        button_panel_add_item(
+            button_panel,
+            i,
+            0,
+            2,
+            3,
+            100,
+            &I_celsius_24x23,
+            &I_celsius_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    } else {
+        button_panel_add_item(
+            button_panel,
+            i,
+            0,
+            2,
+            3,
+            100,
+            &I_fahren_24x23,
+            &I_fahren_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    }
+    infrared_brute_force_add_record(brute_force, i++, "Cool_lo");
 
-    button_panel_add_label(button_panel, 6, 11, FontPrimary, "AC remote");
-    button_panel_add_label(button_panel, 20, 63, FontSecondary, "Temp");
-    button_panel_add_label(button_panel, 8, 23, FontSecondary, "Pwr");
-    button_panel_add_label(button_panel, 40, 23, FontSecondary, "Mod");
+    if(furi_hal_rtc_get_locale_units() == FuriHalRtcLocaleUnitsMetric) {
+        button_panel_add_item(
+            button_panel,
+            i,
+            1,
+            2,
+            37,
+            100,
+            &I_celsius_24x23,
+            &I_celsius_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    } else {
+        button_panel_add_item(
+            button_panel,
+            i,
+            1,
+            2,
+            37,
+            100,
+            &I_fahren_24x23,
+            &I_fahren_hover_24x23,
+            infrared_scene_universal_common_item_callback,
+            context);
+    }
+    infrared_brute_force_add_record(brute_force, i++, "Heat_lo");
+
+    button_panel_add_icon(button_panel, 0, 60, &I_cool_30x51);
+    button_panel_add_icon(button_panel, 34, 60, &I_heat_30x51);
+
+    button_panel_add_label(button_panel, 4, 10, FontPrimary, "AC remote");
 
     view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewStack);

@@ -70,7 +70,7 @@ const SubGhzProtocol subghz_protocol_scher_khan = {
     .name = SUBGHZ_PROTOCOL_SCHER_KHAN_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_FM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Save,
+            SubGhzProtocolFlag_Save | SubGhzProtocolFlag_AutoAlarms,
 
     .decoder = &subghz_protocol_scher_khan_decoder,
     .encoder = &subghz_protocol_scher_khan_encoder,
@@ -152,8 +152,8 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
         break;
     case ScherKhanDecoderStepSaveDuration:
         if(level) {
-            if(duration >= (uint32_t)(subghz_protocol_scher_khan_const.te_long +
-                            subghz_protocol_scher_khan_const.te_delta * 2)) {
+            if(duration >= (subghz_protocol_scher_khan_const.te_delta * 2UL +
+                            subghz_protocol_scher_khan_const.te_long)) {
                 //Found stop bit
                 instance->decoder.parser_step = ScherKhanDecoderStepReset;
                 if(instance->decoder.decode_count_bit >=
@@ -220,18 +220,48 @@ static void subghz_protocol_scher_khan_check_remote_controller(
     */
 
     switch(instance->data_count_bit) {
-    // case 35: //MAGIC CODE, Static
-    //     instance->protocol_name = "MAGIC CODE, Static";
-    //     break;
+    case 35: //MAGIC CODE, Static
+        *protocol_name = "MAGIC CODE, Static";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
     case 51: //MAGIC CODE, Dynamic
         *protocol_name = "MAGIC CODE, Dynamic";
         instance->serial = ((instance->data >> 24) & 0xFFFFFF0) | ((instance->data >> 20) & 0x0F);
         instance->btn = (instance->data >> 24) & 0x0F;
         instance->cnt = instance->data & 0xFFFF;
         break;
-        // case 57: //MAGIC CODE PRO / PRO2
-        //     instance->protocol_name = "MAGIC CODE PRO / PRO2";
-        //     break;
+    case 57: //MAGIC CODE PRO / PRO2
+        *protocol_name = "MAGIC CODE PRO/PRO2";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
+    case 63: //MAGIC CODE, Dynamic Response
+        *protocol_name = "MAGIC CODE, Response";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
+    case 64: //MAGICAR, Response ???
+        *protocol_name = "MAGICAR, Response";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
+    case 81: //MAGIC CODE PRO / PRO2 Response ???
+        *protocol_name = "MAGIC CODE PRO,\n Response";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
+    case 82: //MAGIC CODE PRO / PRO2 Response ???
+        *protocol_name = "MAGIC CODE PRO,\n Response";
+        instance->serial = 0;
+        instance->btn = 0;
+        instance->cnt = 0;
+        break;
 
     default:
         *protocol_name = "Unknown";
@@ -249,7 +279,7 @@ uint8_t subghz_protocol_decoder_scher_khan_get_hash_data(void* context) {
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_scher_khan_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_scher_khan_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset) {
@@ -258,7 +288,8 @@ bool subghz_protocol_decoder_scher_khan_serialize(
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
-bool subghz_protocol_decoder_scher_khan_deserialize(void* context, FlipperFormat* flipper_format) {
+SubGhzProtocolStatus
+    subghz_protocol_decoder_scher_khan_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderScherKhan* instance = context;
     return subghz_block_generic_deserialize(&instance->generic, flipper_format);

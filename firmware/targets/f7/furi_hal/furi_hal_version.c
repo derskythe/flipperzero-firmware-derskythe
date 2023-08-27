@@ -90,7 +90,7 @@ typedef struct {
 
 static FuriHalVersion furi_hal_version = {0};
 
-static void furi_hal_version_set_name(const char* name) {
+void furi_hal_version_set_name(const char* name) {
     if(name != NULL) {
         strlcpy(furi_hal_version.name, name, FURI_HAL_VERSION_ARRAY_NAME_LENGTH);
         snprintf(
@@ -111,7 +111,11 @@ static void furi_hal_version_set_name(const char* name) {
     }
 
     uint32_t company_id = LL_FLASH_GetSTCompanyID();
-    uint32_t device_id = LL_FLASH_GetDeviceID();
+    // uint32_t device_id = LL_FLASH_GetDeviceID();
+    // Some flippers return 0x27 (flippers with chip revision 2003 6495) instead of 0x26 (flippers with chip revision 2001 6495)
+    // Mobile apps expects it to return 0x26
+    // Hardcoded here temporarily until mobile apps is updated to handle 0x27
+    uint32_t device_id = 0x26;
     furi_hal_version.ble_mac[0] = (uint8_t)(udn & 0x000000FF);
     furi_hal_version.ble_mac[1] = (uint8_t)((udn & 0x0000FF00) >> 8);
     furi_hal_version.ble_mac[2] = (uint8_t)((udn & 0x00FF0000) >> 16);
@@ -190,8 +194,6 @@ static void furi_hal_version_load_otp_v2() {
 void furi_hal_version_init() {
     switch(furi_hal_version_get_otp_version()) {
     case FuriHalVersionOtpVersionUnknown:
-        furi_hal_version_load_otp_default();
-        break;
     case FuriHalVersionOtpVersionEmpty:
         furi_hal_version_load_otp_default();
         break;
@@ -211,14 +213,6 @@ void furi_hal_version_init() {
     furi_hal_rtc_set_register(FuriHalRtcRegisterVersion, (uint32_t)version_get());
 
     FURI_LOG_I(TAG, "Init OK");
-}
-
-bool furi_hal_version_do_i_belong_here() {
-    return furi_hal_version_get_hw_target() == 7;
-}
-
-const char* furi_hal_version_get_model_name() {
-    return "Flipper Zero";
 }
 
 FuriHalVersionOtpVersion furi_hal_version_get_otp_version() {
@@ -268,8 +262,16 @@ FuriHalVersionRegion furi_hal_version_get_hw_region() {
     return FuriHalVersionRegionUnknown;
 }
 
+FuriHalVersionRegion furi_hal_version_get_hw_region_otp() {
+    return furi_hal_version.board_region;
+}
+
 const char* furi_hal_version_get_hw_region_name() {
-    switch(furi_hal_version_get_hw_region()) {
+    return "R00";
+}
+
+const char* furi_hal_version_get_hw_region_name_otp() {
+    switch(furi_hal_version_get_hw_region_otp()) {
     case FuriHalVersionRegionUnknown:
         return "R00";
     case FuriHalVersionRegionEuRu:
@@ -314,6 +316,10 @@ const struct Version* furi_hal_version_get_firmware_version(void) {
 
 size_t furi_hal_version_uid_size() {
     return 64 / 8;
+}
+
+const uint8_t* furi_hal_version_uid_default() {
+    return (const uint8_t*)UID64_BASE;
 }
 
 const uint8_t* furi_hal_version_uid() {

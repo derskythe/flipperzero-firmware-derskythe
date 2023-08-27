@@ -18,7 +18,7 @@ SubGhzSetting* subghz_setting_alloc(void);
 
 void subghz_setting_free(SubGhzSetting* instance);
 
-void subghz_setting_load(SubGhzSetting* instance, const char* file_path, bool not_skip_frequencies);
+void subghz_setting_load(SubGhzSetting* instance, const char* file_path);
 
 size_t subghz_setting_get_frequency_count(SubGhzSetting* instance);
 
@@ -52,6 +52,8 @@ uint32_t subghz_setting_get_frequency_default_index(SubGhzSetting* instance);
 uint32_t subghz_setting_get_default_frequency(SubGhzSetting* instance);
 
 void subghz_setting_set_default_frequency(SubGhzSetting* instance, uint32_t frequency_to_setup);
+
+uint8_t subghz_setting_customs_presets_to_log(SubGhzSetting* instance);
 
 #ifdef __cplusplus
 }

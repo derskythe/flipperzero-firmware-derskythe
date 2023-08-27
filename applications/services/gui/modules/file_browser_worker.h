@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define BROWSER_SORT_THRESHOLD 400
+
 typedef struct BrowserWorker BrowserWorker;
 typedef void (*BrowserWorkerFolderOpenCallback)(
     void* context,
@@ -17,12 +19,17 @@ typedef void (*BrowserWorkerListLoadCallback)(void* context, uint32_t list_load_
 typedef void (*BrowserWorkerListItemCallback)(
     void* context,
     FuriString* item_path,
+    uint32_t idx,
     bool is_folder,
     bool is_last);
 typedef void (*BrowserWorkerLongLoadCallback)(void* context);
 
-BrowserWorker*
-    file_browser_worker_alloc(FuriString* path, const char* filter_ext, bool skip_assets);
+BrowserWorker* file_browser_worker_alloc(
+    FuriString* path,
+    const char* base_path,
+    const char* filter_ext,
+    bool skip_assets,
+    bool hide_dot_files);
 
 void file_browser_worker_free(BrowserWorker* browser);
 
@@ -48,9 +55,12 @@ void file_browser_worker_set_config(
     BrowserWorker* browser,
     FuriString* path,
     const char* filter_ext,
-    bool skip_assets);
+    bool skip_assets,
+    bool hide_dot_files);
 
 void file_browser_worker_folder_enter(BrowserWorker* browser, FuriString* path, int32_t item_idx);
+
+bool file_browser_worker_is_in_start_folder(BrowserWorker* browser);
 
 void file_browser_worker_folder_exit(BrowserWorker* browser);
 

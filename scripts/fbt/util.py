@@ -1,13 +1,15 @@
-import SCons
-from SCons.Subst import quote_spaces
-from SCons.Errors import StopError
-
-import re
 import os
-import random
-import string
+import re
+
+import SCons
+from SCons.Errors import StopError
+from SCons.Subst import quote_spaces
 
 WINPATHSEP_RE = re.compile(r"\\([^\"'\\]|$)")
+
+# Used by default when globbing for files with GlobRecursive
+# Excludes all files ending with ~, usually created by editors as backup files
+GLOB_FILE_EXCLUSION = ["*~"]
 
 
 def tempfile_arg_esc_func(arg):
@@ -41,3 +43,20 @@ def link_dir(target_path, source_path, is_windows):
 
 def single_quote(arg_list):
     return " ".join(f"'{arg}'" if " " in arg else str(arg) for arg in arg_list)
+
+
+def resolve_real_dir_node(node):
+    if isinstance(node, SCons.Node.FS.EntryProxy):
+        node = node.get()
+
+    for repo_dir in node.get_all_rdirs():
+        if os.path.exists(repo_dir.abspath):
+            return repo_dir
+
+    raise StopError(f"Can't find absolute path for {node.name} ({node})")
+
+
+def path_as_posix(path):
+    if SCons.Platform.platform_default() == "win32":
+        return path.replace(os.path.sep, os.path.altsep)
+    return path

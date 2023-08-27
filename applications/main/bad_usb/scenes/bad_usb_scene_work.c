@@ -1,7 +1,7 @@
-#include "../bad_usb_script.h"
+#include "../helpers/ducky_script.h"
 #include "../bad_usb_app_i.h"
 #include "../views/bad_usb_view.h"
-#include "furi_hal.h"
+#include <furi_hal.h>
 #include "toolbox/path.h"
 
 void bad_usb_scene_work_button_callback(InputKey key, void* context) {
@@ -16,10 +16,15 @@ bool bad_usb_scene_work_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InputKeyLeft) {
-            scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
+            if(bad_usb_is_idle_state(app->bad_usb_view)) {
+                scene_manager_next_scene(app->scene_manager, BadUsbSceneConfig);
+            }
             consumed = true;
         } else if(event.event == InputKeyOk) {
-            bad_usb_script_toggle(app->bad_usb_script);
+            bad_usb_script_start_stop(app->bad_usb_script);
+            consumed = true;
+        } else if(event.event == InputKeyRight) {
+            bad_usb_script_pause_resume(app->bad_usb_script);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {

@@ -33,17 +33,18 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
     char meridian_string[MERIDIAN_LEN];
     char timer_string[20];
 
-    if(state->settings.time_format == H24) {
+    if(state->time_format == LocaleTimeFormat24h) {
         snprintf(
             time_string, TIME_LEN, CLOCK_TIME_FORMAT, curr_dt.hour, curr_dt.minute, curr_dt.second);
     } else {
         bool pm = curr_dt.hour > 12;
         bool pm12 = curr_dt.hour >= 12;
+        bool am12 = curr_dt.hour == 0;
         snprintf(
             time_string,
             TIME_LEN,
             CLOCK_TIME_FORMAT,
-            pm ? curr_dt.hour - 12 : curr_dt.hour,
+            pm ? curr_dt.hour - 12 : (am12 ? 12 : curr_dt.hour),
             curr_dt.minute,
             curr_dt.second);
 
@@ -54,9 +55,12 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
             pm12 ? MERIDIAN_STRING_PM : MERIDIAN_STRING_AM);
     }
 
-    if(state->settings.date_format == Iso) {
+    if(state->date_format == LocaleDateFormatYMD) {
         snprintf(
             date_string, DATE_LEN, CLOCK_ISO_DATE_FORMAT, curr_dt.year, curr_dt.month, curr_dt.day);
+    } else if(state->date_format == LocaleDateFormatMDY) {
+        snprintf(
+            date_string, DATE_LEN, CLOCK_RFC_DATE_FORMAT, curr_dt.month, curr_dt.day, curr_dt.year);
     } else {
         snprintf(
             date_string, DATE_LEN, CLOCK_RFC_DATE_FORMAT, curr_dt.day, curr_dt.month, curr_dt.year);
@@ -84,7 +88,7 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 64, 42, AlignCenter, AlignTop, date_string);
 
-        if(state->settings.time_format == H12)
+        if(state->time_format == LocaleTimeFormat12h)
             canvas_draw_str_aligned(canvas, 65, 12, AlignCenter, AlignCenter, meridian_string);
     }
     if(timer_running) {
@@ -95,16 +99,12 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
 }
 
 static void clock_state_init(ClockState* const state) {
-    LOAD_CLOCK_SETTINGS(&state->settings);
-    if(state->settings.time_format != H12 && state->settings.time_format != H24) {
-        state->settings.time_format = H12;
-    }
-    if(state->settings.date_format != Iso && state->settings.date_format != Rfc) {
-        state->settings.date_format = Iso;
-    }
-    FURI_LOG_D(TAG, "Time format: %s", state->settings.time_format == H12 ? "12h" : "24h");
-    FURI_LOG_D(
-        TAG, "Date format: %s", state->settings.date_format == Iso ? "ISO 8601" : "RFC 5322");
+    state->time_format = locale_get_time_format();
+
+    state->date_format = locale_get_date_format();
+
+    //FURI_LOG_D(TAG, "Time format: %s", state->settings.time_format == H12 ? "12h" : "24h");
+    //FURI_LOG_D(TAG, "Date format: %s", state->settings.date_format == Iso ? "ISO 8601" : "RFC 5322");
     //furi_hal_rtc_get_datetime(&state->datetime);
 }
 
@@ -215,6 +215,8 @@ int32_t clock_app(void* p) {
                 case InputKeyBack:
                     // Exit the plugin
                     processing = false;
+                    break;
+                default:
                     break;
                 }
             }

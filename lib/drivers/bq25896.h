@@ -7,7 +7,10 @@
 #include <furi_hal_i2c.h>
 
 /** Initialize Driver */
-void bq25896_init(FuriHalI2cBusHandle* handle);
+bool bq25896_init(FuriHalI2cBusHandle* handle);
+
+/** Set boost lim*/
+void bq25896_set_boost_lim(FuriHalI2cBusHandle* handle, BoostLim boost_lim);
 
 /** Send device into shipping mode */
 void bq25896_poweroff(FuriHalI2cBusHandle* handle);
@@ -35,6 +38,15 @@ void bq25896_disable_otg(FuriHalI2cBusHandle* handle);
 
 /** Is otg enabled */
 bool bq25896_is_otg_enabled(FuriHalI2cBusHandle* handle);
+
+/** Get VREG (charging limit) voltage in mV */
+uint16_t bq25896_get_vreg_voltage(FuriHalI2cBusHandle* handle);
+
+/** Set VREG (charging limit) voltage in mV
+ *
+ * Valid range: 3840mV - 4208mV, in steps of 16mV
+ */
+void bq25896_set_vreg_voltage(FuriHalI2cBusHandle* handle, uint16_t vreg_voltage);
 
 /** Check OTG BOOST Fault status */
 bool bq25896_check_otg_fault(FuriHalI2cBusHandle* handle);

@@ -23,10 +23,24 @@ typedef enum {
 /** SubGhzHopperState state */
 typedef enum {
     SubGhzHopperStateOFF,
-    SubGhzHopperStateRunnig,
+    SubGhzHopperStateRunning,
     SubGhzHopperStatePause,
     SubGhzHopperStateRSSITimeOut,
 } SubGhzHopperState;
+
+/** SubGhzSpeakerState state */
+typedef enum {
+    SubGhzSpeakerStateDisable,
+    SubGhzSpeakerStateShutdown,
+    SubGhzSpeakerStateEnable,
+} SubGhzSpeakerState;
+
+/** SubGhzRadioDeviceType */
+typedef enum {
+    SubGhzRadioDeviceTypeAuto,
+    SubGhzRadioDeviceTypeInternal,
+    SubGhzRadioDeviceTypeExternalCC1101,
+} SubGhzRadioDeviceType;
 
 /** SubGhzRxKeyState state */
 typedef enum {
@@ -47,6 +61,8 @@ typedef enum {
     SubGhzLoadKeyStateOK,
     SubGhzLoadKeyStateParseErr,
     SubGhzLoadKeyStateOnlyRx,
+    SubGhzLoadKeyStateUnsuportedFreq,
+    SubGhzLoadKeyStateProtocolDescriptionErr,
 } SubGhzLoadKeyState;
 
 /** SubGhzLock */
@@ -67,12 +83,22 @@ typedef enum {
     SubGhzViewIdFrequencyAnalyzer,
     SubGhzViewIdReadRAW,
 
-    SubGhzViewIdStatic,
-    SubGhzViewIdTestCarrier,
-    SubGhzViewIdTestPacket,
 } SubGhzViewId;
+
+/** SubGhz load type file */
+typedef enum {
+    SubGhzLoadTypeFileNoLoad,
+    SubGhzLoadTypeFileKey,
+    SubGhzLoadTypeFileRaw,
+} SubGhzLoadTypeFile;
 
 typedef enum {
     SubGhzViewReceiverModeLive,
     SubGhzViewReceiverModeFile,
 } SubGhzViewReceiverMode;
+
+typedef enum {
+    SubGhzDecodeRawStateStart,
+    SubGhzDecodeRawStateLoading,
+    SubGhzDecodeRawStateLoaded,
+} SubGhzDecodeRawState;

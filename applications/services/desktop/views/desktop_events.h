@@ -1,26 +1,30 @@
 #pragma once
 
 typedef enum {
+    DesktopMainEventLock,
     DesktopMainEventOpenLockMenu,
     DesktopMainEventOpenArchive,
-    DesktopMainEventOpenFavoritePrimary,
-    DesktopMainEventOpenFavoriteSecondary,
+    DesktopMainEventOpenFavoriteLeftShort,
+    DesktopMainEventOpenFavoriteLeftLong,
+    DesktopMainEventOpenFavoriteRightShort,
+    DesktopMainEventOpenFavoriteRightLong,
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
-    DesktopMainEventOpenPassport,
     DesktopMainEventOpenPowerOff,
-    DesktopMainEventLock,
 
-    DesktopMainEventOpenGameMenu,
-    DesktopMainEventOpenTetris,
-    DesktopMainEventOpenArkanoid,
-    DesktopMainEventOpenDOOM,
-    DesktopMainEventOpenZombiez,
-    DesktopMainEventOpenHeap,
+    DesktopDummyEventOpenLeft,
+    DesktopDummyEventOpenDown,
+    DesktopDummyEventOpenOk,
+    DesktopDummyEventOpenUpLong,
+    DesktopDummyEventOpenDownLong,
+    DesktopDummyEventOpenLeftLong,
+    DesktopDummyEventOpenRightLong,
+    DesktopDummyEventOpenOkLong,
 
     DesktopLockedEventUnlocked,
     DesktopLockedEventUpdate,
     DesktopLockedEventShowPinInput,
+    DesktopLockedEventDoorsClosed,
 
     DesktopPinInputEventResetWrongPinLabel,
     DesktopPinInputEventUnlocked,
@@ -35,9 +39,10 @@ typedef enum {
     DesktopDebugEventExit,
 
     DesktopLockMenuEventLock,
-    DesktopLockMenuEventPinLock,
     DesktopLockMenuEventDummyModeOn,
     DesktopLockMenuEventDummyModeOff,
+    DesktopLockMenuEventStealthModeOn,
+    DesktopLockMenuEventStealthModeOff,
 
     DesktopAnimationEventCheckAnimation,
     DesktopAnimationEventNewIdleAnimation,

@@ -11,7 +11,7 @@
 #define UPDATE_ROOT_DIR EXT_PATH("update")
 
 /* Need at least 4 free LFS pages before update */
-#define UPDATE_MIN_INT_FREE_SPACE 2 * 4 * 1024
+#define UPDATE_MIN_INT_FREE_SPACE (2 * 4 * 1024)
 
 static const char* update_prepare_result_descr[] = {
     [UpdatePrepareResultOK] = "OK",
@@ -20,9 +20,12 @@ static const char* update_prepare_result_descr[] = {
     [UpdatePrepareResultManifestInvalid] = "Invalid manifest data",
     [UpdatePrepareResultStageMissing] = "Missing Stage2 loader",
     [UpdatePrepareResultStageIntegrityError] = "Corrupted Stage2 loader",
-    [UpdatePrepareResultManifestPointerError] = "Failed to create update pointer file",
+    [UpdatePrepareResultManifestPointerCreateError] = "Failed to create update pointer file",
+    [UpdatePrepareResultManifestPointerCheckError] = "Update pointer file error (corrupted FS?)",
+    [UpdatePrepareResultTargetMismatch] = "Hardware target mismatch",
     [UpdatePrepareResultOutdatedManifestVersion] = "Update package is too old",
     [UpdatePrepareResultIntFull] = "Need more free space in internal storage",
+    [UpdatePrepareResultUnspecifiedError] = "Unknown error",
 };
 
 const char* update_operation_describe_preparation_result(const UpdatePrepareResult value) {
@@ -110,7 +113,7 @@ bool update_operation_get_current_package_manifest_path(Storage* storage, FuriSt
 }
 
 static bool update_operation_persist_manifest_path(Storage* storage, const char* manifest_path) {
-    const uint16_t manifest_path_len = strlen(manifest_path);
+    const size_t manifest_path_len = strlen(manifest_path);
     furi_check(manifest_path && manifest_path_len);
     bool success = false;
     File* file = storage_file_alloc(storage);
@@ -140,8 +143,8 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     File* file = storage_file_alloc(storage);
 
     uint64_t free_int_space;
-    FuriString* stage_path;
-    stage_path = furi_string_alloc();
+    FuriString* stage_path = furi_string_alloc();
+    FuriString* manifest_path_check = furi_string_alloc();
     do {
         if((storage_common_fs_info(storage, STORAGE_INT_PATH_PREFIX, NULL, &free_int_space) !=
             FSE_OK) ||
@@ -163,8 +166,9 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
             result = UpdatePrepareResultOutdatedManifestVersion;
             break;
         }
-
-        if(furi_hal_version_get_hw_target() != manifest->target) {
+        /* Only compare hardware target if it is set - pre-production devices accept any firmware*/
+        if(furi_hal_version_get_hw_target() &&
+           (furi_hal_version_get_hw_target() != manifest->target)) {
             result = UpdatePrepareResultTargetMismatch;
             break;
         }
@@ -185,7 +189,18 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
         }
 
         if(!update_operation_persist_manifest_path(storage, manifest_file_path)) {
-            result = UpdatePrepareResultManifestPointerError;
+            result = UpdatePrepareResultManifestPointerCreateError;
+            break;
+        }
+
+        if(!update_operation_get_current_package_manifest_path(storage, manifest_path_check) ||
+           (furi_string_cmpi_str(manifest_path_check, manifest_file_path) != 0)) {
+            FURI_LOG_E(
+                "update",
+                "Manifest pointer check failed: '%s' != '%s'",
+                furi_string_get_cstr(manifest_path_check),
+                manifest_file_path);
+            result = UpdatePrepareResultManifestPointerCheckError;
             break;
         }
 
@@ -194,6 +209,7 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     } while(false);
 
     furi_string_free(stage_path);
+    furi_string_free(manifest_path_check);
     storage_file_free(file);
 
     update_manifest_free(manifest);

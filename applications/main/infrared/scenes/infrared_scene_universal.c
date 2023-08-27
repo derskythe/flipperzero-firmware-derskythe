@@ -23,7 +23,6 @@ void infrared_scene_universal_on_enter(void* context) {
         SubmenuIndexUniversalTV,
         infrared_scene_universal_submenu_callback,
         context);
-    submenu_set_selected_item(submenu, 0);
 
     submenu_add_item(
         submenu,
@@ -53,6 +52,9 @@ void infrared_scene_universal_on_enter(void* context) {
         infrared_scene_universal_submenu_callback,
         context);
 
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(infrared->scene_manager, InfraredSceneUniversal));
+
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewSubmenu);
 }
 
@@ -78,6 +80,7 @@ bool infrared_scene_universal_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalAC);
             consumed = true;
         }
+        scene_manager_set_scene_state(scene_manager, InfraredSceneUniversal, event.event);
     }
 
     return consumed;

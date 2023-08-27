@@ -15,6 +15,22 @@ void atomo_decrypt(uint8_t* buff);
 void atomo_encrypt(uint8_t* buff);
 
 /**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 24 bit
+ * @param cnt Counter value, 16 bit
+ * @param preset Modulation, SubGhzRadioPreset
+ * @return true On success
+ */
+bool subghz_protocol_came_atomo_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint16_t cnt,
+    SubGhzRadioPreset* preset);
+
+/**
  * Allocate SubGhzProtocolEncoderCameAtomo.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolEncoderCameAtomo* pointer to a SubGhzProtocolEncoderCameAtomo instance
@@ -33,7 +49,8 @@ void subghz_protocol_encoder_came_atomo_free(void* context);
  * @param flipper_format Pointer to a FlipperFormat instance
  * @return true On success
  */
-bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -87,9 +104,9 @@ uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderCameAtomo instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_came_atomo_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_came_atomo_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -98,9 +115,10 @@ bool subghz_protocol_decoder_came_atomo_serialize(
  * Deserialize data SubGhzProtocolDecoderCameAtomo.
  * @param context Pointer to a SubGhzProtocolDecoderCameAtomo instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

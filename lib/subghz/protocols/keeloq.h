@@ -11,10 +11,6 @@ extern const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_keeloq_encoder;
 extern const SubGhzProtocol subghz_protocol_keeloq;
 
-void keeloq_reset_mfname();
-
-void keeloq_reset_kl_type();
-
 /**
  * Allocate SubGhzProtocolEncoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance
@@ -74,9 +70,10 @@ bool subghz_protocol_keeloq_bft_create_data(
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -130,9 +127,9 @@ uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderKeeloq instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_protocol_decoder_keeloq_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_keeloq_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -141,9 +138,10 @@ bool subghz_protocol_decoder_keeloq_serialize(
  * Deserialize data SubGhzProtocolDecoderKeeloq.
  * @param context Pointer to a SubGhzProtocolDecoderKeeloq instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return SubGhzProtocolStatus
  */
-bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

@@ -2,6 +2,7 @@
 
 #include <m-array.h>
 #include <furi.h>
+#include <m-algo.h>
 #include <storage/storage.h>
 #include "toolbox/path.h"
 
@@ -11,6 +12,7 @@ typedef enum {
     ArchiveFileTypeIButton,
     ArchiveFileTypeNFC,
     ArchiveFileTypeSubGhz,
+    ArchiveFileTypeSubGhzRemote,
     ArchiveFileTypeLFRFID,
     ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
@@ -81,13 +83,29 @@ static void ArchiveFile_t_clear(ArchiveFile_t* obj) {
     furi_string_free(obj->custom_name);
 }
 
-ARRAY_DEF(
-    files_array,
-    ArchiveFile_t,
-    (INIT(API_2(ArchiveFile_t_init)),
-     SET(API_6(ArchiveFile_t_set)),
-     INIT_SET(API_6(ArchiveFile_t_init_set)),
-     CLEAR(API_2(ArchiveFile_t_clear))))
+static int ArchiveFile_t_cmp(const ArchiveFile_t* a, const ArchiveFile_t* b) {
+    if(a->type == ArchiveFileTypeFolder && b->type != ArchiveFileTypeFolder) {
+        return -1;
+    }
+    if(a->type != ArchiveFileTypeFolder && b->type == ArchiveFileTypeFolder) {
+        return 1;
+    }
+
+    return furi_string_cmpi(a->path, b->path);
+}
+
+#define M_OPL_ArchiveFile_t()                 \
+    (INIT(API_2(ArchiveFile_t_init)),         \
+     SET(API_6(ArchiveFile_t_set)),           \
+     INIT_SET(API_6(ArchiveFile_t_init_set)), \
+     CLEAR(API_2(ArchiveFile_t_clear)),       \
+     CMP(API_6(ArchiveFile_t_cmp)),           \
+     SWAP(M_SWAP_DEFAULT),                    \
+     EQUAL(API_6(M_EQUAL_DEFAULT)))
+
+ARRAY_DEF(files_array, ArchiveFile_t)
+
+ALGO_DEF(files_array, ARRAY_OPLIST(files_array, M_OPL_ArchiveFile_t()))
 
 void archive_set_file_type(ArchiveFile_t* file, const char* path, bool is_folder, bool is_app);
 bool archive_get_items(void* context, const char* path);
@@ -95,4 +113,8 @@ void archive_file_append(const char* path, const char* format, ...)
     _ATTRIBUTE((__format__(__printf__, 2, 3)));
 void archive_delete_file(void* context, const char* format, ...)
     _ATTRIBUTE((__format__(__printf__, 2, 3)));
-FS_Error archive_rename_file_or_dir(void* context, const char* src_path, const char* dst_path);
+FS_Error archive_rename_copy_file_or_dir(
+    void* context,
+    const char* src_path,
+    const char* dst_path,
+    bool copy);

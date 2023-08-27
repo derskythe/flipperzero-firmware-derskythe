@@ -1,20 +1,21 @@
-import SCons
-
-from SCons.Builder import Builder
-from SCons.Action import Action
-from SCons.Node.FS import File
-
 import os
 import subprocess
 
+from ansi.color import fg
+from SCons.Action import Action
+from SCons.Builder import Builder
+from SCons.Errors import StopError
+
 
 def icons_emitter(target, source, env):
+    icons_src = env.GlobRecursive("*.png", env["ICON_SRC_DIR"])
+    icons_src += env.GlobRecursive("frame_rate", env["ICON_SRC_DIR"])
+
     target = [
         target[0].File(env.subst("${ICON_FILE_NAME}.c")),
         target[0].File(env.subst("${ICON_FILE_NAME}.h")),
     ]
-    source = env.GlobRecursive("*.*", env["ICON_SRC_DIR"])
-    return target, source
+    return target, icons_src
 
 
 def proto_emitter(target, source, env):
@@ -29,9 +30,7 @@ def proto_emitter(target, source, env):
 def dolphin_emitter(target, source, env):
     res_root_dir = source[0].Dir(env["DOLPHIN_RES_TYPE"])
     source = [res_root_dir]
-    source.extend(
-        env.GlobRecursive("*.*", res_root_dir.srcnode()),
-    )
+    source.extend(env.GlobRecursive("*.*", res_root_dir.srcnode()))
 
     target_base_dir = target[0]
     env.Replace(_DOLPHIN_OUT_DIR=target[0])
@@ -80,24 +79,22 @@ def proto_ver_generator(target, source, env):
     target_file = target[0]
     src_dir = source[0].dir.abspath
     try:
-        git_fetch = _invoke_git(
+        _invoke_git(
             ["fetch", "--tags"],
             source_dir=src_dir,
         )
-    except (subprocess.CalledProcessError, EnvironmentError) as e:
+    except (subprocess.CalledProcessError, EnvironmentError):
         # Not great, not terrible
-        print("Git: fetch failed")
+        print(fg.boldred("Git: fetch failed"))
 
     try:
         git_describe = _invoke_git(
             ["describe", "--tags", "--abbrev=0"],
             source_dir=src_dir,
         )
-    except (subprocess.CalledProcessError, EnvironmentError) as e:
-        print("Git: describe failed")
-        Exit("git error")
+    except (subprocess.CalledProcessError, EnvironmentError):
+        raise StopError("Git: describe failed")
 
-    # print("describe=", git_describe)
     git_major, git_minor = git_describe.split(".")
     version_file_data = (
         "#pragma once",
@@ -110,23 +107,18 @@ def proto_ver_generator(target, source, env):
 
 
 def CompileIcons(env, target_dir, source_dir, *, icon_bundle_name="assets_icons"):
-    # Gathering icons sources
-    icons_src = env.GlobRecursive("*.png", source_dir)
-    icons_src += env.GlobRecursive("frame_rate", source_dir)
-
-    icons = env.IconBuilder(
+    return env.IconBuilder(
         target_dir,
+        None,
         ICON_SRC_DIR=source_dir,
         ICON_FILE_NAME=icon_bundle_name,
     )
-    env.Depends(icons, icons_src)
-    return icons
 
 
 def generate(env):
     env.SetDefault(
-        ASSETS_COMPILER="${ROOT_DIR.abspath}/scripts/assets.py",
-        NANOPB_COMPILER="${ROOT_DIR.abspath}/lib/nanopb/generator/nanopb_generator.py",
+        ASSETS_COMPILER="${FBT_SCRIPT_DIR}/assets.py",
+        NANOPB_COMPILER="${ROOT_DIR}/lib/nanopb/generator/nanopb_generator.py",
     )
     env.AddMethod(CompileIcons)
 
@@ -143,14 +135,14 @@ def generate(env):
         BUILDERS={
             "IconBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" icons ${ICON_SRC_DIR} ${TARGET.dir} --filename ${ICON_FILE_NAME}',
+                    '${PYTHON3} ${ASSETS_COMPILER} icons ${ICON_SRC_DIR} ${TARGET.dir} --filename "${ICON_FILE_NAME}"',
                     "${ICONSCOMSTR}",
                 ),
                 emitter=icons_emitter,
             ),
             "ProtoBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${NANOPB_COMPILER}" -q -I${SOURCE.dir.posix} -D${TARGET.dir.posix} ${SOURCES.posix}',
+                    "${PYTHON3} ${NANOPB_COMPILER} -q -I${SOURCE.dir.posix} -D${TARGET.dir.posix} ${SOURCES.posix}",
                     "${PROTOCOMSTR}",
                 ),
                 emitter=proto_emitter,
@@ -159,14 +151,14 @@ def generate(env):
             ),
             "DolphinSymBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" dolphin -s dolphin_${DOLPHIN_RES_TYPE} "${SOURCE}" "${_DOLPHIN_OUT_DIR}"',
+                    "${PYTHON3} ${ASSETS_COMPILER} dolphin -s dolphin_${DOLPHIN_RES_TYPE} ${SOURCE} ${_DOLPHIN_OUT_DIR}",
                     "${DOLPHINCOMSTR}",
                 ),
                 emitter=dolphin_emitter,
             ),
             "DolphinExtBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} "${ASSETS_COMPILER}" dolphin "${SOURCE}" "${_DOLPHIN_OUT_DIR}"',
+                    "${PYTHON3} ${ASSETS_COMPILER} dolphin ${SOURCE} ${_DOLPHIN_OUT_DIR}",
                     "${DOLPHINCOMSTR}",
                 ),
                 emitter=dolphin_emitter,

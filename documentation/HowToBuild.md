@@ -7,7 +7,6 @@
 
 For development:
 - Git
-- Python3
 - VSCode
 
 ## Clone the Repository
@@ -16,15 +15,25 @@ You should clone with
 ```shell
 $ git clone --recursive https://github.com/DarkFlippers/unleashed-firmware.git
 ```
+## VSCode integration
+
+`fbt` includes basic development environment configuration for VS Code. Run `./fbt vscode_dist` to deploy it. That will copy the initial environment configuration to the `.vscode` folder. After that, you can use that configuration by starting VS Code and choosing the firmware root folder in the "File > Open Folder" menu.
 
 # Build on Linux/macOS
 
 Check out `documentation/fbt.md` for details on building and flashing firmware. 
 
-### Compile everything for development
+### Compile plugin and run it on connected flipper
 
 ```sh
-./fbt
+./fbt COMPACT=1 DEBUG=0 launch_app APPSRC=applications_user/yourplugin
+```
+
+### Compile everything for development
+
+
+```sh
+./fbt updater_package
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
@@ -35,7 +44,7 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 
 Check `dist/` for build outputs.
 
-Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
+Use **`flipper-z-{target}-update-{suffix}.tgz`** to flash your device.
 
 
 # Build on Windows
@@ -44,19 +53,22 @@ Check out `documentation/fbt.md` for details on building and flashing firmware.
 
 ### Compile everything for development
 
+
 ```sh
-.\fbt.cmd
+./fbt.cmd updater_package
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
 
 ```sh
-.\fbt.cmd COMPACT=1 DEBUG=0 updater_package
+./fbt.cmd COMPACT=1 DEBUG=0 updater_package
 ```
+
+**You may need to change** `/` **to** `\` **in front of fbt command (Only for Windows)!**
 
 Check `dist/` for build outputs.
 
-Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
+Use **`flipper-z-{target}-update-{suffix}.tgz`** to flash your device.
 
 
 

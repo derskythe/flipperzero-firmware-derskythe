@@ -1,7 +1,4 @@
-from re import search
-
 from SCons.Errors import UserError
-from fbt_options import OPENOCD_OPTS
 
 
 def _get_device_serials(search_str="STLink"):
@@ -20,8 +17,11 @@ def GetDevices(env):
 
 def generate(env, **kw):
     env.AddMethod(GetDevices)
+    env.SetDefault(
+        FBT_DEBUG_DIR="${FBT_SCRIPT_DIR}/debug",
+    )
 
-    if (adapter_serial := env.subst("$OPENOCD_ADAPTER_SERIAL")) != "auto":
+    if (adapter_serial := env.subst("$SWD_TRANSPORT_SERIAL")) != "auto":
         env.Append(
             OPENOCD_OPTS=[
                 "-c",
@@ -36,17 +36,16 @@ def generate(env, **kw):
 
     env.SetDefault(
         OPENOCD_GDB_PIPE=[
-            "|openocd -c 'gdb_port pipe; log_output debug/openocd.log' ${[SINGLEQUOTEFUNC(OPENOCD_OPTS)]}"
+            "|openocd -c 'gdb_port pipe; log_output ${FBT_DEBUG_DIR}/openocd.log' ${[SINGLEQUOTEFUNC(OPENOCD_OPTS)]}"
         ],
         GDBOPTS_BASE=[
             "-ex",
+            "source ${FBT_DEBUG_DIR}/gdbinit",
+            "-ex",
             "target extended-remote ${GDBREMOTE}",
-            "-ex",
-            "set confirm off",
-            "-ex",
-            "set pagination off",
         ],
         GDBOPTS_BLACKMAGIC=[
+            "-q",
             "-ex",
             "monitor swdp_scan",
             "-ex",
@@ -58,17 +57,23 @@ def generate(env, **kw):
         ],
         GDBPYOPTS=[
             "-ex",
-            "source debug/FreeRTOS/FreeRTOS.py",
+            "source ${FBT_DEBUG_DIR}/FreeRTOS/FreeRTOS.py",
             "-ex",
-            "source debug/flipperapps.py",
+            "source ${FBT_DEBUG_DIR}/flipperapps.py",
             "-ex",
-            "source debug/PyCortexMDebug/PyCortexMDebug.py",
+            "source ${FBT_DEBUG_DIR}/flipperversion.py",
+            "-ex",
+            "fap-set-debug-elf-root ${FBT_FAP_DEBUG_ELF_ROOT}",
+            "-ex",
+            "source ${FBT_DEBUG_DIR}/PyCortexMDebug/PyCortexMDebug.py",
             "-ex",
             "svd_load ${SVD_FILE}",
             "-ex",
             "compare-sections",
+            "-ex",
+            "fw-version",
         ],
-        JFLASHPROJECT="${ROOT_DIR.abspath}/debug/fw.jflash",
+        JFLASHPROJECT="${FBT_DEBUG_DIR}/fw.jflash",
     )
 
 

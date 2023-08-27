@@ -1,7 +1,9 @@
+from pathlib import Path
 import posixpath
 
 # For more details on these options, run 'fbt -h'
 
+FIRMWARE_ORIGIN = "Unleashed"
 
 # Default hardware target
 TARGET_HW = 7
@@ -19,10 +21,10 @@ DIST_SUFFIX = "local"
 # Coprocessor firmware
 COPRO_OB_DATA = "scripts/ob.data"
 
-# Must match lib/STM32CubeWB version
-COPRO_CUBE_VERSION = "1.13.3"
+# Must match lib/stm32wb_copro version
+COPRO_CUBE_VERSION = "1.15.0"
 
-COPRO_CUBE_DIR = "lib/STM32CubeWB"
+COPRO_CUBE_DIR = "lib/stm32wb_copro"
 
 # Default radio stack
 COPRO_STACK_BIN = "stm32wb5x_BLE_Stack_light_fw.bin"
@@ -32,13 +34,8 @@ COPRO_STACK_TYPE = "ble_light"
 # Leave 0 to let scripts automatically calculate it
 COPRO_STACK_ADDR = "0x0"
 
-# If you override COPRO_CUBE_DIR on commandline, override this aswell
-COPRO_STACK_BIN_DIR = posixpath.join(
-    COPRO_CUBE_DIR,
-    "Projects",
-    "STM32WB_Copro_Wireless_Binaries",
-    "STM32WB5x",
-)
+# If you override COPRO_CUBE_DIR on commandline, override this as well
+COPRO_STACK_BIN_DIR = posixpath.join(COPRO_CUBE_DIR, "firmware")
 
 # Supported toolchain versions
 FBT_TOOLCHAIN_VERSIONS = (" 10.3.",)
@@ -49,12 +46,12 @@ OPENOCD_OPTS = [
     "-c",
     "transport select hla_swd",
     "-f",
-    "debug/stm32wbx.cfg",
+    "${FBT_DEBUG_DIR}/stm32wbx.cfg",
     "-c",
     "stm32wbx.cpu configure -rtos auto",
 ]
 
-SVD_FILE = "debug/STM32WB55_CM4.svd"
+SVD_FILE = "${FBT_DEBUG_DIR}/STM32WB55_CM4.svd"
 
 # Look for blackmagic probe on serial ports and local network
 BLACKMAGIC = "auto"
@@ -71,25 +68,17 @@ FIRMWARE_APPS = {
         "system_apps",
         # Settings
         "settings_apps",
-        # Stock plugins - no longer built into fw, now they're .faps
-        # Yet you can still build them as a part of fw
-        # "basic_plugins",
-        # Debug
-        # "debug_apps",
     ],
-    "debug_pack": [
-        # Svc
+    "unit_tests": [
         "basic_services",
-        # Apps
-        "main_apps_default",
-        "system_apps",
-        # Settings
-        "settings_apps",
-        # Plugins
-        # "basic_plugins",
-        # Debug
-        # "debug_apps",
+        "updater_app",
+        "unit_tests",
     ],
 }
 
 FIRMWARE_APP_SET = "default"
+
+custom_options_fn = "fbt_options_local.py"
+
+if Path(custom_options_fn).exists():
+    exec(compile(Path(custom_options_fn).read_text(), custom_options_fn, "exec"))

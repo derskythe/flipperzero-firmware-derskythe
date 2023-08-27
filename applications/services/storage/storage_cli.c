@@ -3,7 +3,7 @@
 
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
-#include <lib/toolbox/md5.h>
+#include <lib/toolbox/md5_calc.h>
 #include <lib/toolbox/dir_walk.h>
 #include <storage/storage.h>
 #include <storage/storage_sd_api.h>
@@ -32,6 +32,7 @@ static void storage_cli_print_usage() {
     printf("\tmkdir\t - creates a new directory\r\n");
     printf("\tmd5\t - md5 hash of the file\r\n");
     printf("\tstat\t - info about file or dir\r\n");
+    printf("\ttimestamp\t - last modification timestamp\r\n");
 };
 
 static void storage_cli_print_error(FS_Error error) {
@@ -65,11 +66,20 @@ static void storage_cli_info(Cli* cli, FuriString* path) {
             storage_cli_print_error(error);
         } else {
             printf(
-                "Label: %s\r\nType: %s\r\n%luKiB total\r\n%luKiB free\r\n",
+                "Label: %s\r\nType: %s\r\n%luKiB total\r\n%luKiB free\r\n"
+                "%02x%s %s v%i.%i\r\nSN:%04lx %02i/%i\r\n",
                 sd_info.label,
                 sd_api_get_fs_type_text(sd_info.fs_type),
                 sd_info.kb_total,
-                sd_info.kb_free);
+                sd_info.kb_free,
+                sd_info.manufacturer_id,
+                sd_info.oem_id,
+                sd_info.product_name,
+                sd_info.product_revision_major,
+                sd_info.product_revision_minor,
+                sd_info.product_serial_number,
+                sd_info.manufacturing_month,
+                sd_info.manufacturing_year);
         }
     } else {
         storage_cli_print_usage();
@@ -121,7 +131,7 @@ static void storage_cli_list(Cli* cli, FuriString* path) {
 
             while(storage_dir_read(file, &fileinfo, name, MAX_NAME_LENGTH)) {
                 read_done = true;
-                if(fileinfo.flags & FSF_DIRECTORY) {
+                if(file_info_is_dir(&fileinfo)) {
                     printf("\t[D] %s\r\n", name);
                 } else {
                     printf("\t[F] %s %lub\r\n", name, (uint32_t)(fileinfo.size));
@@ -159,7 +169,7 @@ static void storage_cli_tree(Cli* cli, FuriString* path) {
 
             while(dir_walk_read(dir_walk, name, &fileinfo) == DirWalkOK) {
                 read_done = true;
-                if(fileinfo.flags & FSF_DIRECTORY) {
+                if(file_info_is_dir(&fileinfo)) {
                     printf("\t[D] %s\r\n", furi_string_get_cstr(name));
                 } else {
                     printf(
@@ -274,7 +284,7 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
     uint32_t buffer_size;
     int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
-    if(parsed_count == EOF || parsed_count != 1) {
+    if(parsed_count != 1) {
         storage_cli_print_usage();
     } else if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint64_t file_size = storage_file_size(file);
@@ -314,7 +324,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
     uint32_t buffer_size;
     int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
-    if(parsed_count == EOF || parsed_count != 1) {
+    if(parsed_count != 1) {
         storage_cli_print_usage();
     } else {
         if(storage_file_open(file, furi_string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
@@ -373,7 +383,7 @@ static void storage_cli_stat(Cli* cli, FuriString* path) {
         FS_Error error = storage_common_stat(api, furi_string_get_cstr(path), &fileinfo);
 
         if(error == FSE_OK) {
-            if(fileinfo.flags & FSF_DIRECTORY) {
+            if(file_info_is_dir(&fileinfo)) {
                 printf("Directory\r\n");
             } else {
                 printf("File, size: %lub\r\n", (uint32_t)(fileinfo.size));
@@ -381,6 +391,22 @@ static void storage_cli_stat(Cli* cli, FuriString* path) {
         } else {
             storage_cli_print_error(error);
         }
+    }
+
+    furi_record_close(RECORD_STORAGE);
+}
+
+static void storage_cli_timestamp(Cli* cli, FuriString* path) {
+    UNUSED(cli);
+    Storage* api = furi_record_open(RECORD_STORAGE);
+
+    uint32_t timestamp = 0;
+    FS_Error error = storage_common_timestamp(api, furi_string_get_cstr(path), &timestamp);
+
+    if(error != FSE_OK) {
+        printf("Invalid arguments\r\n");
+    } else {
+        printf("Timestamp %lu\r\n", timestamp);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -456,34 +482,16 @@ static void storage_cli_md5(Cli* cli, FuriString* path) {
     UNUSED(cli);
     Storage* api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(api);
+    FuriString* md5 = furi_string_alloc();
+    FS_Error file_error;
 
-    if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t buffer_size = 512;
-        const uint8_t hash_size = 16;
-        uint8_t* data = malloc(buffer_size);
-        uint8_t* hash = malloc(sizeof(uint8_t) * hash_size);
-        md5_context* md5_ctx = malloc(sizeof(md5_context));
-
-        md5_starts(md5_ctx);
-        while(true) {
-            uint16_t read_size = storage_file_read(file, data, buffer_size);
-            if(read_size == 0) break;
-            md5_update(md5_ctx, data, read_size);
-        }
-        md5_finish(md5_ctx, hash);
-        free(md5_ctx);
-
-        for(uint8_t i = 0; i < hash_size; i++) {
-            printf("%02x", hash[i]);
-        }
-        printf("\r\n");
-
-        free(hash);
-        free(data);
+    if(md5_string_calc_file(file, furi_string_get_cstr(path), md5, &file_error)) {
+        printf("%s\r\n", furi_string_get_cstr(md5));
     } else {
-        storage_cli_print_error(storage_file_get_error(file));
+        storage_cli_print_error(file_error);
     }
 
+    furi_string_free(md5);
     storage_file_close(file);
     storage_file_free(file);
 
@@ -575,6 +583,11 @@ void storage_cli(Cli* cli, FuriString* args, void* context) {
 
         if(furi_string_cmp_str(cmd, "stat") == 0) {
             storage_cli_stat(cli, path);
+            break;
+        }
+
+        if(furi_string_cmp_str(cmd, "timestamp") == 0) {
+            storage_cli_timestamp(cli, path);
             break;
         }
 

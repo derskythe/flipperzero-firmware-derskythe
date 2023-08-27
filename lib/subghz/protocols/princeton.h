@@ -4,6 +4,10 @@
 
 #define SUBGHZ_PROTOCOL_PRINCETON_NAME "Princeton"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SubGhzProtocolDecoderPrinceton SubGhzProtocolDecoderPrinceton;
 typedef struct SubGhzProtocolEncoderPrinceton SubGhzProtocolEncoderPrinceton;
 
@@ -28,9 +32,10 @@ void subghz_protocol_encoder_princeton_free(void* context);
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderPrinceton instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -84,9 +89,9 @@ uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context);
  * @param context Pointer to a SubGhzProtocolDecoderPrinceton instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param preset The modulation on which the signal was received, SubGhzRadioPreset
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_princeton_serialize(
+SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
     void* context,
     FlipperFormat* flipper_format,
     SubGhzRadioPreset* preset);
@@ -95,9 +100,10 @@ bool subghz_protocol_decoder_princeton_serialize(
  * Deserialize data SubGhzProtocolDecoderPrinceton.
  * @param context Pointer to a SubGhzProtocolDecoderPrinceton instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @return true On success
+ * @return status
  */
-bool subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat* flipper_format);
+SubGhzProtocolStatus
+    subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.
@@ -105,3 +111,7 @@ bool subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat*
  * @param output Resulting text
  */
 void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* output);
+
+#ifdef __cplusplus
+}
+#endif

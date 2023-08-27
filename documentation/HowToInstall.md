@@ -7,6 +7,7 @@
 <br>
 
 ### **If installing for first time - Update to the latest official firmware before proceeding**
+### **If you are already using unleashed - no need to install any other FW or version before installing update, just install latest version on top of your current one, all will be fine**
 
 <br>
 <br>
@@ -19,10 +20,10 @@
 after that on web updater page - press `Connect` button
 - Press `Install` button
 
-- And wait, if all flashed successfully - you will have all needed assets pre installed
+- And wait, if all flashed
+ successfully - you will have all needed assets pre installed
 - Done
-
-![web_instr](https://user-images.githubusercontent.com/10697207/190942577-9d137e01-468b-4c74-8587-c2a17c3c7534.jpg)
+![web](https://user-images.githubusercontent.com/40743392/235005830-98ceda39-a143-47ef-ad4d-5489bc3df98b.png)
 
 
 <br>
@@ -39,8 +40,7 @@ after that on web updater page - press `Connect` button
 - Error in ios app will show up, but flipper will be updated successfully
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
-
-![ios](https://user-images.githubusercontent.com/10697207/192114863-75693972-31fb-4b5f-bcc4-4122abb352c2.jpg)
+![ios](https://user-images.githubusercontent.com/40743392/235005844-bea8f2fd-f50d-41b1-9191-e3842d8658d2.png)
 
 <br>
 <br>
@@ -56,8 +56,8 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
+![andro_tgz](https://user-images.githubusercontent.com/40743392/235005877-d4f5f73c-241c-4a7b-a51d-b8407983856c.png)
 
-![andro_tgz](https://user-images.githubusercontent.com/10697207/197042029-a5824787-08bc-4fd8-93ee-b7faff082c54.jpg)
 
 <br>
 <br>
@@ -72,15 +72,15 @@ after that on web updater page - press `Connect` button
 - Wait until update is finished 
 - And if all flashed successfully - you will have all needed assets pre installed
 - Done
+![androweb](https://user-images.githubusercontent.com/40743392/235005891-19ef6bb6-094f-437d-afcd-75d60921e3c4.png)
 
-![andro_web](https://user-images.githubusercontent.com/10697207/197042413-cfc93f31-8b84-4cdb-967b-276f46224e50.jpg)
 
 <br>
 <br>
 
 ## With qFlipper (1.2.0+)
 
-- Download qFlipper that allows `.tgz` installation [Download qFlipper 1.2.1 (official link)](https://update.flipperzero.one/builds/qFlipper/1.2.1/)
+- Download qFlipper that allows `.tgz` installation [Download qFlipper (official link)](https://flipperzero.one/update)
 - Be sure you updated to latest official release before(only if installing for the first time), and verify that microSD card is installed
 - Open latest release page - [Releases](https://github.com/DarkFlippers/unleashed-firmware/releases/latest)
 - Download `flipper-z-f7-update-(version).tgz`
@@ -90,8 +90,9 @@ after that on web updater page - press `Connect` button
 - Update will start
 - And wait, if all flashed successfully - you will have all needed assets pre installed
 - Done
+![qflip](https://user-images.githubusercontent.com/40743392/235005910-819abd34-65d4-4aaa-a11c-9c28bea737e9.png)
 
-![qflip](https://user-images.githubusercontent.com/10697207/192114874-4edae5f5-6bff-4674-8e3b-030ceaf17abc.png)
+
 
 <br>
 <br>
@@ -109,8 +110,11 @@ after that on web updater page - press `Connect` button
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages
 - Done
+![manual](https://user-images.githubusercontent.com/40743392/235006410-19eaf58e-2425-4e8e-8ec9-973bda362c47.png)
 
-![manual](https://user-images.githubusercontent.com/10697207/192114890-b9220265-1fe3-4837-8e98-ed267282e11e.png)
+
+
+
 
 <br>
 <br>
