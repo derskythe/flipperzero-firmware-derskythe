@@ -11,7 +11,7 @@
 #define MAX_EXT_LEN 16
 #define FILE_BUFFER_SIZE 512
 
-#define TAG "StorageAPI"
+#define TAG "StorageApi"
 
 #define S_API_PROLOGUE FuriApiLock lock = api_lock_alloc_locked();
 
@@ -781,6 +781,14 @@ FS_Error storage_sd_unmount(Storage* storage) {
     return S_RETURN_ERROR;
 }
 
+FS_Error storage_sd_mount(Storage* storage) {
+    S_API_PROLOGUE;
+    SAData data = {};
+    S_API_MESSAGE(StorageCommandSDMount);
+    S_API_EPILOGUE;
+    return S_RETURN_ERROR;
+}
+
 FS_Error storage_sd_info(Storage* storage, SDInfo* info) {
     S_API_PROLOGUE;
     SAData data = {
@@ -861,7 +869,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
 
         while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
             if(file_info_is_dir(&fileinfo)) {
-                furi_string_cat_printf(cur_dir, "/%s", name);
+                furi_string_cat_printf(cur_dir, "/%s", name); //-V576
                 go_deeper = true;
                 break;
             }

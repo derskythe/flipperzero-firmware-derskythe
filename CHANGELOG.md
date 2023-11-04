@@ -1,11 +1,13 @@
 ## New changes
-* !!! **Warning! After installing, Desktop settings (Favoutite apps, PIN Code, AutoLock time..) will be resetted to default due to settings changes, Please set your PIN code, Favourite apps again in Settings->Desktop** !!!
-* Desktop: **New way to set favourite apps and fully configurable dummy mode** (now you can set up to 4 favourite apps!) (port of OFW PR 2972 by nminaylov) (by @gid9798 | PR #578)
-* Desktop: Fix lock timer after rebooting (by @gid9798 | PR #578)
-* Infrared: Updated universal assets (by @amec0e | PR #581)
-* Core: Added proper error message on out of memory crash (by @Willy-JL)
-* SubGHz: Fix FAAC SLH add manually issues and fix sending signals with unknown seed
-* SubGHz: Temporarily reverted changes from OFW PR 2984: SubGhz: fix todo (by Skorpionm) - Fixes Enhanced Sub-GHz Chat app and various issues related to receiving signals that was found in 061 release
+* SubGHz: Add 4 more systems to Add Manually (untested!)
+* SubGHz: Add Manually fixes
+* SubGHz: Added NiceFlor-S to ignore options, removed colons. (by @G2Dolphin | PR #620)
+* Misc code cleanup
+* RGB: Fix white color on reboot, move settings, add custom color option
+* **BLE Spam app** updated to latest version (Android, Windows support) (by @Willy-JL) -> (app can be found in builds ` `, `e`, `n`, `r`)
+* OFW: Fix double arrows and add proper indication
+* OFW: SubGHz: add manually fix 12-bits is 0xFFF (or 0xFF0) CAME/NICE 12-bit
+* OFW: Fix various crashes if debug libraries used 
 
 ----
 
