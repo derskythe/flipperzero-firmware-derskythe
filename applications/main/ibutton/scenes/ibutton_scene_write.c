@@ -5,9 +5,26 @@ typedef enum {
     iButtonSceneWriteStateBlinkYellow,
 } iButtonSceneWriteState;
 
+static inline iButtonCustomEvent
+    ibutton_scene_write_to_custom_event(iButtonWorkerWriteResult result) {
+    switch(result) {
+    case iButtonWorkerWriteOK:
+        return iButtonCustomEventWorkerWriteOK;
+    case iButtonWorkerWriteSameKey:
+        return iButtonCustomEventWorkerWriteSameKey;
+    case iButtonWorkerWriteNoDetect:
+        return iButtonCustomEventWorkerWriteNoDetect;
+    case iButtonWorkerWriteCannotWrite:
+        return iButtonCustomEventWorkerWriteCannotWrite;
+    default:
+        furi_crash();
+    }
+}
+
 static void ibutton_scene_write_callback(void* context, iButtonWorkerWriteResult result) {
     iButton* ibutton = context;
-    view_dispatcher_send_custom_event(ibutton->view_dispatcher, result);
+    view_dispatcher_send_custom_event(
+        ibutton->view_dispatcher, ibutton_scene_write_to_custom_event(result));
 }
 
 void ibutton_scene_write_on_enter(void* context) {
@@ -25,28 +42,26 @@ void ibutton_scene_write_on_enter(void* context) {
 
     furi_string_printf(
         tmp,
-        "%s\n[%s]",
-        ibutton->key_name,
-        ibutton_protocols_get_name(ibutton->protocols, protocol_id));
+        "[%s]\n%s",
+        ibutton_protocols_get_name(ibutton->protocols, protocol_id),
+        furi_string_empty(ibutton->file_path) ? "Unsaved Key" : ibutton->key_name);
 
     widget_add_text_box_element(
-        widget, 52, 38, 75, 26, AlignCenter, AlignCenter, furi_string_get_cstr(tmp), true);
+        widget, 52, 24, 75, 40, AlignCenter, AlignTop, furi_string_get_cstr(tmp), true);
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
 
-    furi_string_set(tmp, "iButton\nwriting ");
-
     if(ibutton->write_mode == iButtonWriteModeBlank) {
-        furi_string_cat(tmp, "Blank");
+        furi_string_set(tmp, "Writing ID");
         ibutton_worker_write_blank_start(worker, key);
 
     } else if(ibutton->write_mode == iButtonWriteModeCopy) {
-        furi_string_cat(tmp, "Copy");
+        furi_string_set(tmp, "Full Writing");
         ibutton_worker_write_copy_start(worker, key);
     }
 
     widget_add_string_multiline_element(
-        widget, 88, 10, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp));
+        widget, 88, 5, AlignCenter, AlignTop, FontPrimary, furi_string_get_cstr(tmp));
 
     ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
@@ -61,16 +76,14 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
-        if((event.event == iButtonWorkerWriteOK) || (event.event == iButtonWorkerWriteSameKey)) {
+        if((event.event == iButtonCustomEventWorkerWriteOK) ||
+           (event.event == iButtonCustomEventWorkerWriteSameKey)) {
             scene_manager_next_scene(scene_manager, iButtonSceneWriteSuccess);
-        } else if(event.event == iButtonWorkerWriteNoDetect) {
+        } else if(event.event == iButtonCustomEventWorkerWriteNoDetect) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
-        } else if(event.event == iButtonWorkerWriteCannotWrite) {
+        } else if(event.event == iButtonCustomEventWorkerWriteCannotWrite) {
             ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
-
-    } else if(event.type == SceneManagerEventTypeTick) {
-        consumed = true;
     }
 
     return consumed;

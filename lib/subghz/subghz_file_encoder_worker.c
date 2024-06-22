@@ -18,7 +18,6 @@ struct SubGhzFileEncoderWorker {
 
     volatile bool worker_running;
     volatile bool worker_stopping;
-    bool level;
     bool is_storage_slow;
     FuriString* str_data;
     FuriString* file_path;
@@ -41,19 +40,8 @@ void subghz_file_encoder_worker_callback_end(
 void subghz_file_encoder_worker_add_level_duration(
     SubGhzFileEncoderWorker* instance,
     int32_t duration) {
-    bool res = true;
-    if(duration < 0 && !instance->level) {
-        res = false;
-    } else if(duration > 0 && instance->level) {
-        res = false;
-    }
-
-    if(res) {
-        instance->level = !instance->level;
-        furi_stream_buffer_send(instance->stream, &duration, sizeof(int32_t), 100);
-    } else {
-        FURI_LOG_E(TAG, "Invalid level in the stream");
-    }
+    size_t ret = furi_stream_buffer_send(instance->stream, &duration, sizeof(int32_t), 100);
+    if(sizeof(int32_t) != ret) FURI_LOG_E(TAG, "Invalid add duration in the stream");
 }
 
 bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, const char* strStart) {
@@ -202,7 +190,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     return 0;
 }
 
-SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
+SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc(void) {
     SubGhzFileEncoderWorker* instance = malloc(sizeof(SubGhzFileEncoderWorker));
 
     instance->thread =
@@ -214,7 +202,6 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
 
     instance->str_data = furi_string_alloc();
     instance->file_path = furi_string_alloc();
-    instance->level = false;
     instance->worker_stopping = true;
 
     return instance;

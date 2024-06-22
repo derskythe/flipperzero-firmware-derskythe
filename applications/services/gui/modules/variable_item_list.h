@@ -20,7 +20,7 @@ typedef void (*VariableItemListEnterCallback)(void* context, uint32_t index);
  *
  * @return     VariableItemList*
  */
-VariableItemList* variable_item_list_alloc();
+VariableItemList* variable_item_list_alloc(void);
 
 /** Deinitialize and free VariableItemList
  *
@@ -58,6 +58,15 @@ VariableItem* variable_item_list_add(
     uint8_t values_count,
     VariableItemChangeCallback change_callback,
     void* context);
+
+/** Get item in VariableItemList
+ *
+ * @param      variable_item_list  VariableItemList instance
+ * @param      position            index of the item to get
+ *
+ * @return     VariableItem* item instance
+ */
+VariableItem* variable_item_list_get(VariableItemList* variable_item_list, uint8_t position);
 
 /** Set enter callback
  *

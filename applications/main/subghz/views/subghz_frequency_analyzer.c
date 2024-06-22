@@ -1,7 +1,5 @@
 #include "subghz_frequency_analyzer.h"
-#include "../subghz_i.h"
 
-#include <math.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <input/input.h>
@@ -21,13 +19,13 @@
 #define MAX_HISTORY 4
 
 static const uint32_t subghz_frequency_list[] = {
-    300000000, 302757000, 303875000, 304250000, 307000000, 307500000, 307800000, 309000000,
-    310000000, 312000000, 312100000, 313000000, 313850000, 314000000, 314350000, 314980000,
-    315000000, 318000000, 330000000, 345000000, 348000000, 350000000, 387000000, 390000000,
-    418000000, 430000000, 431000000, 431500000, 433075000, 433220000, 433420000, 433657070,
-    433889000, 433920000, 434075000, 434176948, 434390000, 434420000, 434775000, 438900000,
-    440175000, 464000000, 779000000, 868350000, 868400000, 868800000, 868950000, 906400000,
-    915000000, 925000000, 928000000};
+    300000000, 302757000, 303875000, 303900000, 304250000, 307000000, 307500000, 307800000,
+    309000000, 310000000, 312000000, 312100000, 313000000, 313850000, 314000000, 314350000,
+    314980000, 315000000, 318000000, 330000000, 345000000, 348000000, 350000000, 387000000,
+    390000000, 418000000, 430000000, 431000000, 431500000, 433075000, 433220000, 433420000,
+    433657070, 433889000, 433920000, 434075000, 434176948, 434390000, 434420000, 434775000,
+    438900000, 440175000, 464000000, 779000000, 868350000, 868400000, 868800000, 868950000,
+    906400000, 915000000, 925000000, 928000000};
 
 typedef enum {
     SubGhzFrequencyAnalyzerStatusIDLE,
@@ -228,9 +226,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
     uint32_t current = 0;
     uint32_t result = 0;
-#ifdef FURI_DEBUG
-    FURI_LOG_D(TAG, "input: %ld", input);
-#endif
+
     for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
         current = subghz_frequency_list[i];
         if(current == input) {
@@ -281,7 +277,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             break;
         }
         subghz_frequency_analyzer_worker_set_trigger_level(instance->worker, trigger_level);
-        FURI_LOG_I(TAG, "trigger = %.1f", (double)trigger_level);
+        FURI_LOG_D(TAG, "trigger = %.1f", (double)trigger_level);
         need_redraw = true;
     } else if(event->type == InputTypePress && event->key == InputKeyUp) {
         if(instance->feedback_level == 0) {
@@ -289,9 +285,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
         } else {
             instance->feedback_level--;
         }
-#ifdef FURI_DEBUG
-        FURI_LOG_D(TAG, "feedback_level = %d", instance->feedback_level);
-#endif
+
         need_redraw = true;
     } else if(
         ((event->type == InputTypePress) || (event->type == InputTypeRepeat)) &&
@@ -324,13 +318,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     }
                     if(frequency_candidate > 0 &&
                        frequency_candidate != model->frequency_to_save) {
-#ifdef FURI_DEBUG
-                        FURI_LOG_D(
-                            TAG,
-                            "frequency_to_save: %ld, candidate: %ld",
-                            model->frequency_to_save,
-                            frequency_candidate);
-#endif
                         model->frequency_to_save = frequency_candidate;
                         updated = true;
                     }
@@ -372,24 +359,12 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             },
             true);
 
-#ifdef FURI_DEBUG
-        FURI_LOG_I(
-            TAG,
-            "updated: %d, long: %d, type: %d",
-            updated,
-            (event->type == InputTypeLong),
-            event->type);
-#endif
-
         if(updated) {
             instance->callback(SubGhzCustomEventViewFreqAnalOkShort, instance->context);
         }
 
         // First device receive short, then when user release button we get long
         if(event->type == InputTypeLong && frequency_to_save > 0) {
-#ifdef FURI_DEBUG
-            FURI_LOG_I(TAG, "Long press!");
-#endif
             // Stop worker
             if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
                 subghz_frequency_analyzer_worker_stop(instance->worker);

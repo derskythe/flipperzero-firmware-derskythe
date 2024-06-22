@@ -7,8 +7,6 @@
 #include <core/log.h>
 #include <gui/modules/file_browser_worker.h>
 #include <flipper_application/flipper_application.h>
-#include <math.h>
-#include <furi_hal.h>
 
 static void
     archive_folder_open_cb(void* context, uint32_t item_cnt, int32_t file_idx, bool is_root) {
@@ -153,7 +151,9 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target) {
 
     archive_get_items(browser, furi_string_get_cstr(browser->path));
 
-    if(!archive_file_get_array_size(browser) && archive_is_home(browser)) {
+    ArchiveTabEnum tab = archive_get_tab(browser);
+    if(!archive_file_get_array_size(browser) && archive_is_home(browser) &&
+       (tab != ArchiveTabBrowser)) {
         archive_switch_tab(browser, TAB_LEFT);
     } else {
         with_view_model(
@@ -220,7 +220,8 @@ void archive_file_array_rm_selected(ArchiveBrowserView* browser) {
         },
         false);
 
-    if((items_cnt == 0) && (archive_is_home(browser))) {
+    ArchiveTabEnum tab = archive_get_tab(browser);
+    if((items_cnt == 0) && (archive_is_home(browser)) && (tab != ArchiveTabBrowser)) {
         archive_switch_tab(browser, TAB_LEFT);
     }
 

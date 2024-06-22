@@ -12,7 +12,7 @@ typedef struct {
     FlipperFormat* flipper_string;
     uint8_t type;
     SubGhzRadioPreset* preset;
-    FuriHalRtcDateTime datetime;
+    DateTime datetime;
 } SubGhzHistoryItem;
 
 ARRAY_DEF(SubGhzHistoryItemArray, SubGhzHistoryItem, M_POD_OPLIST)
@@ -89,26 +89,19 @@ void subghz_history_reset(SubGhzHistory* instance) {
     instance->code_last_hash_data = 0;
 }
 
-void subghz_history_delete_item(SubGhzHistory* instance, uint16_t item_id) {
+void subghz_history_delete_item(SubGhzHistory* instance, uint16_t idx) {
     furi_assert(instance);
 
-    SubGhzHistoryItemArray_it_t it;
-    //SubGhzHistoryItem* target_item = SubGhzHistoryItemArray_get(instance->history->data, item_id);
-    SubGhzHistoryItemArray_it_last(it, instance->history->data);
-    while(!SubGhzHistoryItemArray_end_p(it)) {
-        SubGhzHistoryItem* item = SubGhzHistoryItemArray_ref(it);
-
-        if(it->index == (size_t)(item_id)) {
-            furi_string_free(item->item_str);
-            furi_string_free(item->preset->name);
-            free(item->preset);
-            flipper_format_free(item->flipper_string);
-            item->type = 0;
-            SubGhzHistoryItemArray_remove(instance->history->data, it);
-        }
-        SubGhzHistoryItemArray_previous(it);
+    if(idx < SubGhzHistoryItemArray_size(instance->history->data)) {
+        SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+        furi_string_free(item->item_str);
+        furi_string_free(item->preset->name);
+        free(item->preset);
+        flipper_format_free(item->flipper_string);
+        item->type = 0;
+        SubGhzHistoryItemArray_remove_v(instance->history->data, idx, idx + 1);
+        instance->last_index_write--;
     }
-    instance->last_index_write--;
 }
 
 uint16_t subghz_history_get_item(SubGhzHistory* instance) {
@@ -136,6 +129,16 @@ const char* subghz_history_get_protocol_name(SubGhzHistory* instance, uint16_t i
         furi_string_reset(instance->tmp_string);
     }
     return furi_string_get_cstr(instance->tmp_string);
+}
+
+DateTime subghz_history_get_datetime(SubGhzHistory* instance, uint16_t idx) {
+    furi_assert(instance);
+    SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
+    if(item) {
+        return item->datetime;
+    } else {
+        return (DateTime){};
+    }
 }
 
 FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx) {
@@ -172,7 +175,7 @@ void subghz_history_get_text_item_menu(SubGhzHistory* instance, FuriString* outp
 
 void subghz_history_get_time_item_menu(SubGhzHistory* instance, FuriString* output, uint16_t idx) {
     SubGhzHistoryItem* item = SubGhzHistoryItemArray_get(instance->history->data, idx);
-    FuriHalRtcDateTime* t = &item->datetime;
+    DateTime* t = &item->datetime;
     furi_string_printf(output, "%.2d:%.2d:%.2d ", t->hour, t->minute, t->second);
 }
 

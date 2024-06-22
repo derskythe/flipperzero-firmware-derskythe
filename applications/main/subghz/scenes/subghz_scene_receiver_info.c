@@ -96,7 +96,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
                 subghz);
         }
     } else {
-        widget_add_icon_element(subghz->widget, 37, 15, &I_DolphinCommon_56x48);
+        widget_add_icon_element(subghz->widget, 83, 22, &I_WarningDolphinFlip_45x42);
         widget_add_string_element(
             subghz->widget, 13, 8, AlignLeft, AlignBottom, FontSecondary, "Error history parse.");
     }
@@ -111,7 +111,8 @@ void subghz_scene_receiver_info_on_enter(void* context) {
 
     subghz_scene_receiver_info_draw_widget(subghz);
 
-    if(!subghz_history_get_text_space_left(subghz->history, NULL)) {
+    if(!subghz_history_get_text_space_left(subghz->history, NULL) &&
+       !scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {
         subghz->state_notifications = SubGhzNotificationStateRx;
     }
 }
@@ -165,6 +166,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz_txrx_protocol_is_serializable(subghz->txrx)) {
                 subghz_file_name_clear(subghz);
 
+                subghz->save_datetime =
+                    subghz_history_get_datetime(subghz->history, subghz->idx_menu_chosen);
+                subghz->save_datetime_set = true;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;

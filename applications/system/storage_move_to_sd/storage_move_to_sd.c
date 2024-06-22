@@ -1,8 +1,8 @@
 #include "storage_move_to_sd.h"
+
 #include <core/common_defines.h>
 #include <core/log.h>
-#include "loader/loader.h"
-#include <stdint.h>
+#include <loader/loader.h>
 #include <toolbox/dir_walk.h>
 #include <toolbox/path.h>
 #include <furi_hal.h>
@@ -113,7 +113,7 @@ static void storage_move_to_sd_unmount_callback(const void* message, void* conte
     }
 }
 
-static StorageMoveToSd* storage_move_to_sd_alloc() {
+static StorageMoveToSd* storage_move_to_sd_alloc(void) {
     StorageMoveToSd* app = malloc(sizeof(StorageMoveToSd));
 
     app->gui = furi_record_open(RECORD_GUI);

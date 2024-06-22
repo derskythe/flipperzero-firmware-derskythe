@@ -21,7 +21,7 @@ void subghz_view_receiver_set_callback(
     SubGhzViewReceiverCallback callback,
     void* context);
 
-SubGhzViewReceiver* subghz_view_receiver_alloc();
+SubGhzViewReceiver* subghz_view_receiver_alloc(void);
 
 void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver);
 
@@ -53,7 +53,7 @@ uint16_t subghz_view_receiver_get_idx_menu(SubGhzViewReceiver* subghz_receiver);
 
 void subghz_view_receiver_set_idx_menu(SubGhzViewReceiver* subghz_receiver, uint16_t idx);
 
-void subghz_view_receiver_delete_element_callback(SubGhzViewReceiver* subghz_receiver);
+void subghz_view_receiver_delete_item(SubGhzViewReceiver* subghz_receiver, uint16_t idx);
 
 void subghz_view_receiver_enable_draw_callback(SubGhzViewReceiver* subghz_receiver);
 

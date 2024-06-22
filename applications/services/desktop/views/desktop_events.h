@@ -51,8 +51,13 @@ typedef enum {
     DesktopSlideshowCompleted,
     DesktopSlideshowPoweroff,
 
+    DesktopHwMismatchExit,
+
+    DesktopEnclaveExit,
+
     // Global events
     DesktopGlobalBeforeAppStarted,
     DesktopGlobalAfterAppFinished,
     DesktopGlobalAutoLock,
+    DesktopGlobalApiUnlock,
 } DesktopEvent;

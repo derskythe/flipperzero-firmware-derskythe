@@ -14,22 +14,15 @@
 #include <lfrfid/lfrfid_raw_file.h>
 #include <toolbox/pulse_protocols/pulse_glue.h>
 
-static void lfrfid_cli(Cli* cli, FuriString* args, void* context);
-
-// app cli function
-void lfrfid_on_system_start() {
-    Cli* cli = furi_record_open(RECORD_CLI);
-    cli_add_command(cli, "rfid", CliCommandFlagDefault, lfrfid_cli, NULL);
-    furi_record_close(RECORD_CLI);
-}
-
-static void lfrfid_cli_print_usage() {
+static void lfrfid_cli_print_usage(void) {
     printf("Usage:\r\n");
-    printf("rfid read <optional: normal | indala>\r\n");
-    printf("rfid <write | emulate> <key_type> <key_data>\r\n");
-    printf("rfid raw_read <ask | psk> <filename>\r\n");
-    printf("rfid raw_emulate <filename>\r\n");
-    printf("rfid raw_analyze <filename>\r\n");
+    printf("rfid read <optional: normal | indala>         - read in ASK/PSK mode\r\n");
+    printf("rfid <write | emulate> <key_type> <key_data>  - write or emulate a card\r\n");
+    printf("rfid raw_read <ask | psk> <filename>          - read and save raw data to a file\r\n");
+    printf(
+        "rfid raw_emulate <filename>                   - emulate raw data (not very useful, but helps debug protocols)\r\n");
+    printf(
+        "rfid raw_analyze <filename>                   - outputs raw data to the cli and tries to decode it (useful for protocol development)\r\n");
 };
 
 typedef struct {
@@ -574,4 +567,17 @@ static void lfrfid_cli(Cli* cli, FuriString* args, void* context) {
     }
 
     furi_string_free(cmd);
+}
+
+#include <flipper_application/flipper_application.h>
+#include <cli/cli_i.h>
+
+static const FlipperAppPluginDescriptor plugin_descriptor = {
+    .appid = CLI_PLUGIN_APP_ID,
+    .ep_api_version = CLI_PLUGIN_API_VERSION,
+    .entry_point = &lfrfid_cli,
+};
+
+const FlipperAppPluginDescriptor* lfrfid_cli_plugin_ep(void) {
+    return &plugin_descriptor;
 }

@@ -1,6 +1,6 @@
 #include "transmitter.h"
-#include "../subghz_i.h"
 
+#include <assets_icons.h>
 #include <input/input.h>
 #include <gui/elements.h>
 
@@ -127,7 +127,8 @@ bool subghz_view_transmitter_input(InputEvent* event, void* context) {
     SubGhzViewTransmitter* subghz_transmitter = context;
     bool can_be_sent = false;
 
-    if(event->key == InputKeyBack && event->type == InputTypeShort) {
+    if(event->key == InputKeyBack && event->type == InputTypeLong) {
+        // Reset view model
         with_view_model(
             subghz_transmitter->view,
             SubGhzViewTransmitterModel * model,
@@ -227,7 +228,7 @@ void subghz_view_transmitter_exit(void* context) {
     furi_assert(context);
 }
 
-SubGhzViewTransmitter* subghz_view_transmitter_alloc() {
+SubGhzViewTransmitter* subghz_view_transmitter_alloc(void) {
     SubGhzViewTransmitter* subghz_transmitter = malloc(sizeof(SubGhzViewTransmitter));
 
     // View allocation and configuration

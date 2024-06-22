@@ -30,6 +30,7 @@ typedef enum {
     LoaderMessageTypeLock,
     LoaderMessageTypeUnlock,
     LoaderMessageTypeIsLocked,
+    LoaderMessageTypeStartByNameDetachedWithGuiError,
 } LoaderMessageType;
 
 typedef struct {
@@ -38,8 +39,20 @@ typedef struct {
     FuriString* error_message;
 } LoaderMessageStartByName;
 
+typedef enum {
+    LoaderStatusErrorUnknown,
+    LoaderStatusErrorInvalidFile,
+    LoaderStatusErrorInvalidManifest,
+    LoaderStatusErrorMissingImports,
+    LoaderStatusErrorHWMismatch,
+    LoaderStatusErrorOutdatedApp,
+    LoaderStatusErrorOutOfMemory,
+    LoaderStatusErrorOutdatedFirmware,
+} LoaderStatusError;
+
 typedef struct {
     LoaderStatus value;
+    LoaderStatusError error;
 } LoaderMessageLoaderStatusResult;
 
 typedef struct {
