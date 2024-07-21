@@ -4,7 +4,7 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: ["github-actions"]
+    branches: [ "github-actions" ]
 
 env:
   FBT_NO_SYNC: 0
@@ -16,15 +16,15 @@ env:
   TGZ_NAME_EXTRA_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
   ZIP_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
   TGZ_NAME_DEFAULT_APPS: "flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
-  ARTIFACTS_EXTRA_APPS: "artifacts-extra-apps"
-  ARTIFACTS_DEFAULT_APPS: "artifacts-default"
+  ARTIFACTS_APPS_EXTRA: "artifacts-extra-apps"
+  ARTIFACTS_APPS_DEFAULT: "artifacts-default"
   # Extra
   TGZ_FULL_NAME_EXTRA_APPS: "artifacts-extra-apps/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}e.tgz"
   # Default
   TGZ_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.tgz"
   ZIP_FULL_NAME_DEFAULT_APPS: "artifacts-default/flipper-z-f7-update-${{ vars.FIRMWARE_VERSION }}.zip"
-  ARTIFACTS_EXTRA_APPS_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
-  ARTIFACTS_DEFAULT_APPS_DIR: "artifacts-default/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ARTIFACTS_APPS_EXTRA_DIR: "artifacts-extra-apps/f7-update-${{ vars.FIRMWARE_VERSION }}"
+  ARTIFACTS_APPS_DEFAULT_DIR: "artifacts-default/f7-update-${{ vars.FIRMWARE_VERSION }}"
   ZIP_TAG_DEFAULT_APPS: ""
   TGZ_TAG_DEFAULT_APPS: ""
   TGZ_TAG_EXTRA_APPS: ""
@@ -35,14 +35,14 @@ jobs:
     name: Build firmware for branch ${{ github.ref_name }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout firmware repo
+      - name: "[ALL] Checkout firmware repo 🌠"
         uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
           clean: true
 
-      - name: Checkout SubBruteForce
+      - name: "[ALL] Checkout SubBruteForce 🌠"
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -51,88 +51,93 @@ jobs:
           repository: "derskythe/flipperzero-subbrute"
           path: applications_user/subbrute
 
-      - name: Remove other apps
-        shell: pwsh # rm to remove problem FAP which includes non-existent files
+      - name: "[ALL] Remove examples and debug apps ✂️"
+        shell: pwsh # rm to remove a problem with FAP, which includes non-existent files
         run: |
           Remove-Item -Force -Recurse ./applications/debug -ErrorAction SilentlyContinue
           Remove-Item -Force -Recurse ./applications/examples -ErrorAction SilentlyContinue
+          Remove-Item -Force -Recurse ./applications/main/clock_app/resources/apps/ -ErrorAction SilentlyContinue
+
+      - name: "[ALL] Download base and extra packages 🐙️"
+        shell: pwsh # rm to remove a problem with FAP, which includes non-existent files
+        run: |
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz -OutFile all-the-apps-base.tgz
 
-      - name: FIRST RUN - Build
+      - name: "[ALL] First Build Run ⌛"
         run: |
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
-      - name: DEFAULT - Pre Build
+      - name: "[DEFAULT] Unpack package 🥇"
         shell: bash
         run: |
-          echo "List `pwd`"
-          ls -lha
+          mkdir -p applications/main/clock_app/resources/apps
+          mkdir -p applications/main/clock_app/resources/apps_data
           tar -zxvf all-the-apps-base.tgz
-          cp -R base_pack_build/artifacts-base/* assets/resources/apps/
-          rm -rf base_pack_build
-          rm -rf all-the-apps-base.tgz
+          cp -R base_pack_build/artifacts-base/* applications/main/clock_app/resources/apps/
+          cp -R base_pack_build/apps_data/* applications/main/clock_app/resources/apps_data/
+          rm -rf base_pack_build all-the-apps-base.tgz
 
-      - name: DEFAULT - Build firmware
+      - name: "[DEFAULT] Build firmware 🥇⌛"
         shell: bash
         run: |
+          rm -rf build/f7-firmware-C/toolbox/version.*
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
-      - name: DEFAULT - Post Build
+      - name: "[DEFAULT] Post Build 🥇💀"
         shell: bash
         run: |
-          mkdir ${{ env.ARTIFACTS_DEFAULT_APPS }}
-          mv -f dist/f7-C/* ${{ env.ARTIFACTS_DEFAULT_APPS }}/
-          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS }}'
-          ls -laS ${{ env.ARTIFACTS_DEFAULT_APPS }}
-          echo 'List ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}' 
-          ls -laS "${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}"
+          mkdir ${{ env.ARTIFACTS_APPS_DEFAULT }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_APPS_DEFAULT }}/
+          echo 'List ${{ env.ARTIFACTS_APPS_DEFAULT }}'
+          ls -laS ${{ env.ARTIFACTS_APPS_DEFAULT }}
+          echo 'List ${{ env.ARTIFACTS_APPS_DEFAULT_DIR }}' 
+          ls -laS "${{ env.ARTIFACTS_APPS_DEFAULT_DIR }}"
+          rm -rf applications/main/clock_app/resources/apps/
 
-      - name: EXTRA - Pre Build apps
+      - name: "[EXTRA] Unpack package 🥈"
         shell: bash
         run: |
-          echo "List `pwd`"
-          ls -lha
           tar -zxvf all-the-apps-extra.tgz
-          echo "List assets/resources"
-          cp -Rf extra_pack_build/artifacts-extra/* assets/resources/apps/
-          rm -rf extra_pack_build
-          rm -rf build/f7-firmware-C/toolbox/version.*
+          mkdir -p applications/main/clock_app/resources/apps
+          cp -R extra_pack_build/artifacts-extra/* applications/main/clock_app/resources/apps/
+          rm -rf extra_pack_build all-the-apps-extra.tgz
 
-      - name: EXTRA - Build firmware apps
+      - name: "[EXTRA] Build firmware apps 🥈⌛"
         shell: bash
         env:
           DIST_SUFFIX: ${{ vars.FIRMWARE_VERSION }}e
         run: |
+          rm -rf build/f7-firmware-C/toolbox/version.*
           ./fbt COMPACT=1 DEBUG=0 updater_package
 
-      - name: EXTRA - Post Build apps
+      - name: "[EXTRA] Post Build apps 🥈💀"
         shell: bash
         run: |
-          mkdir ${{ env.ARTIFACTS_EXTRA_APPS }}
-          mv -f dist/f7-C/* ${{ env.ARTIFACTS_EXTRA_APPS }}/
-          echo 'List ${{ env.ARTIFACTS_EXTRA_APPS }}'
-          ls -laS ${{ env.ARTIFACTS_EXTRA_APPS }}
-          # echo 'List ${{ env.ARTIFACTS_EXTRA_APPS_DIR }}' 
-          # ls -laS "${{ env.ARTIFACTS_EXTRA_APPS_DIR }}"
+          mkdir ${{ env.ARTIFACTS_APPS_EXTRA }}
+          mv -f dist/f7-C/* ${{ env.ARTIFACTS_APPS_EXTRA }}/
+          echo 'List ${{ env.ARTIFACTS_APPS_EXTRA }}'
+          ls -laS ${{ env.ARTIFACTS_APPS_EXTRA }}
+          # echo 'List ${{ env.ARTIFACTS_APPS_EXTRA_DIR }}' 
+          # ls -laS "${{ env.ARTIFACTS_APPS_EXTRA_DIR }}"
 
-      - name: Bundle Self-update packages
+      - name: "[ALL] Bundle Self-update packages 📦"
         shell: bash
         run: |
           cp ${{ env.TGZ_FULL_NAME_EXTRA_APPS }} .
           cp ${{ env.TGZ_FULL_NAME_DEFAULT_APPS }} .
-          zip -r ${{ env.ZIP_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_DEFAULT_APPS_DIR }}
-          tar -czpf artifacts-default/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
+          zip -r ${{ env.ZIP_FULL_NAME_DEFAULT_APPS }} ${{ env.ARTIFACTS_APPS_DEFAULT_DIR }}
+          tar -czpf ${{ env.ARTIFACTS_APPS_DEFAULT }}/flipper-z-any-scripts-${{ vars.FIRMWARE_VERSION }}.tgz scripts
 
           mkdir -p ${{ vars.FIRMWARE_VERSION }}
-          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
-          mv -f ${{ env.ARTIFACTS_DEFAULT_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
-          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
-          mv -f ${{ env.ARTIFACTS_EXTRA_APPS }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_APPS_DEFAULT }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_APPS_DEFAULT }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_APPS_EXTRA }}/*.tgz ${{ vars.FIRMWARE_VERSION }}/
+          mv -f ${{ env.ARTIFACTS_APPS_EXTRA }}/*.zip ${{ vars.FIRMWARE_VERSION }}/
           echo "List: ${{ vars.FIRMWARE_VERSION }}"
           ls -laS ${{ vars.FIRMWARE_VERSION }}
 
-      - name: Upload production artifacts
+      - name: "[ALL] Upload production artifacts 💨"
         uses: actions/upload-artifact@v3
         with:
           name: all-files
@@ -140,7 +145,7 @@ jobs:
             - ${{ vars.FIRMWARE_VERSION }}/*.tgz
             - ${{ vars.FIRMWARE_VERSION }}/*.zip
 
-      - name: Create or update RELEASE ${{ vars.FIRMWARE_VERSION }} with assets
+      - name: "[ALL] Create or update RELEASE ${{ vars.FIRMWARE_VERSION }} with assets 🌟"
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.FLIPPER_ZERO_FW }}
