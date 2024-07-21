@@ -4,7 +4,7 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: [ "github-actions" ]
+    branches: ["github-actions"]
 
 env:
   FBT_NO_SYNC: 0
