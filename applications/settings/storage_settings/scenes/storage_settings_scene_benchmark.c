@@ -107,7 +107,9 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
             break;
         }
 
-        if(i > 0) furi_string_cat_printf(app->text_string, "\n");
+        if(i > 0) {
+            furi_string_cat_printf(app->text_string, "\n");
+        }
         furi_string_cat_printf(app->text_string, "%ub : W %luK ", bench_size[i], bench_w_speed[i]);
         dialog_ex_set_header(dialog_ex, NULL, 0, 0, AlignCenter, AlignCenter);
         dialog_ex_set_icon(dialog_ex, 0, 0, NULL);

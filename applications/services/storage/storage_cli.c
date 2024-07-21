@@ -267,7 +267,7 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
     File* file = storage_file_alloc(api);
 
     uint32_t buffer_size;
-    int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
+    int32_t parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
     if(parsed_count != 1) {
         storage_cli_print_usage();
