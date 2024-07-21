@@ -237,7 +237,7 @@ static void subghz_scene_receiver_config_set_hopping(VariableItem* item) {
         snprintf(
             text_buf,
             sizeof(text_buf),
-            "%u.%02u",
+            "%lu.%02lu",
             frequency / 1000000,
             (frequency % 1000000) / 10000);
         variable_item_set_current_value_text(frequency_item, text_buf);
@@ -394,7 +394,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     snprintf(
         text_buf,
         sizeof(text_buf),
-        "%u.%02u",
+        "%lu.%02lu",
         frequency / 1000000,
         (frequency % 1000000) / 10000);
     variable_item_set_current_value_text(item, text_buf);

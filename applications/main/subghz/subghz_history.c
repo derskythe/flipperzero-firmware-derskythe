@@ -256,13 +256,13 @@ bool subghz_history_add_to_history(
             if(!(data >> 32)) {
                 furi_string_printf(
                     item->item_str,
-                    "%s %lX",
+                    "%s %llX",
                     furi_string_get_cstr(instance->tmp_string),
                     (data & 0xFFFFFFFF));
             } else {
                 furi_string_printf(
                     item->item_str,
-                    "%s %lX%08lX",
+                    "%s %llX%08llX",
                     furi_string_get_cstr(instance->tmp_string),
                     (data >> 32),
                     (data & 0xFFFFFFFF));

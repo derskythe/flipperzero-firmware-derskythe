@@ -91,14 +91,14 @@ static void loader_cli_signal(FuriString* args, Loader* loader) {
     uint32_t signal;
     void* arg = NULL;
 
-    if(!sscanf(furi_string_get_cstr(args), "%u %p", &signal, &arg)) {
+    if(!sscanf(furi_string_get_cstr(args), "%lu %p", &signal, &arg)) {
         printf("Signal must be a decimal number\r\n");
     } else if(!loader_is_locked(loader)) {
         printf("No application is running\r\n");
     } else {
         const bool is_handled = loader_signal(loader, signal, arg);
         printf(
-            "Signal %u with argument 0x%p was %s\r\n",
+            "Signal %lu with argument 0x%p was %s\r\n",
             signal,
             arg,
             is_handled ? "handled" : "ignored");
