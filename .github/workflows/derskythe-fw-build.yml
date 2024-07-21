@@ -4,7 +4,7 @@ run-name: "Build Firmware ${{ github.ref_name }} by @${{ github.ACTOR }}"
 on:
   workflow_dispatch:
   push:
-    branches: [ "github-actions" ]
+    branches: [ "github-actions", "custom" ]
 
 env:
   FBT_NO_SYNC: 0
@@ -63,6 +63,10 @@ jobs:
         run: |
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-extra.tgz -OutFile all-the-apps-extra.tgz
           Invoke-WebRequest -URI https://github.com/xMasterX/all-the-plugins/releases/latest/download/all-the-apps-base.tgz -OutFile all-the-apps-base.tgz
+          if ( -not (Test-Path all-the-apps-extra.tgz) -or -not (Test-Path all-the-apps-base.tgz) ) {
+            Write-Error "Failed to download all-the-apps-extra.tgz or all-the-apps-base.tgz"
+            exit 1
+          }
 
       - name: "[ALL] First Build Run ⌛"
         run: |
