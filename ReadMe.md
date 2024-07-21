@@ -4,6 +4,9 @@
 </a>
 </h3>
 <div align="center" id="badges">
+	<a href="https://app.codacy.com/gh/derskythe/flipperzero-firmware-derskythe?utm_source=github.com&utm_medium=referral&utm_content=derskythe/flipperzero-firmware-derskythe&utm_campaign=Badge_Grade">
+		<img src="https://api.codacy.com/project/badge/Grade/580265af5d5246858801519f43db8259" alt="Codacy Badge" />
+	</a>
 	<a href="https://discord.unleashedflip.com">
 		<img src="https://img.shields.io/discord/937479784148115456?style=flat-square&logo=discord&label=Discord&color=%237289DA&link=https%3A%2F%2Fdiscord.unleashedflip.com%2F" alt="Discord server"/>
 	</a>
