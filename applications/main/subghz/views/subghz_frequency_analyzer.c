@@ -1,7 +1,6 @@
 #include "subghz_frequency_analyzer.h"
 
 #include <furi.h>
-#include <furi_hal.h>
 #include <input/input.h>
 #include <notification/notification_messages.h>
 #include <gui/elements.h>
@@ -12,11 +11,13 @@
 
 #define TAG "frequency_analyzer"
 
-#define RSSI_MIN     -97
-#define RSSI_MAX     -60
-#define RSSI_SCALE   2.3
+#define RSSI_MIN     (-97.0f)
+#define RSSI_MAX     (-60.0f)
+#define RSSI_SCALE   2.3f
 #define TRIGGER_STEP 1
 #define MAX_HISTORY  4
+#define THRESHOLD    0.01f
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
 static const uint32_t subghz_frequency_list[] = {
     300000000, 302757000, 303875000, 303900000, 304250000, 307000000, 307500000, 307800000,
@@ -80,7 +81,7 @@ void subghz_frequency_analyzer_draw_rssi(
     uint8_t x,
     uint8_t y) {
     // Current RSSI
-    if(rssi) {
+    if(!subghz_frequency_analyzer_check_zero(rssi, THRESHOLD)) {
         if(rssi > RSSI_MAX) {
             rssi = RSSI_MAX;
         }
@@ -95,7 +96,7 @@ void subghz_frequency_analyzer_draw_rssi(
     }
 
     // Last RSSI
-    if(rssi_last) {
+    if(!subghz_frequency_analyzer_check_zero(rssi_last, THRESHOLD)) {
         if(rssi_last > RSSI_MAX) {
             rssi_last = RSSI_MAX;
         }
@@ -108,7 +109,7 @@ void subghz_frequency_analyzer_draw_rssi(
 
     // Trigger cursor
     trigger = (trigger - RSSI_MIN) / RSSI_SCALE;
-    uint8_t tr_x = x + 2 * trigger;
+    uint8_t tr_x = (uint8_t)((float)x + (2 * trigger));
     canvas_draw_dot(canvas, tr_x, y + 4);
     canvas_draw_line(canvas, tr_x - 1, y + 5, tr_x + 1, y + 5);
 
@@ -118,7 +119,7 @@ void subghz_frequency_analyzer_draw_rssi(
 static void subghz_frequency_analyzer_history_frequency_draw(
     Canvas* canvas,
     SubGhzFrequencyAnalyzerModel* model) {
-    char buffer[64];
+    char buffer[64] = {0};
     const uint8_t x1 = 2;
     const uint8_t x2 = 66;
     const uint8_t y = 37;
@@ -161,7 +162,7 @@ static void subghz_frequency_analyzer_history_frequency_draw(
 }
 
 void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel* model) {
-    char buffer[64];
+    char buffer[64] = {0};
 
     // Title
     canvas_set_color(canvas, ColorBlack);
@@ -190,9 +191,7 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
         canvas_draw_box(canvas, 4, 10, 121, 19);
         canvas_set_color(canvas, ColorWhite);
     } else {
-        // TODO: Disable this
-        //canvas_draw_box(canvas, 4, 11, 121, 19);
-        //canvas_set_color(canvas, ColorWhite);
+        canvas_set_color(canvas, ColorBlack);
     }
 
     canvas_draw_str(canvas, 8, 26, buffer);
@@ -224,10 +223,10 @@ void subghz_frequency_analyzer_draw(Canvas* canvas, SubGhzFrequencyAnalyzerModel
 
 uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t prev_freq = 0;
-    uint32_t current = 0;
     uint32_t result = 0;
+    uint32_t current;
 
-    for(size_t i = 0; i < sizeof(subghz_frequency_list); i++) {
+    for(size_t i = 0; i < ARRAY_SIZE(subghz_frequency_list); i++) {
         current = subghz_frequency_list[i];
         if(current == input) {
             result = current;
@@ -249,7 +248,7 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
 
 bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
     furi_assert(context);
-    SubGhzFrequencyAnalyzer* instance = context;
+    SubGhzFrequencyAnalyzer* instance = (SubGhzFrequencyAnalyzer*)context;
 
     bool need_redraw = false;
 
@@ -298,7 +297,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
     } else if(event->key == InputKeyOk) {
         need_redraw = true;
         bool updated = false;
-        uint32_t frequency_to_save = 0;
+        uint32_t frequency_to_save;
         with_view_model(
             instance->view,
             SubGhzFrequencyAnalyzerModel * model,
@@ -308,7 +307,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t prev_freq_to_save = model->frequency_to_save;
                     uint32_t frequency_candidate = model->history_frequency[model->selected_index];
                     if(frequency_candidate == 0 ||
-                       // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
                        !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
@@ -325,7 +323,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t prev_freq_to_save = model->frequency_to_save;
                     uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
                     if(frequency_candidate == 0 ||
-                       // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
                        !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
@@ -342,7 +339,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
                     uint32_t prev_freq_to_save = model->frequency_to_save;
                     uint32_t frequency_candidate = subghz_frequency_find_correct(model->frequency);
                     if(frequency_candidate == 0 ||
-                       // !furi_hal_subghz_is_frequency_valid(frequency_candidate) ||
                        !subghz_txrx_radio_device_is_frequency_valid(
                            instance->txrx, frequency_candidate) ||
                        prev_freq_to_save == frequency_candidate) {
@@ -363,7 +359,7 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
             instance->callback(SubGhzCustomEventViewFreqAnalOkShort, instance->context);
         }
 
-        // First device receive short, then when user release button we get long
+        // First device receives short, then when user release button we get long
         if(event->type == InputTypeLong && frequency_to_save > 0) {
             // Stop worker
             if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
@@ -375,7 +371,6 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
     }
 
     if(need_redraw) {
-        SubGhzFrequencyAnalyzer* instance = context;
         with_view_model(
             instance->view,
             SubGhzFrequencyAnalyzerModel * model,
@@ -412,7 +407,7 @@ void subghz_frequency_analyzer_pair_callback(
     uint32_t frequency,
     float rssi,
     bool signal) {
-    SubGhzFrequencyAnalyzer* instance = context;
+    SubGhzFrequencyAnalyzer* instance = (SubGhzFrequencyAnalyzer*)context;
     if(float_is_equal(rssi, 0.f) && instance->locked) {
         if(instance->callback) {
             instance->callback(SubGhzCustomEventSceneAnalyzerUnlock, instance->context);
@@ -514,7 +509,7 @@ void subghz_frequency_analyzer_pair_callback(
 
 void subghz_frequency_analyzer_enter(void* context) {
     furi_assert(context);
-    SubGhzFrequencyAnalyzer* instance = context;
+    SubGhzFrequencyAnalyzer* instance = (SubGhzFrequencyAnalyzer*)context;
 
     //Start worker
     instance->worker = subghz_frequency_analyzer_worker_alloc(instance->context);
@@ -560,7 +555,7 @@ void subghz_frequency_analyzer_enter(void* context) {
 
 void subghz_frequency_analyzer_exit(void* context) {
     furi_assert(context);
-    SubGhzFrequencyAnalyzer* instance = context;
+    SubGhzFrequencyAnalyzer* instance = (SubGhzFrequencyAnalyzer*)context;
 
     // Stop worker
     if(subghz_frequency_analyzer_worker_is_running(instance->worker)) {
@@ -635,4 +630,8 @@ SubGHzFrequencyAnalyzerFeedbackLevel subghz_frequency_analyzer_feedback_level(
 float subghz_frequency_analyzer_get_trigger_level(SubGhzFrequencyAnalyzer* instance) {
     furi_assert(instance);
     return subghz_frequency_analyzer_worker_get_trigger_level(instance->worker);
+}
+
+bool subghz_frequency_analyzer_check_zero(float value, float threshold) {
+    return value >= -threshold && value <= threshold;
 }

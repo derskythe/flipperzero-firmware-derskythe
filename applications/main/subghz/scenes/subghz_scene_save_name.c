@@ -1,7 +1,5 @@
 #include "../subghz_i.h"
 #include "subghz/types.h"
-#include "../helpers/subghz_custom_event.h"
-#include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
 #include <dolphin/dolphin.h>
 #include <toolbox/name_generator.h>
@@ -93,7 +91,7 @@ void subghz_scene_save_name_on_enter(void* context) {
 bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeBack) {
-        if(!(strcmp(subghz->file_name_tmp, "") == 0) ||
+        if(strcmp(subghz->file_name_tmp, "") != 0 ||
            scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
                SubGhzCustomEventManagerNoSet) {
             if(!scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneDecodeRAW)) {

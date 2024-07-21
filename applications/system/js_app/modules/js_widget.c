@@ -319,8 +319,7 @@ static void widget_disc_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_disc_free(WidgetComponent* component) {
-    DiscElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
@@ -360,14 +359,15 @@ static void widget_dot_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_dot_free(WidgetComponent* component) {
-    DotElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_dot(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 2)) return;
+    if(!check_arg_count(mjs, 2)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -399,14 +399,15 @@ static void widget_frame_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_frame_free(WidgetComponent* component) {
-    FrameElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_frame(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 4)) return;
+    if(!check_arg_count(mjs, 4)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -442,14 +443,15 @@ static void widget_glyph_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_glyph_free(WidgetComponent* component) {
-    GlyphElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_glyph(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 3)) return;
+    if(!check_arg_count(mjs, 3)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -483,14 +485,15 @@ static void widget_line_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_line_free(WidgetComponent* component) {
-    LineElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_line(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 4)) return;
+    if(!check_arg_count(mjs, 4)) {
+        return;
+    }
 
     int32_t x1 = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y1 = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -526,14 +529,15 @@ static void widget_rbox_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_rbox_free(WidgetComponent* component) {
-    BoxElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_rbox(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 5)) return;
+    if(!check_arg_count(mjs, 5)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -571,14 +575,15 @@ static void widget_rframe_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_rframe_free(WidgetComponent* component) {
-    RframeElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_rframe(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 5)) return;
+    if(!check_arg_count(mjs, 5)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));
@@ -702,14 +707,15 @@ static void widget_xbm_draw(Canvas* canvas, void* model) {
 }
 
 static void widget_xbm_free(WidgetComponent* component) {
-    XbmElement* element = component->model;
-    free(element);
+    free(component->model);
     free(component);
 }
 
 static void js_widget_add_xbm(struct mjs* mjs) {
     JsWidgetInst* widget = get_this_ctx(mjs);
-    if(!check_arg_count(mjs, 3)) return;
+    if(!check_arg_count(mjs, 3)) {
+        return;
+    }
 
     int32_t x = mjs_get_int32(mjs, mjs_arg(mjs, 0));
     int32_t y = mjs_get_int32(mjs, mjs_arg(mjs, 1));

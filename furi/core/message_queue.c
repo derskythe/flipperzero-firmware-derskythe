@@ -172,10 +172,9 @@ uint32_t furi_message_queue_get_space(FuriMessageQueue* instance) {
     furi_check(instance);
 
     uint32_t space;
-    uint32_t isrm;
 
     if(furi_kernel_is_irq_or_masked() != 0U) {
-        isrm = taskENTER_CRITICAL_FROM_ISR();
+        uint32_t isrm = taskENTER_CRITICAL_FROM_ISR();
 
         space = instance->container.uxLength - instance->container.uxMessagesWaiting;
 

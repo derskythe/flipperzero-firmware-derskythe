@@ -155,7 +155,7 @@ static void subghz_view_receiver_update_offset(SubGhzViewReceiver* subghz_receiv
 
 static void subghz_view_receiver_show_time_moment(void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
+    SubGhzViewReceiver* subghz_receiver = (SubGhzViewReceiver*)context;
     with_view_model(
         subghz_receiver->view, SubGhzViewReceiverModel * model, { model->show_time = true; }, true);
     furi_timer_start(subghz_receiver->flip_time_timer, FLIP_TIMEOUT);
@@ -163,7 +163,7 @@ static void subghz_view_receiver_show_time_moment(void* context) {
 
 static void subghz_view_receiver_flip_string_callback(void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
+    SubGhzViewReceiver* subghz_receiver = (SubGhzViewReceiver*)context;
     with_view_model(
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,
@@ -374,7 +374,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
             const uint8_t string_width = canvas_string_width(canvas, str);
             canvas_draw_str(
                 canvas,
-                canvas_width(canvas) - (string_width + horizontal_offset),
+                (int32_t)canvas_width(canvas) - (string_width + horizontal_offset),
                 vertical_offset,
                 str);
         } else {
@@ -410,7 +410,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
             const uint8_t string_width = canvas_string_width(canvas, str);
             canvas_draw_str(
                 canvas,
-                canvas_width(canvas) - (string_width + horizontal_offset),
+                (int32_t)canvas_width(canvas) - (string_width + horizontal_offset),
                 vertical_offset,
                 str);
         } else {
@@ -426,7 +426,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
 
 static void subghz_view_receiver_timer_callback(void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
+    SubGhzViewReceiver* subghz_receiver = (SubGhzViewReceiver*)context;
     with_view_model(
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,
@@ -441,7 +441,7 @@ static void subghz_view_receiver_timer_callback(void* context) {
 
 bool subghz_view_receiver_input(InputEvent* event, void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
+    SubGhzViewReceiver* subghz_receiver = (SubGhzViewReceiver*)context;
 
     if(subghz_receiver->lock == true) {
         with_view_model(
@@ -543,7 +543,7 @@ void subghz_view_receiver_enter(void* context) {
 
 void subghz_view_receiver_exit(void* context) {
     furi_assert(context);
-    SubGhzViewReceiver* subghz_receiver = context;
+    SubGhzViewReceiver* subghz_receiver = (SubGhzViewReceiver*)context;
     with_view_model(
         subghz_receiver->view,
         SubGhzViewReceiverModel * model,

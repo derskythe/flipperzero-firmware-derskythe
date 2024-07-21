@@ -20,12 +20,12 @@ static void draw_stat(Canvas* canvas, int x, int y, const Icon* icon, char* val)
     canvas_draw_str_aligned(canvas, x + 8, y + 22, AlignCenter, AlignBottom, val);
 }
 
-static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
+static void draw_battery(Canvas* canvas, const BatteryInfoModel* data, int32_t x, int32_t y) {
     char emote[20] = {};
     char header[20] = {};
     char value[20] = {};
 
-    int32_t current = 1000.0f * data->gauge_current;
+    int32_t current = (int32_t)(1000.0f * data->gauge_current);
 
     // Draw battery
     canvas_draw_icon(canvas, x, y, &I_BatteryBody_52x28);
@@ -49,9 +49,9 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
         snprintf(
             value,
             sizeof(value),
-            "%lu.%luV   %lumA",
-            (uint32_t)(data->vbus_voltage),
-            (uint32_t)(data->vbus_voltage * 10) % 10,
+            "%lu.%luV   %lmA",
+            (uint64_t)(data->vbus_voltage),
+            (uint64_t)(data->vbus_voltage * 10) % 10,
             current);
     } else if(current < -5) {
         // 0-5ma deadband
@@ -76,8 +76,8 @@ static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
                 value,
                 sizeof(value),
                 "%lu.%luV",
-                (uint32_t)(data->charge_voltage_limit),
-                (uint32_t)(data->charge_voltage_limit * 10) % 10);
+                (uint64_t)(data->charge_voltage_limit),
+                (uint64_t)(data->charge_voltage_limit * 10) % 10);
         } else {
             snprintf(header, sizeof(header), "Charged!");
         }
@@ -103,22 +103,22 @@ static void battery_info_draw_callback(Canvas* canvas, void* context) {
     char voltage[10];
     char health[10];
 
-    snprintf(batt_level, sizeof(batt_level), "%lu%%", (uint32_t)model->charge);
+    snprintf(batt_level, sizeof(batt_level), "%lu%%", (uint64_t)model->charge);
     if(locale_get_measurement_unit() == LocaleMeasurementUnitsMetric) {
-        snprintf(temperature, sizeof(temperature), "%lu C", (uint32_t)model->gauge_temperature);
+        snprintf(temperature, sizeof(temperature), "%lu C", (uint64_t)model->gauge_temperature);
     } else {
         snprintf(
             temperature,
             sizeof(temperature),
             "%lu F",
-            (uint32_t)locale_celsius_to_fahrenheit(model->gauge_temperature));
+            (uint64_t)locale_celsius_to_fahrenheit(model->gauge_temperature));
     }
     snprintf(
         voltage,
         sizeof(voltage),
         "%lu.%01lu V",
-        (uint32_t)model->gauge_voltage,
-        (uint32_t)(model->gauge_voltage * 10) % 10UL);
+        (uint64_t)model->gauge_voltage,
+        (uint64_t)(model->gauge_voltage * 10) % 10UL);
     snprintf(health, sizeof(health), "%d%%", model->health);
 
     draw_stat(canvas, 8, 42, &I_Battery_16x16, batt_level);

@@ -41,7 +41,7 @@ void storage_settings_scene_benchmark_confirm_on_enter(void* context) {
 }
 
 bool storage_settings_scene_benchmark_confirm_on_event(void* context, SceneManagerEvent event) {
-    StorageSettings* app = context;
+    StorageSettings* app = (StorageSettings*)context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {

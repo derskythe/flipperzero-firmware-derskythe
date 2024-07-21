@@ -1,9 +1,8 @@
 #include "../subghz_i.h"
-#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_delete_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneDelete);
     } else if((result == GuiButtonTypeLeft) && (type == InputTypeShort)) {
@@ -13,7 +12,7 @@ void subghz_scene_delete_callback(GuiButtonType result, InputType type, void* co
 }
 
 void subghz_scene_delete_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     FuriString* frequency_str;
     FuriString* modulation_str;
@@ -62,7 +61,7 @@ void subghz_scene_delete_on_enter(void* context) {
 }
 
 bool subghz_scene_delete_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneDelete) {
             furi_string_set(subghz->file_path_tmp, subghz->file_path);
@@ -81,6 +80,6 @@ bool subghz_scene_delete_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_delete_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     widget_reset(subghz->widget);
 }

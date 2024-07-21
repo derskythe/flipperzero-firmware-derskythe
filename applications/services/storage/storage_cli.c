@@ -35,8 +35,8 @@ static void storage_cli_info(Cli* cli, FuriString* path, FuriString* args) {
             printf(
                 "Label: %s\r\nType: LittleFS\r\n%luKiB total\r\n%luKiB free\r\n",
                 furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
-                (uint32_t)(total_space / 1024),
-                (uint32_t)(free_space / 1024));
+                (uint64_t)(total_space / 1024),
+                (uint64_t)(free_space / 1024));
         }
     } else if(furi_string_cmp_str(path, STORAGE_EXT_PATH_PREFIX) == 0) {
         SDInfo sd_info;
@@ -116,7 +116,7 @@ static void storage_cli_list(Cli* cli, FuriString* path, FuriString* args) {
                 if(file_info_is_dir(&fileinfo)) {
                     printf("\t[D] %s\r\n", name);
                 } else {
-                    printf("\t[F] %s %lub\r\n", name, (uint32_t)(fileinfo.size));
+                    printf("\t[F] %s %lub\r\n", name, (uint64_t)(fileinfo.size));
                 }
             }
 
@@ -158,7 +158,7 @@ static void storage_cli_tree(Cli* cli, FuriString* path, FuriString* args) {
                     printf(
                         "\t[F] %s %lub\r\n",
                         furi_string_get_cstr(name),
-                        (uint32_t)(fileinfo.size));
+                        (uint64_t)(fileinfo.size));
                 }
             }
 
@@ -182,11 +182,11 @@ static void storage_cli_read(Cli* cli, FuriString* path, FuriString* args) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        size_t read_size;
         const size_t buffer_size = 128;
-        size_t read_size = 0;
         uint8_t* data = malloc(buffer_size);
 
-        printf("Size: %lu\r\n", (uint32_t)storage_file_size(file));
+        printf("Size: %lu\r\n", (uint64_t)storage_file_size(file));
 
         do {
             read_size = storage_file_read(file, data, buffer_size);
@@ -267,14 +267,14 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
     File* file = storage_file_alloc(api);
 
     uint32_t buffer_size;
-    int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
+    int parsed_count = sscanf(furi_string_get_cstr(args), "%u", &buffer_size);
 
     if(parsed_count != 1) {
         storage_cli_print_usage();
     } else if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint64_t file_size = storage_file_size(file);
 
-        printf("Size: %llu\r\n", file_size);
+        printf("Size: %lu\r\n", file_size);
 
         if(buffer_size) {
             uint8_t* data = malloc(buffer_size);
@@ -307,7 +307,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
     File* file = storage_file_alloc(api);
 
     uint32_t buffer_size;
-    int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
+    int32_t parsed_count = sscanf(furi_string_get_cstr(args), "%u", &buffer_size);
 
     if(parsed_count != 1) {
         storage_cli_print_usage();
@@ -317,9 +317,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
 
             if(buffer_size) {
                 uint8_t* buffer = malloc(buffer_size);
-
                 size_t read_bytes = cli_read(cli, buffer, buffer_size);
-
                 size_t written_size = storage_file_write(file, buffer, read_bytes);
 
                 if(written_size != buffer_size) {
@@ -359,8 +357,8 @@ static void storage_cli_stat(Cli* cli, FuriString* path, FuriString* args) {
         } else {
             printf(
                 "Storage, %luKiB total, %luKiB free\r\n",
-                (uint32_t)(total_space / 1024),
-                (uint32_t)(free_space / 1024));
+                (uint64_t)(total_space / 1024),
+                (uint64_t)(free_space / 1024));
         }
     } else {
         FileInfo fileinfo;
@@ -370,7 +368,7 @@ static void storage_cli_stat(Cli* cli, FuriString* path, FuriString* args) {
             if(file_info_is_dir(&fileinfo)) {
                 printf("Directory\r\n");
             } else {
-                printf("File, size: %lub\r\n", (uint32_t)(fileinfo.size));
+                printf("File, size: %lub\r\n", (uint64_t)(fileinfo.size));
             }
         } else {
             storage_cli_print_error(error);
@@ -391,7 +389,7 @@ static void storage_cli_timestamp(Cli* cli, FuriString* path, FuriString* args) 
     if(error != FSE_OK) {
         printf("Invalid arguments\r\n");
     } else {
-        printf("Timestamp %lu\r\n", timestamp);
+        printf("Timestamp %u\r\n", timestamp);
     }
 
     furi_record_close(RECORD_STORAGE);
@@ -517,7 +515,7 @@ static void storage_cli_extract(Cli* cli, FuriString* old_path, FuriString* args
         bool success = tar_archive_unpack_to(archive, furi_string_get_cstr(new_path), NULL);
         uint32_t end_tick = furi_get_tick();
         printf(
-            "Decompression %s in %lu ticks \r\n",
+            "Decompression %s in %u ticks \r\n",
             success ? "success" : "failed",
             end_tick - start_tick);
     } while(false);

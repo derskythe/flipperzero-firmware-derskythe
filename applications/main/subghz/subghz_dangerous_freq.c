@@ -1,10 +1,6 @@
 #include <furi.h>
-#include <furi_hal.h>
-
 #include <targets/f7/furi_hal/furi_hal_subghz_i.h>
-
 #include <flipper_format/flipper_format_i.h>
-
 #include <subghz/subghz_last_settings.h>
 
 void subghz_dangerous_freq() {

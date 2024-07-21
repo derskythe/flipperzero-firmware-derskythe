@@ -42,10 +42,10 @@ void storage_file_set(StorageFile* obj, const StorageFile* src);
 void storage_file_clear(StorageFile* obj);
 
 void storage_data_init(StorageData* storage);
-StorageStatus storage_data_status(StorageData* storage);
-const char* storage_data_status_text(StorageData* storage);
+StorageStatus storage_data_status(const StorageData* storage);
+const char* storage_data_status_text(const StorageData* storage);
 void storage_data_timestamp(StorageData* storage);
-uint32_t storage_data_get_timestamp(StorageData* storage);
+uint32_t storage_data_get_timestamp(const StorageData* storage);
 
 LIST_DEF(
     StorageFileList,
@@ -71,7 +71,7 @@ void storage_set_storage_file_data(const File* file, void* file_data, StorageDat
 void* storage_get_storage_file_data(const File* file, StorageData* storage);
 
 void storage_push_storage_file(File* file, FuriString* path, StorageData* storage);
-bool storage_pop_storage_file(File* file, StorageData* storage);
+bool storage_pop_storage_file(const File* file, StorageData* storage);
 
 size_t storage_open_files_count(StorageData* storage);
 

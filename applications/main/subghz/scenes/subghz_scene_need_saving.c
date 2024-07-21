@@ -3,7 +3,7 @@
 
 void subghz_scene_need_saving_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneStay);
@@ -13,7 +13,7 @@ void subghz_scene_need_saving_callback(GuiButtonType result, InputType type, voi
 }
 
 void subghz_scene_need_saving_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     widget_add_string_multiline_element(
         subghz->widget, 64, 13, AlignCenter, AlignCenter, FontPrimary, "Exit to Sub-GHz Menu?");
@@ -35,7 +35,7 @@ void subghz_scene_need_saving_on_enter(void* context) {
 }
 
 bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeBack) {
         subghz_rx_key_state_set(subghz, SubGhzRxKeyStateBack);
         scene_manager_previous_scene(subghz->scene_manager);
@@ -71,6 +71,6 @@ bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_need_saving_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     widget_reset(subghz->widget);
 }

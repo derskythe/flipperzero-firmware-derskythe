@@ -119,7 +119,7 @@ static bool loader_applications_select_app(LoaderApplicationsApp* loader_applica
 
 static void loader_pubsub_callback(const void* message, void* context) {
     const LoaderEvent* event = message;
-    const FuriThreadId thread_id = (FuriThreadId)context;
+    FuriThreadId thread_id = (FuriThreadId)context;
 
     if(event->type == LoaderEventTypeApplicationStopped) {
         furi_thread_flags_set(thread_id, APPLICATION_STOP_EVENT);

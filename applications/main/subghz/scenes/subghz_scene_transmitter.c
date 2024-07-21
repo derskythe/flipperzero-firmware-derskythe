@@ -1,5 +1,4 @@
 #include "../subghz_i.h"
-#include "../views/transmitter.h"
 #include <dolphin/dolphin.h>
 
 #include <lib/subghz/blocks/custom_btn.h>
@@ -8,12 +7,12 @@
 
 void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
 bool subghz_scene_transmitter_update_data_show(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     bool ret = false;
     SubGhzProtocolDecoderBase* decoder = subghz_txrx_get_decoder(subghz->txrx);
 
@@ -46,7 +45,7 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
 }
 
 void subghz_scene_transmitter_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     subghz_custom_btns_reset();
 
@@ -63,7 +62,7 @@ void subghz_scene_transmitter_on_enter(void* context) {
 }
 
 bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventViewTransmitterSendStart) {
             subghz->state_notifications = SubGhzNotificationStateIDLE;
@@ -110,7 +109,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_transmitter_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     subghz->state_notifications = SubGhzNotificationStateIDLE;
 
     subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);

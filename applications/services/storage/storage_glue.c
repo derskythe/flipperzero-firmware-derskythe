@@ -3,6 +3,14 @@
 
 #define TAG "StorageGlue"
 
+static const char* result_ok = "ok";
+static const char* result_not_ready = "not ready";
+static const char* result_not_mounted = "not mounted";
+static const char* result_no_fs = "no filesystem";
+static const char* result_not_accessible = "not accessible";
+static const char* result_internal = "internal";
+static const char* result_unknown = "unknown";
+
 /****************** storage file ******************/
 
 void storage_file_init(StorageFile* obj) {
@@ -35,41 +43,34 @@ void storage_data_init(StorageData* storage) {
     StorageFileList_init(storage->files);
 }
 
-StorageStatus storage_data_status(StorageData* storage) {
+StorageStatus storage_data_status(const StorageData* storage) {
     return storage->status;
 }
 
-const char* storage_data_status_text(StorageData* storage) {
-    const char* result = "unknown";
+const char* storage_data_status_text(const StorageData* storage) {
     switch(storage->status) {
     case StorageStatusOK:
-        result = "ok";
-        break;
+        return result_ok;
     case StorageStatusNotReady:
-        result = "not ready";
-        break;
+        return result_not_ready;
     case StorageStatusNotMounted:
-        result = "not mounted";
-        break;
+        return result_not_mounted;
     case StorageStatusNoFS:
-        result = "no filesystem";
-        break;
+        return result_no_fs;
     case StorageStatusNotAccessible:
-        result = "not accessible";
-        break;
+        return result_not_accessible;
     case StorageStatusErrorInternal:
-        result = "internal";
-        break;
+        return result_internal;
+    default:
+        return result_unknown;
     }
-
-    return result;
 }
 
 void storage_data_timestamp(StorageData* storage) {
     storage->timestamp = furi_hal_rtc_get_timestamp();
 }
 
-uint32_t storage_data_get_timestamp(StorageData* storage) {
+uint32_t storage_data_get_timestamp(const StorageData* storage) {
     return storage->timestamp;
 }
 
@@ -121,7 +122,7 @@ void storage_set_storage_file_data(const File* file, void* file_data, StorageDat
 }
 
 void* storage_get_storage_file_data(const File* file, StorageData* storage) {
-    StorageFile* storage_file_ref = storage_get_file(file, storage);
+    const StorageFile* storage_file_ref = storage_get_file(file, storage);
     furi_check(storage_file_ref != NULL);
     return storage_file_ref->file_data;
 }
@@ -133,7 +134,7 @@ void storage_push_storage_file(File* file, FuriString* path, StorageData* storag
     furi_string_set(storage_file->path, path);
 }
 
-bool storage_pop_storage_file(File* file, StorageData* storage) {
+bool storage_pop_storage_file(const File* file, StorageData* storage) {
     StorageFileList_it_t it;
     bool result = false;
 
@@ -153,6 +154,5 @@ bool storage_pop_storage_file(File* file, StorageData* storage) {
 }
 
 size_t storage_open_files_count(StorageData* storage) {
-    size_t count = StorageFileList_size(storage->files);
-    return count;
+    return StorageFileList_size(storage->files);
 }

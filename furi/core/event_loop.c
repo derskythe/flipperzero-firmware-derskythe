@@ -143,8 +143,7 @@ void furi_event_loop_run(FuriEventLoop* instance) {
 
                 if(item) {
                     while(true) {
-                        FuriEventLoopProcessStatus ret =
-                            furi_event_loop_poll_process_event(instance, item);
+                        ret = furi_event_loop_poll_process_event(instance, item);
                         if(ret == FuriEventLoopProcessStatusComplete) {
                             // Event processing complete, break from loop
                             break;
@@ -369,12 +368,10 @@ bool furi_event_loop_signal_callback(uint32_t signal, void* arg, void* context) 
     FuriEventLoop* instance = context;
     UNUSED(arg);
 
-    switch(signal) {
-    case FuriSignalExit:
+    if(signal == FuriSignalExit) {
         furi_event_loop_stop(instance);
         return true;
-    // Room for possible other standard signal handlers
-    default:
-        return false;
     }
+
+    return false;
 }

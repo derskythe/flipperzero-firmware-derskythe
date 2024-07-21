@@ -47,7 +47,7 @@ static void subghz_scene_add_to_history_callback(
     SubGhzProtocolDecoderBase* decoder_base,
     void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     FuriString* item_name = furi_string_alloc();
     FuriString* item_time = furi_string_alloc();
     uint16_t idx = subghz_history_get_item(subghz->history);
@@ -149,7 +149,7 @@ bool subghz_scene_decode_raw_next(SubGhz* subghz) {
 }
 
 void subghz_scene_decode_raw_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     FuriString* item_name = furi_string_alloc();
     FuriString* item_time = furi_string_alloc();
@@ -197,7 +197,7 @@ void subghz_scene_decode_raw_on_enter(void* context) {
 }
 
 bool subghz_scene_decode_raw_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     bool consumed = false;
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {

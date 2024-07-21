@@ -3,13 +3,13 @@
 #define TAG "SubGhzSetCnt"
 
 void subghz_scene_set_cnt_byte_input_callback(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventByteInputDone);
 }
 
 void subghz_scene_set_cnt_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
@@ -45,7 +45,7 @@ void subghz_scene_set_cnt_on_enter(void* context) {
 }
 
 bool subghz_scene_set_cnt_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -58,7 +58,7 @@ bool subghz_scene_set_cnt_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_set_cnt_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);

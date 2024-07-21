@@ -33,7 +33,6 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
 
     default:
         return true;
-        break;
     }
     return false;
 }
@@ -103,7 +102,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        // TODO: use different frequency allowed lists for differnet modules (non cc1101)
+        // TODO: use different frequency allowed lists for different modules (non cc1101)
         if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
             FURI_LOG_E(TAG, "This frequency can only be used for RX");
 

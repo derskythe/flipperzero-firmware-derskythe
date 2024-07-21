@@ -6,7 +6,7 @@
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     if((result == GuiButtonTypeCenter) && (type == InputTypePress)) {
         view_dispatcher_send_custom_event(
@@ -21,7 +21,7 @@ void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, v
 }
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     if(subghz_txrx_load_decoder_by_name_protocol(
            subghz->txrx,
@@ -105,7 +105,7 @@ void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
 }
 
 void subghz_scene_receiver_info_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     subghz_custom_btns_reset();
 
@@ -118,7 +118,7 @@ void subghz_scene_receiver_info_on_enter(void* context) {
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
@@ -196,7 +196,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 }
 
 void subghz_scene_receiver_info_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     widget_reset(subghz->widget);
     subghz_txrx_reset_dynamic_and_custom_btns(subghz->txrx);

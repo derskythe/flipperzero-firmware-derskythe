@@ -109,7 +109,7 @@ static void contrast_changed(VariableItem* item) {
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, contrast_text[index]);
-    app->notification->settings.contrast = contrast_value[index];
+    app->notification->settings.contrast = (int8_t)contrast_value[index];
     notification_message(app->notification, &sequence_lcd_contrast_update);
 }
 

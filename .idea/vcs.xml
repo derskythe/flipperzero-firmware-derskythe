@@ -4,7 +4,6 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/applications/external/dap_link/lib/free-dap" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/applications/external/multi_fuzzer" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/applications/external/subbrute" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/applications/main/subghz_remote" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/assets/protobuf" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/FreeRTOS-Kernel" vcs="Git" />

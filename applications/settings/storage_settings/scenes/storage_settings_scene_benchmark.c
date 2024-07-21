@@ -1,5 +1,4 @@
 #include "../storage_settings.h"
-#include <furi_hal.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
 
@@ -7,6 +6,8 @@
 #define BENCH_COUNT     6
 #define BENCH_REPEATS   4
 #define BENCH_FILE      EXT_PATH("rwfiletest.bin")
+
+#define TAG "StorageSettingsSceneBenchmark"
 
 static void
     storage_settings_scene_benchmark_dialog_callback(DialogExResult result, void* context) {
@@ -28,6 +29,11 @@ static bool storage_settings_scene_bench_write(
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
+                if(data == NULL) {
+                    FURI_LOG_E(TAG, "Data pointer is NULL!");
+                    result = false;
+                    break;
+                }
                 if(storage_file_write(file, (data + i * size), size) != size) {
                     result = false;
                     break;
@@ -57,6 +63,11 @@ static bool
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
+                if(data == NULL) {
+                    FURI_LOG_E(TAG, "Data pointer is NULL!");
+                    result = false;
+                    break;
+                }
                 if(storage_file_read(file, (data + i * size), size) != size) {
                     result = false;
                     break;
@@ -92,8 +103,9 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
     dialog_ex_set_icon(dialog_ex, 12, 20, &I_LoadingHourglass_24x24);
     for(size_t i = 0; i < BENCH_COUNT; i++) {
         if(!storage_settings_scene_bench_write(
-               app->fs_api, bench_size[i], bench_data, &bench_w_speed[i]))
+               app->fs_api, bench_size[i], bench_data, &bench_w_speed[i])) {
             break;
+        }
 
         if(i > 0) furi_string_cat_printf(app->text_string, "\n");
         furi_string_cat_printf(app->text_string, "%ub : W %luK ", bench_size[i], bench_w_speed[i]);
@@ -103,8 +115,9 @@ static void storage_settings_scene_benchmark(StorageSettings* app) {
             dialog_ex, furi_string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
 
         if(!storage_settings_scene_bench_read(
-               app->fs_api, bench_size[i], bench_data, &bench_r_speed[i]))
+               app->fs_api, bench_size[i], bench_data, &bench_r_speed[i])) {
             break;
+        }
 
         furi_string_cat_printf(app->text_string, "R %luK", bench_r_speed[i]);
 
@@ -154,11 +167,9 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
         scene_manager_get_scene_state(app->scene_manager, StorageSettingsBenchmark);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        switch(event.event) {
-        case DialogExResultCenter:
+        if(event.event == DialogExResultCenter) {
             consumed = scene_manager_search_and_switch_to_previous_scene(
                 app->scene_manager, StorageSettingsStart);
-            break;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         if(sd_status == FSE_OK) {

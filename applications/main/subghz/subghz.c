@@ -352,7 +352,7 @@ int32_t subghz_app(void* p) {
     if(p && strlen(p)) {
         uint32_t rpc_ctx = 0;
 
-        if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
+        if(sscanf(p, "RPC %X", &rpc_ctx) == 1) {
             subghz->rpc_ctx = (void*)rpc_ctx;
             rpc_system_app_set_callback(subghz->rpc_ctx, subghz_rpc_command_callback, subghz);
             rpc_system_app_send_started(subghz->rpc_ctx);
