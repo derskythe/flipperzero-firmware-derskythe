@@ -20,6 +20,8 @@
 
 ### Welcome to the Flipper Zero Unleashed Firmware repo! 
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/580265af5d5246858801519f43db8259)](https://app.codacy.com/gh/derskythe/flipperzero-firmware-derskythe?utm_source=github.com&utm_medium=referral&utm_content=derskythe/flipperzero-firmware-derskythe&utm_campaign=Badge_Grade)
+
 #### **This firmware is a fork from original (OFW) firmware** [flipperdevices/flipperzero-firmware](https://github.com/flipperdevices/flipperzero-firmware)
 
 <br>
