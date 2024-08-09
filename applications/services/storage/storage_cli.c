@@ -182,8 +182,8 @@ static void storage_cli_read(Cli* cli, FuriString* path, FuriString* args) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        size_t read_size;
         const size_t buffer_size = 128;
-        size_t read_size = 0;
         uint8_t* data = malloc(buffer_size);
 
         printf("Size: %lu\r\n", (uint32_t)storage_file_size(file));
@@ -267,7 +267,7 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
     File* file = storage_file_alloc(api);
 
     uint32_t buffer_size;
-    int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
+    int32_t parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
     if(parsed_count != 1) {
         storage_cli_print_usage();
@@ -307,7 +307,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
     File* file = storage_file_alloc(api);
 
     uint32_t buffer_size;
-    int parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
+    int32_t parsed_count = sscanf(furi_string_get_cstr(args), "%lu", &buffer_size);
 
     if(parsed_count != 1) {
         storage_cli_print_usage();
@@ -317,9 +317,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
 
             if(buffer_size) {
                 uint8_t* buffer = malloc(buffer_size);
-
                 size_t read_bytes = cli_read(cli, buffer, buffer_size);
-
                 size_t written_size = storage_file_write(file, buffer, read_bytes);
 
                 if(written_size != buffer_size) {

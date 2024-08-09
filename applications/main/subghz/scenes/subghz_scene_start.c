@@ -1,7 +1,6 @@
 #include "../subghz_i.h"
 #include <dolphin/dolphin.h>
 
-#include <lib/subghz/protocols/raw.h>
 
 enum SubmenuIndex {
     SubmenuIndexRead = 10,
@@ -19,7 +18,7 @@ void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
 }
 
 void subghz_scene_start_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(subghz->state_notifications == SubGhzNotificationStateStarting) {
         subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
@@ -59,7 +58,7 @@ void subghz_scene_start_on_enter(void* context) {
 }
 
 bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeBack) {
         //exit app
         scene_manager_stop(subghz->scene_manager);
@@ -105,6 +104,6 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_start_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     submenu_reset(subghz->submenu);
 }

@@ -37,7 +37,7 @@ const NotificationSequence subghz_sequence_rx_locked = {
 };
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     FuriString* history_stat_str = furi_string_alloc();
     if(!subghz_history_get_text_space_left(subghz->history, history_stat_str)) {
         FuriString* frequency_str = furi_string_alloc();
@@ -93,7 +93,7 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
 
 void subghz_scene_receiver_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
@@ -102,7 +102,7 @@ static void subghz_scene_add_to_history_callback(
     SubGhzProtocolDecoderBase* decoder_base,
     void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     // The check can be moved to /lib/subghz/receiver.c, but may result in false positives
     if((decoder_base->protocol->flag & subghz->ignore_filter) == 0) {
@@ -157,7 +157,7 @@ static void subghz_scene_add_to_history_callback(
 }
 
 void subghz_scene_receiver_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     SubGhzHistory* history = subghz->history;
 
     FuriString* item_name = furi_string_alloc();
@@ -225,7 +225,7 @@ void subghz_scene_receiver_on_enter(void* context) {
 }
 
 bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     bool consumed = false;
     if(event.type == SceneManagerEventTypeCustom) {
         // Save cursor position before going to any other dialog

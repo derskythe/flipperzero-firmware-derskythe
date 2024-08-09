@@ -1,7 +1,5 @@
 #include "../subghz_i.h"
-#include "../views/subghz_read_raw.h"
 #include <dolphin/dolphin.h>
-#include <lib/subghz/protocols/raw.h>
 #include <toolbox/path.h>
 
 #define RAW_FILE_NAME "RAW_"
@@ -34,7 +32,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
 
 static void subghz_scene_read_raw_update_statusbar(void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     FuriString* frequency_str = furi_string_alloc();
     FuriString* modulation_str = furi_string_alloc();
@@ -58,19 +56,19 @@ static void subghz_scene_read_raw_update_statusbar(void* context) {
 
 void subghz_scene_read_raw_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
 void subghz_scene_read_raw_callback_end_tx(void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     view_dispatcher_send_custom_event(
         subghz->view_dispatcher, SubGhzCustomEventViewReadRAWSendStop);
 }
 
 void subghz_scene_read_raw_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     FuriString* file_name = furi_string_alloc();
 
     float threshold_rssi = subghz_threshold_rssi_get(subghz->threshold_rssi);
@@ -128,7 +126,7 @@ void subghz_scene_read_raw_on_enter(void* context) {
 }
 
 bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     bool consumed = false;
     SubGhzProtocolDecoderRAW* decoder_raw =
         (SubGhzProtocolDecoderRAW*)subghz_txrx_get_decoder(subghz->txrx);
@@ -350,7 +348,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_read_raw_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     //Stop CC1101
     subghz_txrx_stop(subghz->txrx);

@@ -3,7 +3,7 @@
 #define TAG "SubGhzSceneSaved"
 
 void subghz_scene_saved_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
 
     if(subghz_load_protocol_from_file(subghz)) {
         if(subghz_get_load_type_file(subghz) == SubGhzLoadTypeFileRaw) {
@@ -25,7 +25,7 @@ bool subghz_scene_saved_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_saved_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*)context;
     scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSavedMenu, 0);
     UNUSED(context);
 }

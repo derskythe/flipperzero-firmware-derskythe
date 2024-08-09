@@ -75,6 +75,7 @@ void power_settings_app_free(PowerSettingsApp* app) {
 }
 
 int32_t power_settings_app(void* p) {
+    UNUSED(p);
     uint32_t first_scene = PowerSettingsAppSceneStart;
     if(p && strlen(p) && !strcmp(p, "off")) {
         first_scene = PowerSettingsAppScenePowerOff;

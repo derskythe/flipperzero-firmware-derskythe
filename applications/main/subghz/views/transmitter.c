@@ -112,7 +112,6 @@ void subghz_view_transmitter_draw(Canvas* canvas, SubGhzViewTransmitterModel* mo
     }
 
     if(model->show_button) {
-        // TODO
         canvas_draw_str(
             canvas,
             58,

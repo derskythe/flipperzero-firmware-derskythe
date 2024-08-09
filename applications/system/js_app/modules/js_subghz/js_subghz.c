@@ -1,8 +1,8 @@
 #include "../../js_modules.h"
 #include "radio_device_loader.h"
+#include "subghz/subghz_last_settings.h"
 
 #include <lib/subghz/transmitter.h>
-#include <lib/subghz/devices/devices.h>
 #include <lib/subghz/protocols/protocol_items.h>
 
 #include <flipper_format/flipper_format_i.h>
@@ -17,7 +17,7 @@ typedef enum {
 
 typedef struct {
     const SubGhzDevice* radio_device;
-    int frequency;
+    uint32_t frequency;
     bool is_external;
     JsSubghzRadioState state;
 } JsSubghzInst;
@@ -40,13 +40,14 @@ static FuriHalSubGhzPreset js_subghz_get_preset_name(const char* preset_name) {
     return preset;
 }
 
+static char* const error_radio_not_setup = "Radio is not setup";
 static void js_subghz_set_rx(struct mjs* mjs) {
     mjs_val_t obj_inst = mjs_get(mjs, mjs_get_this(mjs), INST_PROP_NAME, ~0);
     JsSubghzInst* js_subghz = mjs_get_ptr(mjs, obj_inst);
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -65,7 +66,7 @@ static void js_subghz_set_idle(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -84,7 +85,7 @@ static void js_subghz_get_rssi(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -104,7 +105,7 @@ static void js_subghz_get_state(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -134,7 +135,7 @@ static void js_subghz_is_external(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -148,7 +149,7 @@ static void js_subghz_set_frequency(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -184,7 +185,7 @@ static void js_subghz_get_frequency(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -198,7 +199,7 @@ static void js_subghz_transmit_file(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }
@@ -449,7 +450,7 @@ static void js_subghz_setup(struct mjs* mjs) {
     }
 
     js_subghz->state = JsSubghzRadioStateIDLE;
-    js_subghz->frequency = 433920000;
+    js_subghz->frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
 
     subghz_devices_reset(js_subghz->radio_device);
     subghz_devices_idle(js_subghz->radio_device);
@@ -463,7 +464,7 @@ static void js_subghz_end(struct mjs* mjs) {
     furi_assert(js_subghz);
 
     if(!js_subghz->radio_device) {
-        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, "Radio is not setup");
+        mjs_prepend_errorf(mjs, MJS_INTERNAL_ERROR, error_radio_not_setup);
         mjs_return(mjs, MJS_UNDEFINED);
         return;
     }

@@ -1,5 +1,4 @@
 #include "../subghz_i.h" // IWYU pragma: keep
-#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_show_error_sub_popup_callback(void* context) {
     SubGhz* subghz = context;
@@ -7,7 +6,7 @@ void subghz_scene_show_error_sub_popup_callback(void* context) {
 }
 
 void subghz_scene_show_error_sub_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     // Setup view
     Popup* popup = subghz->popup;
@@ -23,7 +22,7 @@ void subghz_scene_show_error_sub_on_enter(void* context) {
 }
 
 bool subghz_scene_show_error_sub_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneShowErrorSub) {
             scene_manager_search_and_switch_to_previous_scene(
@@ -35,7 +34,7 @@ bool subghz_scene_show_error_sub_on_event(void* context, SceneManagerEvent event
 }
 
 void subghz_scene_show_error_sub_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     Popup* popup = subghz->popup;
 
     popup_reset(popup);

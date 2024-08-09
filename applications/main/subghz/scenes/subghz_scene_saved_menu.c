@@ -42,7 +42,7 @@ void subghz_scene_saved_menu_on_enter(void* context) {
 }
 
 bool subghz_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexEmulate) {

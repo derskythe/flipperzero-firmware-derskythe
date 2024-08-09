@@ -131,6 +131,7 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
 }
 
 extern int32_t desktop_settings_app(void* p) {
+    UNUSED(p);
     DesktopSettingsApp* app = desktop_settings_app_alloc();
     DESKTOP_SETTINGS_LOAD(&app->settings);
 

@@ -20,12 +20,12 @@ static void draw_stat(Canvas* canvas, int x, int y, const Icon* icon, char* val)
     canvas_draw_str_aligned(canvas, x + 8, y + 22, AlignCenter, AlignBottom, val);
 }
 
-static void draw_battery(Canvas* canvas, BatteryInfoModel* data, int x, int y) {
+static void draw_battery(Canvas* canvas, const BatteryInfoModel* data, int32_t x, int32_t y) {
     char emote[20] = {};
     char header[20] = {};
     char value[20] = {};
 
-    int32_t current = 1000.0f * data->gauge_current;
+    int32_t current = (int32_t)(1000.0f * data->gauge_current);
 
     // Draw battery
     canvas_draw_icon(canvas, x, y, &I_BatteryBody_52x28);

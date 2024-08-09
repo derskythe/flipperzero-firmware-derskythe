@@ -150,14 +150,16 @@ void subghz_read_raw_update_sin(SubGhzReadRAW* instance) {
 }
 
 static int8_t subghz_read_raw_tab_sin(uint8_t x) {
-    const uint8_t tab_sin[64] = {0,   3,   6,   9,   12,  16,  19,  22,  25,  28,  31,  34,  37,
+    const int8_t tab_sin[64] = {0,   3,   6,   9,   12,  16,  19,  22,  25,  28,  31,  34,  37,
                                  40,  43,  46,  49,  51,  54,  57,  60,  63,  65,  68,  71,  73,
                                  76,  78,  81,  83,  85,  88,  90,  92,  94,  96,  98,  100, 102,
                                  104, 106, 107, 109, 111, 112, 113, 115, 116, 117, 118, 120, 121,
                                  122, 122, 123, 124, 125, 125, 126, 126, 126, 127, 127, 127};
 
     int8_t r = tab_sin[((x & 0x40) ? -x - 1 : x) & 0x3f];
-    if(x & 0x80) return -r;
+    if(x & 0x80) {
+        r *= -1;
+    }
     return r;
 }
 
@@ -206,8 +208,8 @@ void subghz_read_raw_draw_scale(Canvas* canvas, SubGhzReadRAWModel* model) {
 }
 
 void subghz_read_raw_draw_rssi(Canvas* canvas, SubGhzReadRAWModel* model) {
-    int ind = 0;
-    int base = 0;
+    int32_t ind;
+    int32_t base;
     uint8_t width = 2;
     if(model->rssi_history_end == false) {
         for(int i = model->ind_write; i >= 0; i--) {
@@ -226,11 +228,13 @@ void subghz_read_raw_draw_rssi(Canvas* canvas, SubGhzReadRAWModel* model) {
             canvas_draw_line(canvas, model->ind_write - 1, 13, model->ind_write + 1, 13);
         }
     } else {
-        int i = 0;
+        int32_t i;
         base = SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE - model->ind_write;
         for(i = SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE; i > 0; i--) {
             ind = i - base;
-            if(ind < 0) ind += SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE;
+            if(ind < 0) {
+                ind += SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE;
+            }
             canvas_draw_line(canvas, i, 47, i, 47 - model->rssi_history[ind]);
         }
 
@@ -247,7 +251,7 @@ void subghz_read_raw_draw_rssi(Canvas* canvas, SubGhzReadRAWModel* model) {
             SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE + 1,
             47 - model->rssi_current);
 
-        for(uint8_t i = 13; i < 47; i += width * 2) {
+        for(i = 13; i < 47; i += width * 2) {
             canvas_draw_line(
                 canvas,
                 SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE,
@@ -275,7 +279,7 @@ void subghz_read_raw_draw_threshold_rssi(Canvas* canvas, SubGhzReadRAWModel* mod
     uint8_t y = 48;
 
     if(model->raw_threshold_rssi > SUBGHZ_RAW_THRESHOLD_MIN) {
-        uint8_t x = 118;
+        x = 118;
         y -= (uint8_t)((model->raw_threshold_rssi - SUBGHZ_RAW_THRESHOLD_MIN) / 2.7f);
 
         uint8_t width = 3;
@@ -446,10 +450,6 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     model->status = SubGhzReadRAWStatusIDLE;
                     break;
                 case SubGhzReadRAWStatusLoadKeyIDLE:
-                    //Exit
-                    instance->callback(SubGhzCustomEventViewReadRAWBack, instance->context);
-                    break;
-
                 default:
                     //Exit
                     instance->callback(SubGhzCustomEventViewReadRAWBack, instance->context);
@@ -588,7 +588,6 @@ void subghz_read_raw_set_status(
 
 void subghz_read_raw_enter(void* context) {
     furi_assert(context);
-    //SubGhzReadRAW* instance = context;
 }
 
 void subghz_read_raw_exit(void* context) {

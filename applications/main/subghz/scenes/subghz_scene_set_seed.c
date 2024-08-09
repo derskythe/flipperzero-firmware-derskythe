@@ -10,7 +10,7 @@ void subghz_scene_set_seed_byte_input_callback(void* context) {
 }
 
 void subghz_scene_set_seed_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     // Setup view
     ByteInput* byte_input = subghz->byte_input;
@@ -26,7 +26,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
 }
 
 bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     bool consumed = false;
     bool generated_protocol = false;
     uint32_t fix_part, cnt, seed;
@@ -48,7 +48,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 generated_protocol = subghz_txrx_gen_keeloq_bft_protocol(
                     subghz->txrx,
                     "AM650",
-                    433920000,
+                    SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                     fix_part & 0x0FFFFFFF,
                     fix_part >> 28,
                     cnt,
@@ -77,7 +77,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     generated_protocol = subghz_txrx_gen_faac_slh_protocol(
                         subghz->txrx,
                         "AM650",
-                        433920000,
+                        SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                         fix_part >> 4,
                         fix_part & 0xf,
                         (cnt & 0xFFFFF),

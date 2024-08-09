@@ -25,7 +25,7 @@ void subghz_scene_set_fix_on_enter(void* context) {
 }
 
 bool subghz_scene_set_fix_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {

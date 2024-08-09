@@ -7,12 +7,12 @@ enum SubmenuIndex {
 };
 
 void subghz_scene_more_raw_submenu_callback(void* context, uint32_t index) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
 }
 
 void subghz_scene_more_raw_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     submenu_add_item(
         subghz->submenu,
@@ -42,7 +42,7 @@ void subghz_scene_more_raw_on_enter(void* context) {
 }
 
 bool subghz_scene_more_raw_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexDelete) {
@@ -93,6 +93,6 @@ bool subghz_scene_more_raw_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_more_raw_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     submenu_reset(subghz->submenu);
 }

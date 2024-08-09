@@ -1019,9 +1019,9 @@ MJS_PRIVATE mjs_err_t mjs_execute(struct mjs* mjs, size_t off, mjs_val_t* res) {
                 mjs,
                 MJS_INTERNAL_ERROR,
                 "Unknown opcode: %d, off %d+%d",
-                (int)opcode,
-                (int)bp.start_idx,
-                (int)i);
+                (int32_t)opcode,
+                (int32_t)bp.start_idx,
+                (int32_t)i);
             i = bp.data.len;
             break;
         }

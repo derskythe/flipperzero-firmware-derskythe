@@ -26,7 +26,7 @@ static const Icon* const portrait_bad[BUTTHURT_MAX] = {
 static const Icon* const* portraits[MOODS_TOTAL] = {portrait_happy, portrait_ok, portrait_bad};
 
 static void input_callback(InputEvent* input, void* ctx) {
-    FuriSemaphore* semaphore = ctx;
+    FuriSemaphore* semaphore = (FuriSemaphore*)ctx;
 
     if((input->type == InputTypeShort) && (input->key == InputKeyBack)) {
         furi_semaphore_release(semaphore);
@@ -36,9 +36,9 @@ static void input_callback(InputEvent* input, void* ctx) {
 static void render_callback(Canvas* canvas, void* ctx) {
     DolphinStats* stats = ctx;
 
-    char level_str[20];
-    char mood_str[32];
-    uint8_t mood = 0;
+    char level_str[20] = {0};
+    char mood_str[32] = {0};
+    uint8_t mood;
 
     if(stats->butthurt <= 4) {
         mood = 0;
@@ -52,13 +52,13 @@ static void render_callback(Canvas* canvas, void* ctx) {
     }
 
     uint32_t xp_progress = 0;
-    uint32_t xp_to_levelup = dolphin_state_xp_to_levelup(stats->icounter);
+    uint32_t xp_to_level_up = dolphin_state_xp_to_levelup(stats->icounter);
     uint32_t xp_for_current_level =
-        xp_to_levelup + dolphin_state_xp_above_last_levelup(stats->icounter);
+        xp_to_level_up + dolphin_state_xp_above_last_levelup(stats->icounter);
     if(stats->level == 3) {
         xp_progress = 0;
     } else {
-        xp_progress = xp_to_levelup * 64 / xp_for_current_level;
+        xp_progress = xp_to_level_up * 64 / xp_for_current_level;
     }
 
     // multipass

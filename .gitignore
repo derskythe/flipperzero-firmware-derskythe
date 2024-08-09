@@ -9,9 +9,6 @@
 .cache
 compile_commands.json
 
-# JetBrains IDEs
-.idea/
-
 # Sublime Text
 .sublime-project.sublime-workspace
 
@@ -70,3 +67,5 @@ PVS-Studio.log
 .gdbinit
 
 /fbt_options_local.py
+*.fap
+*.fal

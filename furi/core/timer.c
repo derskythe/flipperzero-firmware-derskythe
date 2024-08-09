@@ -29,8 +29,8 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
     instance->cb_func = func;
     instance->cb_context = context;
 
-    const UBaseType_t reload = (type == FuriTimerTypeOnce ? pdFALSE : pdTRUE);
-    const TimerHandle_t hTimer = xTimerCreateStatic(
+    UBaseType_t reload = (type == FuriTimerTypeOnce ? pdFALSE : pdTRUE);
+    TimerHandle_t hTimer = xTimerCreateStatic(
         NULL, portMAX_DELAY, reload, instance, TimerCallback, &instance->container);
 
     furi_check(hTimer == (TimerHandle_t)instance);

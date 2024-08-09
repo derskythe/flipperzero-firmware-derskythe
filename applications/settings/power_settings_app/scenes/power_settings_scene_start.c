@@ -41,7 +41,7 @@ void power_settings_scene_start_on_enter(void* context) {
 }
 
 bool power_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
-    PowerSettingsApp* app = context;
+    PowerSettingsApp* app = (PowerSettingsApp*)context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {

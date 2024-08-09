@@ -164,7 +164,7 @@ typedef struct {
 } GenInfo;
 
 bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     bool generated_protocol = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -180,13 +180,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         }
 
         uint32_t key = (uint32_t)rand();
-        GenInfo gen_info = {0};
+        GenInfo gen_info;
         switch(event.event) {
         case SetTypePricenton433:
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_PRINCETON_NAME,
                 .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
                 .data.bits = 24,
@@ -206,7 +206,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_NICE_FLO_NAME,
                 .data.key = (key & 0x00000FF0) | 0x1, // btn 0x1, 0x2, 0x4
                 .data.bits = 12,
@@ -216,7 +216,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_NICE_FLO_NAME,
                 .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
                 .data.bits = 24,
@@ -226,7 +226,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_CAME_NAME,
                 .data.key = (key & 0x00000FF0) | 0x1, // btn 0x1, 0x2, 0x4
                 .data.bits = 12,
@@ -236,7 +236,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_CAME_NAME,
                 .data.key = (key & 0x00FFFFF0) | 0x4, // btn 0x1, 0x2, 0x4, 0x8
                 .data.bits = 24,
@@ -276,7 +276,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_BETT_NAME,
                 .data.key = (key & 0x0000FFF0),
                 .data.bits = 18,
@@ -286,7 +286,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_CAME_TWEE_NAME,
                 .data.key = 0x003FFF7200000000 | ((key & 0x0FFFFFF0) ^ 0xE0E0E0EE), // ????
                 .data.bits = 54,
@@ -296,7 +296,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenData,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .data.name = SUBGHZ_PROTOCOL_GATE_TX_NAME, // btn 0xF, 0xC, 0xA, 0x6 (?)
                 .data.key = subghz_protocol_blocks_reverse_key((key & 0x00F0FF00) | 0xF0040, 24),
                 .data.bits = 24,
@@ -306,7 +306,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenFaacSLH,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .faac_slh.serial = ((key & 0x00FFFFF0) | 0xA0000006) >> 4,
                 .faac_slh.btn = 0x06,
                 .faac_slh.cnt = 0x02,
@@ -328,7 +328,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x000FFF00) | 0x00800080,
                 .keeloq.btn = 0x01,
                 .keeloq.cnt = 0x05,
@@ -348,7 +348,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x00FFFF00) | 0x01000011,
                 .keeloq.btn = 0x0C,
                 .keeloq.cnt = 0x05,
@@ -368,7 +368,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x0000FFFF),
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -378,7 +378,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x00FFFFFF) | 0x02000000,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -388,7 +388,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x000FFFFF) | 0x04700000,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x21,
@@ -398,7 +398,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x000FFFFF) | 0x00600000,
                 .keeloq.btn = 0x08,
                 .keeloq.cnt = 0x03,
@@ -408,7 +408,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -418,7 +418,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x0FFFFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -428,7 +428,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFF0,
                 .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x05,
@@ -438,7 +438,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x0FFFFFFF,
                 .keeloq.btn = 0x01,
                 .keeloq.cnt = 0x03,
@@ -488,7 +488,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x000FFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x05,
@@ -498,7 +498,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x03,
@@ -508,7 +508,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenCameAtomo,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x0FFFFFFF) | 0x10000000,
                 .keeloq.cnt = 0x03};
             break;
@@ -524,7 +524,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloqBFT,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq_bft.serial = key & 0x000FFFFF,
                 .keeloq_bft.btn = 0x02,
                 .keeloq_bft.cnt = 0x02,
@@ -535,7 +535,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenAlutechAt4n,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .alutech_at_4n.serial = (key & 0x000FFFFF) | 0x00100000,
                 .alutech_at_4n.btn = 0x44,
                 .alutech_at_4n.cnt = 0x03};
@@ -553,7 +553,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x0FFFFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -573,7 +573,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenNiceFlorS,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .nice_flor_s.serial = key & 0x0FFFFFFF,
                 .nice_flor_s.btn = 0x01,
                 .nice_flor_s.cnt = 0x03,
@@ -583,7 +583,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenNiceFlorS,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .nice_flor_s.serial = key & 0x0FFFFFFF,
                 .nice_flor_s.btn = 0x01,
                 .nice_flor_s.cnt = 0x03,
@@ -593,7 +593,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -603,7 +603,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x09,
                 .keeloq.cnt = 0x03,
@@ -613,7 +613,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x0FFFF000) | 0x00000869,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -623,7 +623,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x06,
                 .keeloq.cnt = 0x03,
@@ -633,7 +633,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x00FFFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -643,7 +643,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x0000FFFF) | 0x018F0000,
                 .keeloq.btn = 0x01,
                 .keeloq.cnt = 0x03,
@@ -653,7 +653,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x000FFFFF) | 0x02200000,
                 .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x03,
@@ -663,7 +663,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = (key & 0x0000FFFF) | 0x00100000,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -683,7 +683,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x0000FFFF,
                 .keeloq.btn = 0x04,
                 .keeloq.cnt = 0x03,
@@ -693,7 +693,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenKeeloq,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .keeloq.serial = key & 0x000FFFFF,
                 .keeloq.btn = 0x02,
                 .keeloq.cnt = 0x03,
@@ -706,7 +706,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){.type = GenSecPlus1, .mod = "AM650", .freq = 390000000};
             break;
         case SetTypeSecPlus_v1_433_00:
-            gen_info = (GenInfo){.type = GenSecPlus1, .mod = "AM650", .freq = 433920000};
+            gen_info = (GenInfo){.type = GenSecPlus1, .mod = "AM650", .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY};
             break;
         case SetTypeSecPlus_v2_310_00:
             gen_info = (GenInfo){
@@ -739,14 +739,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             gen_info = (GenInfo){
                 .type = GenSecPlus2,
                 .mod = "AM650",
-                .freq = 433920000,
+                .freq = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY,
                 .sec_plus_2.serial = (key & 0x7FFFF3FC), // 850LM pairing
                 .sec_plus_2.btn = 0x68,
                 .sec_plus_2.cnt = 0xE500000};
             break;
         default:
             furi_crash("Not implemented");
-            break;
         }
 
         switch(gen_info.type) {
@@ -853,7 +852,6 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         default:
             furi_crash("Not implemented");
-            break;
         }
 
         if(generated_protocol) {

@@ -32,7 +32,7 @@ void subghz_last_settings_free(SubGhzLastSettings* instance) {
 void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count) {
     furi_assert(instance);
 
-    // Default values (all others set to 0, if read from file fails these are used)
+    // Default values (all others set to 0, if read from file fails, these are used)
     instance->frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
     instance->preset_index = SUBGHZ_LAST_SETTING_DEFAULT_PRESET;
     instance->frequency_analyzer_feedback_level =
@@ -41,7 +41,7 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     // See bin_raw_value in scenes/subghz_scene_receiver_config.c
     instance->filter = SubGhzProtocolFlag_Decodable;
     instance->rssi = SUBGHZ_RAW_THRESHOLD_MIN;
-    instance->hopping_threshold = -90.0f;
+    instance->hopping_threshold = SUBGHZ_HOPPING_THRESHOLD_MIN;
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
@@ -52,7 +52,9 @@ void subghz_last_settings_load(SubGhzLastSettings* instance, size_t preset_count
     if(FSE_OK == storage_sd_status(storage) &&
        flipper_format_file_open_existing(fff_data_file, SUBGHZ_LAST_SETTINGS_PATH)) {
         do {
-            if(!flipper_format_read_header(fff_data_file, temp_str, &config_version)) break;
+            if(!flipper_format_read_header(fff_data_file, temp_str, &config_version)) {
+                break;
+            }
             if((strcmp(furi_string_get_cstr(temp_str), SUBGHZ_LAST_SETTING_FILE_TYPE) != 0) ||
                (config_version != SUBGHZ_LAST_SETTING_FILE_VERSION)) {
                 break;
@@ -157,7 +159,9 @@ bool subghz_last_settings_save(SubGhzLastSettings* instance) {
         }
 
         // Open file
-        if(!flipper_format_file_open_always(file, SUBGHZ_LAST_SETTINGS_PATH)) break;
+        if(!flipper_format_file_open_always(file, SUBGHZ_LAST_SETTINGS_PATH)) {
+            break;
+        }
 
         // Write header
         if(!flipper_format_write_header_cstr(

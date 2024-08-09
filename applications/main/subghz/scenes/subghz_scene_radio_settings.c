@@ -1,5 +1,4 @@
 #include "../subghz_i.h"
-#include "../helpers/subghz_custom_event.h"
 #include <lib/toolbox/value_index.h>
 #include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 
@@ -59,7 +58,7 @@ const uint32_t debug_counter_val[DEBUG_COUNTER_COUNT] = {
 };
 
 static void subghz_scene_radio_settings_set_device(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
+    SubGhz* subghz = (SubGhz*) variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     if(!subghz_txrx_radio_device_is_external_connected(
@@ -73,7 +72,7 @@ static void subghz_scene_radio_settings_set_device(VariableItem* item) {
 }
 
 static void subghz_scene_receiver_config_set_debug_pin(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
+    SubGhz* subghz = (SubGhz*) variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, debug_pin_text[index]);
@@ -89,7 +88,7 @@ static void subghz_scene_receiver_config_set_debug_counter(VariableItem* item) {
 }
 
 static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* item) {
-    SubGhz* subghz = variable_item_get_context(item);
+    SubGhz* subghz = (SubGhz*) variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, timestamp_names_text[index]);
@@ -99,7 +98,7 @@ static void subghz_scene_receiver_config_set_timestamp_file_names(VariableItem* 
 }
 
 void subghz_scene_radio_settings_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
 
     VariableItemList* variable_item_list = subghz->variable_item_list;
     uint8_t value_index;
@@ -161,7 +160,7 @@ void subghz_scene_radio_settings_on_enter(void* context) {
 }
 
 bool subghz_scene_radio_settings_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     UNUSED(subghz);
     UNUSED(event);
 
@@ -169,7 +168,7 @@ bool subghz_scene_radio_settings_on_event(void* context, SceneManagerEvent event
 }
 
 void subghz_scene_radio_settings_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     variable_item_list_set_selected_item(subghz->variable_item_list, 0);
     variable_item_list_reset(subghz->variable_item_list);
 }

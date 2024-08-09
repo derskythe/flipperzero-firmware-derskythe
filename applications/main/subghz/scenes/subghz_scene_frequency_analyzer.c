@@ -1,5 +1,4 @@
 #include "../subghz_i.h" // IWYU pragma: keep
-#include "../views/subghz_frequency_analyzer.h"
 
 #define TAG "SubGhzSceneFrequencyAnalyzer"
 
@@ -16,12 +15,12 @@ static const NotificationSequence sequence_saved = {
 
 void subghz_scene_frequency_analyzer_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
 void subghz_scene_frequency_analyzer_on_enter(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     subghz_frequency_analyzer_set_callback(
         subghz->subghz_frequency_analyzer, subghz_scene_frequency_analyzer_callback, subghz);
     subghz_frequency_analyzer_feedback_level(
@@ -32,7 +31,7 @@ void subghz_scene_frequency_analyzer_on_enter(void* context) {
 }
 
 bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneAnalyzerLock) {
             notification_message(subghz->notifications, &sequence_set_green_255);
@@ -80,7 +79,7 @@ bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent e
 }
 
 void subghz_scene_frequency_analyzer_on_exit(void* context) {
-    SubGhz* subghz = context;
+    SubGhz* subghz = (SubGhz*) context;
     notification_message(subghz->notifications, &sequence_reset_rgb);
 
     subghz->last_settings->frequency_analyzer_feedback_level =
