@@ -11,23 +11,80 @@
 
 #define TAG "frequency_analyzer"
 
-#define RSSI_MIN         (-97.0f)
-#define RSSI_MAX         (-60.0f)
-#define RSSI_SCALE       2.3f
-#define TRIGGER_STEP     1
-#define MAX_HISTORY      4
+#define RSSI_MIN     (-97.0f)
+#define RSSI_MAX     (-60.0f)
+#define RSSI_SCALE   2.3f
+#define TRIGGER_STEP 1
+#define MAX_HISTORY  4
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #endif
 
 static const uint32_t subghz_frequency_list[] = {
-    300000000, 302757000, 303875000, 303900000, 304250000, 307000000, 307500000, 307800000,
-    309000000, 310000000, 312000000, 312100000, 313000000, 313850000, 314000000, 314350000,
-    314980000, 315000000, 318000000, 330000000, 345000000, 348000000, 350000000, 387000000,
-    390000000, 418000000, 430000000, 431000000, 431500000, 433075000, 433220000, 433420000,
-    433657070, 433889000, 433920000, 434075000, 434176948, 434390000, 434420000, 434775000,
-    438900000, 440175000, 464000000, 779000000, 868350000, 868400000, 868800000, 868950000,
-    906400000, 915000000, 925000000, 928000000};
+    /* 300 - 348 */
+    300000000,
+    302757000,
+    303875000,
+    303900000,
+    304250000,
+    307000000,
+    307500000,
+    307800000,
+    309000000,
+    310000000,
+    312000000,
+    312100000,
+    312200000,
+    313000000,
+    313850000,
+    314000000,
+    314350000,
+    314980000,
+    315000000,
+    318000000,
+    330000000,
+    345000000,
+    348000000,
+    350000000,
+
+    /* 387 - 464 */
+    387000000,
+    390000000,
+    418000000,
+    430000000,
+    430500000,
+    431000000,
+    431500000,
+    433075000, /* LPD433 first */
+    433220000,
+    433420000,
+    433657070,
+    433889000,
+    433920000, /* LPD433 mid */
+    434075000,
+    434176948,
+    434190000,
+    434390000,
+    434420000,
+    434620000,
+    434775000, /* LPD433 last channels */
+    438900000,
+    440175000,
+    464000000,
+    467750000,
+
+    /* 779 - 928 */
+    779000000,
+    868350000,
+    868400000,
+    868800000,
+    868950000,
+    906400000,
+    915000000,
+    925000000,
+    928000000,
+};
 
 typedef enum {
     SubGhzFrequencyAnalyzerStatusIDLE,
@@ -82,7 +139,7 @@ void subghz_frequency_analyzer_draw_rssi(
     uint8_t x,
     uint8_t y) {
     // Current RSSI
-    if(!float_is_equal(rssi, 0.0f)) {
+    if(!float_is_equal(rssi, 0.f)) {
         if(rssi > RSSI_MAX) {
             rssi = RSSI_MAX;
         }
@@ -97,7 +154,7 @@ void subghz_frequency_analyzer_draw_rssi(
     }
 
     // Last RSSI
-    if(!float_is_equal(rssi_last, 0.0f)) {
+    if(!float_is_equal(rssi_last, 0.f)) {
         if(rssi_last > RSSI_MAX) {
             rssi_last = RSSI_MAX;
         }
@@ -227,8 +284,11 @@ uint32_t subghz_frequency_find_correct(uint32_t input) {
     uint32_t result = 0;
     uint32_t current;
 
-    for(size_t i = 0; i < ARRAY_SIZE(subghz_frequency_list); i++) {
+    for(size_t i = 0; i < ARRAY_SIZE(subghz_frequency_list) - 1; i++) {
         current = subghz_frequency_list[i];
+        if(current == 0) {
+            continue;
+        }
         if(current == input) {
             result = current;
             break;
