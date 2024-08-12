@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="[Debug] Build updater" type="ShConfigurationType" folderName="Debug">
-    <option name="SCRIPT_TEXT" value="./fbt updater_all &amp;&amp; cp build\latest\compile_commands.json ./" />
+  <configuration default="false" name="[Debug] Launch App on Flipper with Serial Console" type="ShConfigurationType" folderName="Debug">
+    <option name="SCRIPT_TEXT" value="echo &quot;Done&quot;" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="./fbt.cmd" />
     <option name="SCRIPT_OPTIONS" value="updater_package COMPACT=1 DEBUG=0" />
@@ -12,6 +12,9 @@
     <option name="EXECUTE_IN_TERMINAL" value="true" />
     <option name="EXECUTE_SCRIPT_FILE" value="false" />
     <envs />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="[Debug] Launch App on Flipper" run_configuration_type="ShConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Serial Console" run_configuration_type="ShConfigurationType" />
+    </method>
   </configuration>
 </component>

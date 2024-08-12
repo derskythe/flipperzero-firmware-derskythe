@@ -8,8 +8,6 @@
     <libraryRoots>
       <file path="$PROJECT_DIR$/furi" />
       <file path="$PROJECT_DIR$/lib" />
-      <file path="$PROJECT_DIR$/targets/f7/inc" />
-      <file path="$PROJECT_DIR$/toolchain/current/include" />
     </libraryRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/.ci_files" />
@@ -17,9 +15,8 @@
       <file path="$PROJECT_DIR$/.vscode" />
       <file path="$PROJECT_DIR$/build" />
       <file path="$PROJECT_DIR$/dist" />
-      <file path="$PROJECT_DIR$/documentation" />
-      <file path="$PROJECT_DIR$/scripts" />
-      <file path="$PROJECT_DIR$/site_scons" />
+      <file path="$PROJECT_DIR$/targets" />
+      <file path="$PROJECT_DIR$/toolchain" />
     </excludeRoots>
   </component>
   <component name="CompDBSettings">

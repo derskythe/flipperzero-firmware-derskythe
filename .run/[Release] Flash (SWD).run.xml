@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="[Debug] Build updater" type="ShConfigurationType" folderName="Debug">
-    <option name="SCRIPT_TEXT" value="./fbt updater_all &amp;&amp; cp build\latest\compile_commands.json ./" />
+  <configuration default="false" name="[Release] Flash (SWD)" type="ShConfigurationType" folderName="Release">
+    <option name="SCRIPT_TEXT" value="./fbt COMPACT=1 DEBUG=0 FORCE=1 flash &amp;&amp; cp build\latest\compile_commands.json ./" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
-    <option name="SCRIPT_PATH" value="./fbt.cmd" />
-    <option name="SCRIPT_OPTIONS" value="updater_package COMPACT=1 DEBUG=0" />
+    <option name="SCRIPT_PATH" value="" />
+    <option name="SCRIPT_OPTIONS" value="" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
     <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="INDEPENDENT_INTERPRETER_PATH" value="false" />

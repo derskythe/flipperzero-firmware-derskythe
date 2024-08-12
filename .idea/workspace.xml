@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="238e978e-d67a-4462-b59d-1278a2a6624e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.run/Serial Console.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/Template Shell Script.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Build App.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Build Firmware.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Build and upload all FAPs to Flipper over USB.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Build update bundle.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Flash (SWD).run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Flash (USB, with resources).run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Debug] Launch App on Flipper with Serial Console.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[FBT] Clear.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[FBT] Format.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Build App.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Build Firmware.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Build and upload all FAPs to Flipper over USB.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Build update bundle.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Flash (JLink).run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.run/[Release] Flash (SWD).run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/GitlabLint.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/active-tab-highlighter-v2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/csv-plugin.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/Clean ALL.run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Build FAPs.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[Debug] Build FAPs.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Build updater.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[Debug] Build updater.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Build.run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Flash (USB, w_o resources) (1).run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Flash (USB, w_o resources).run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[Debug] Flash (USB, w_o resources).run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Launch App on Flipper.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[Debug] Launch App on Flipper.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Debug] Launch Playground on Flipper.run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[RELEASE] Build FAPs.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[RELEASE] Build FAPs.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[RELEASE] Build updater.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[RELEASE] Build updater.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[RELEASE] Build.run.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[RELEASE] Flash (USB, w_o resources).run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[RELEASE] Flash (USB, w_o resources).run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[RELEASE] Launch App on Flipper.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[RELEASE] Launch App on Flipper.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/[Release] Flash (USB, with resources).run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/[Release] Flash (USB, with resources).run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all-the-apps-extra.tgz" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompDBLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="derskythe-darkflipper" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="derskythe-darkflipper" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2024" />
+    <option name="minorVersion" value="1.5" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2kXUUzm7449h6DPwWr6MvKoTyni" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "Shell Script.[Debug] Build update bundle.executor": "Run",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "custom",
+    "last_opened_file_path": "D:/_repos/!flipper/derskythe-darkflipper/compile_commands.json"
+  }
+}]]></component>
+  <component name="RunManager" selected="Shell Script.[Debug] Build update bundle">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Shell Script.[Debug] Build and upload all FAPs to Flipper over USB" />
+      <item itemvalue="Shell Script.[Debug] Build App" />
+      <item itemvalue="Shell Script.[Debug] Build FAPs" />
+      <item itemvalue="Shell Script.[Debug] Build Firmware" />
+      <item itemvalue="Shell Script.[Debug] Build update bundle" />
+      <item itemvalue="Shell Script.[Debug] Build updater" />
+      <item itemvalue="Shell Script.[Debug] Flash (SWD)" />
+      <item itemvalue="Shell Script.[Debug] Flash (USB, w/o resources)" />
+      <item itemvalue="Shell Script.[Debug] Flash (USB, with resources)" />
+      <item itemvalue="Shell Script.[Debug] Launch App on Flipper" />
+      <item itemvalue="Shell Script.[Debug] Launch App on Flipper with Serial Console" />
+      <item itemvalue="Shell Script.[Release] Build and upload all FAPs to Flipper over USB" />
+      <item itemvalue="Shell Script.[Release] Build App" />
+      <item itemvalue="Shell Script.[Release] Build FAPs" />
+      <item itemvalue="Shell Script.[Release] Build Firmware" />
+      <item itemvalue="Shell Script.[Release] Build update bundle" />
+      <item itemvalue="Shell Script.[Release] Build updater" />
+      <item itemvalue="Shell Script.[Release] Flash (JLink)" />
+      <item itemvalue="Shell Script.[Release] Flash (SWD)" />
+      <item itemvalue="Shell Script.[Release] Flash (USB, w/o resources)" />
+      <item itemvalue="Shell Script.[Release] Flash (USB, with resources)" />
+      <item itemvalue="Shell Script.[Release] Launch App on Flipper" />
+      <item itemvalue="Shell Script.[FBT] Clear" />
+      <item itemvalue="Shell Script.[FBT] Format" />
+      <item itemvalue="Shell Script.Serial Console" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="238e978e-d67a-4462-b59d-1278a2a6624e" name="Changes" comment="" />
+      <created>1723429436607</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1723429436607</updated>
+      <workItem from="1723429437566" duration="1618000" />
+      <workItem from="1723455265928" duration="623000" />
+    </task>
+    <servers />
+  </component>
+</project>

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="[Debug] Build updater" type="ShConfigurationType" folderName="Debug">
-    <option name="SCRIPT_TEXT" value="./fbt updater_all &amp;&amp; cp build\latest\compile_commands.json ./" />
+  <configuration default="false" name="[Release] Build App" type="ShConfigurationType" folderName="Release">
+    <option name="SCRIPT_TEXT" value="./fbt COMPACT=1 DEBUG=0 build APPSRC=${relativeFileDirname} &amp;&amp; cp build\latest\compile_commands.json ./" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="./fbt.cmd" />
     <option name="SCRIPT_OPTIONS" value="updater_package COMPACT=1 DEBUG=0" />
