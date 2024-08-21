@@ -59,6 +59,8 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                 default: //if(SubGhzTxRxStartTxStateOk)
                     result = true;
                     subghz_blink_start(subghz);
+                    scene_manager_set_scene_state(
+                        subghz->scene_manager, SubGhzSceneRpc, SubGhzRpcStateTx);
                     break;
                 }
             }
@@ -70,6 +72,8 @@ bool subghz_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                 subghz_blink_stop(subghz);
                 result = true;
             }
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneRpc, SubGhzRpcStateIdle);
             rpc_system_app_confirm(subghz->rpc_ctx, result);
         } else if(event.event == SubGhzCustomEventSceneRpcLoad) {
             bool result = false;
