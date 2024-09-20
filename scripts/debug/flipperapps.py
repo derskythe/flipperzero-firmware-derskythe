@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from typing import Optional, Tuple, Dict, ClassVar
-import struct
 import posixpath
+import struct
 import zlib
+from dataclasses import dataclass
+from typing import ClassVar, Dict, Optional, Tuple
 
 import gdb
 
