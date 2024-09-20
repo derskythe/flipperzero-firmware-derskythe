@@ -12,12 +12,26 @@ __no_browser = False
 
 
 def _set_browser_action(target, source, env):
+    """
+
+    :param target: 
+    :param source: 
+    :param env: 
+
+    """
     if env["PVSNOBROWSER"]:
         global __no_browser
         __no_browser = True
 
 
 def _emit_pvsreport(target, source, env):
+    """
+
+    :param target: 
+    :param source: 
+    :param env: 
+
+    """
     target_dir = env["REPORT_DIR"]
     if env["PLATFORM"] == "win32":
         # Report generator on Windows emits to a subfolder of given output folder
@@ -26,6 +40,7 @@ def _emit_pvsreport(target, source, env):
 
 
 def atexist_handler():
+    """ """
     global __no_browser
     if __no_browser:
         return
@@ -42,6 +57,11 @@ def atexist_handler():
 
 
 def generate(env):
+    """
+
+    :param env: 
+
+    """
     env.SetDefault(
         PVSNCORES=multiprocessing.cpu_count(),
         PVSOPTIONS=[
@@ -126,4 +146,9 @@ def generate(env):
 
 
 def exists(env):
+    """
+
+    :param env: 
+
+    """
     return True

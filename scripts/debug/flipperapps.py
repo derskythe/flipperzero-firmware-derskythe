@@ -8,12 +8,18 @@ import gdb
 
 
 def get_file_crc32(filename):
+    """
+
+    :param filename: 
+
+    """
     with open(filename, "rb") as f:
         return zlib.crc32(f.read())
 
 
 @dataclass
 class AppState:
+    """ """
     name: str
     text_address: int = 0
     entry_address: int = 0
@@ -28,6 +34,7 @@ class AppState:
             self.other_sections = {}
 
     def get_original_elf_path(self) -> str:
+        """ """
         if self.DEBUG_ELF_ROOT is None:
             raise ValueError("DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
         return (
@@ -37,6 +44,7 @@ class AppState:
         )
 
     def is_debug_available(self) -> bool:
+        """ """
         have_debug_info = bool(self.debug_link_elf and self.debug_link_crc)
         if not have_debug_info:
             print("No debug info available for this app")
@@ -51,6 +59,7 @@ class AppState:
         return True
 
     def get_gdb_load_command(self) -> str:
+        """ """
         load_path = self.get_original_elf_path()
         print(f"Loading debug information from {load_path}")
         load_command = (
@@ -63,14 +72,25 @@ class AppState:
         return load_command
 
     def get_gdb_unload_command(self) -> str:
+        """ """
         return f"remove-symbol-file -a 0x{self.text_address:08x}"
 
     @staticmethod
     def get_gdb_app_ep(app) -> int:
+        """
+
+        :param app: 
+
+        """
         return int(app["state"]["entry"])
 
     @staticmethod
     def parse_debug_link_data(section_data: bytes) -> Tuple[str, int]:
+        """
+
+        :param section_data: bytes: 
+
+        """
         # Debug link format: a null-terminated string with debuggable file name
         # Padded with 0's to multiple of 4 bytes
         # Followed by 4 bytes of CRC32 checksum of that file
@@ -80,6 +100,11 @@ class AppState:
 
     @classmethod
     def from_gdb(cls, gdb_app: "AppState") -> "AppState":
+        """
+
+        :param gdb_app: "AppState": 
+
+        """
         state = AppState(str(gdb_app["manifest"]["name"].string()))
         state.entry_address = cls.get_gdb_app_ep(gdb_app)
 
@@ -118,6 +143,12 @@ class SetFapDebugElfRoot(gdb.Command):
         self.dont_repeat()
 
     def invoke(self, arg, from_tty):
+        """
+
+        :param arg: 
+        :param from_tty: 
+
+        """
         AppState.DEBUG_ELF_ROOT = arg
         try:
             global helper
@@ -130,6 +161,7 @@ class SetFapDebugElfRoot(gdb.Command):
 
 
 class FlipperAppStateHelper:
+    """ """
     def __init__(self):
         self.app_type_ptr = None
         self.app_list_ptr = None
@@ -138,12 +170,22 @@ class FlipperAppStateHelper:
         self.set_debug_mode(True)
 
     def _walk_app_list(self, list_head):
+        """
+
+        :param list_head: 
+
+        """
         while list_head:
             if app := list_head["data"]:
                 yield app.dereference()
             list_head = list_head["next"]
 
     def _exec_gdb_command(self, command: str) -> bool:
+        """
+
+        :param command: str: 
+
+        """
         try:
             gdb.execute(command)
             return True
@@ -152,6 +194,7 @@ class FlipperAppStateHelper:
             return False
 
     def _sync_apps(self) -> None:
+        """ """
         self.set_debug_mode(True)
         if not (app_list := self.app_list_ptr.value()):
             print("Reset app loader state")
@@ -182,6 +225,7 @@ class FlipperAppStateHelper:
                     print(f"Failed to load debug info for {new_app_state}")
 
     def attach_to_fw(self) -> None:
+        """ """
         print("Attaching to Flipper firmware")
         self.app_list_ptr = gdb.lookup_global_symbol(
             "flipper_application_loaded_app_list"
@@ -191,12 +235,27 @@ class FlipperAppStateHelper:
         self._sync_apps()
 
     def handle_stop(self, event) -> None:
+        """
+
+        :param event: 
+
+        """
         self._sync_apps()
 
     def handle_exit(self, event) -> None:
+        """
+
+        :param event: 
+
+        """
         self.set_debug_mode(False)
 
     def set_debug_mode(self, mode: bool) -> None:
+        """
+
+        :param mode: bool: 
+
+        """
         try:
             gdb.execute(f"set variable furi_hal_debug_gdb_session_active = {int(mode)}")
         except gdb.error as e:
