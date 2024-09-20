@@ -29,7 +29,8 @@ class AppState:
 
     def get_original_elf_path(self) -> str:
         if self.DEBUG_ELF_ROOT is None:
-            raise ValueError("DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
+            raise ValueError(
+                "DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
         return (
             posixpath.join(self.DEBUG_ELF_ROOT, self.debug_link_elf)
             if self.DEBUG_ELF_ROOT
@@ -88,7 +89,8 @@ class AppState:
             debug_link_data = (
                 gdb.selected_inferior()
                 .read_memory(
-                    int(app_state["debug_link_info"]["debug_link"]), debug_link_size
+                    int(app_state["debug_link_info"]
+                        ["debug_link"]), debug_link_size
                 )
                 .tobytes()
             )
@@ -121,12 +123,14 @@ class SetFapDebugElfRoot(gdb.Command):
         AppState.DEBUG_ELF_ROOT = arg
         try:
             global helper
-            print(f"Set '{arg}' as debug info lookup path for Flipper external apps")
+            print(
+                f"Set '{arg}' as debug info lookup path for Flipper external apps")
             helper.attach_to_fw()
             gdb.events.stop.connect(helper.handle_stop)
             gdb.events.gdb_exiting.connect(helper.handle_exit)
         except gdb.error as e:
-            print(f"Support for Flipper external apps debug is not available: {e}")
+            print(
+                f"Support for Flipper external apps debug is not available: {e}")
 
 
 class FlipperAppStateHelper:
@@ -187,7 +191,8 @@ class FlipperAppStateHelper:
             "flipper_application_loaded_app_list"
         )
         self.app_type_ptr = gdb.lookup_type("FlipperApplication").pointer()
-        self.app_list_entry_type = gdb.lookup_type("struct FlipperApplicationList_s")
+        self.app_list_entry_type = gdb.lookup_type(
+            "struct FlipperApplicationList_s")
         self._sync_apps()
 
     def handle_stop(self, event) -> None:
@@ -198,7 +203,8 @@ class FlipperAppStateHelper:
 
     def set_debug_mode(self, mode: bool) -> None:
         try:
-            gdb.execute(f"set variable furi_hal_debug_gdb_session_active = {int(mode)}")
+            gdb.execute(
+                f"set variable furi_hal_debug_gdb_session_active = {int(mode)}")
         except gdb.error as e:
             print(f"Failed to set debug mode: {e}")
 
