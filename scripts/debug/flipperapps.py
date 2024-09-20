@@ -13,7 +13,7 @@ import gdb
 def get_file_crc32(filename):
     """
 
-    :param filename: 
+    :param filename:
 
     """
     with open(filename, "rb") as f:
@@ -82,7 +82,7 @@ class AppState:
     def get_gdb_app_ep(app) -> int:
         """
 
-        :param app: 
+        :param app:
 
         """
         return int(app["state"]["entry"])
@@ -91,7 +91,7 @@ class AppState:
     def parse_debug_link_data(section_data: bytes) -> Tuple[str, int]:
         """
 
-        :param section_data: bytes: 
+        :param section_data: bytes:
 
         """
         # Debug link format: a null-terminated string with debuggable file name
@@ -105,7 +105,7 @@ class AppState:
     def from_gdb(cls, gdb_app: "AppState") -> "AppState":
         """
 
-        :param gdb_app: "AppState": 
+        :param gdb_app: "AppState":
 
         """
         state = AppState(str(gdb_app["manifest"]["name"].string()))
@@ -148,8 +148,8 @@ class SetFapDebugElfRoot(gdb.Command):
     def invoke(self, arg, from_tty):
         """
 
-        :param arg: 
-        :param from_tty: 
+        :param arg:
+        :param from_tty:
 
         """
         AppState.DEBUG_ELF_ROOT = arg
@@ -175,7 +175,7 @@ class FlipperAppStateHelper:
     def _walk_app_list(self, list_head):
         """
 
-        :param list_head: 
+        :param list_head:
 
         """
         while list_head:
@@ -186,7 +186,7 @@ class FlipperAppStateHelper:
     def _exec_gdb_command(self, command: str) -> bool:
         """
 
-        :param command: str: 
+        :param command: str:
 
         """
         try:
@@ -240,7 +240,7 @@ class FlipperAppStateHelper:
     def handle_stop(self, event) -> None:
         """
 
-        :param event: 
+        :param event:
 
         """
         self._sync_apps()
@@ -248,7 +248,7 @@ class FlipperAppStateHelper:
     def handle_exit(self, event) -> None:
         """
 
-        :param event: 
+        :param event:
 
         """
         self.set_debug_mode(False)
@@ -256,7 +256,7 @@ class FlipperAppStateHelper:
     def set_debug_mode(self, mode: bool) -> None:
         """
 
-        :param mode: bool: 
+        :param mode: bool:
 
         """
         try:

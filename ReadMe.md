@@ -11,7 +11,7 @@
 		<img src="https://img.shields.io/endpoint?label=EN%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial" alt="EN TG channel"/>
 	</a>
 	<a href="https://t.me/flipperzero_unofficial_ru">
-		<img src="https://img.shields.io/endpoint?label=RU%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial_ru" alt="RU TG channel"/>	
+		<img src="https://img.shields.io/endpoint?label=RU%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial_ru" alt="RU TG channel"/>
 	</a>
 	<a href="https://t.me/flipperzero_unofficial_ua">
 		<img src="https://img.shields.io/endpoint?label=UA%20Channel&style=flat-square&url=https%3A%2F%2Fmogyo.ro%2Fquart-apis%2Ftgmembercount%3Fchat_id%3Dflipperzero_unofficial_ua" alt="UA TG channel"/>

@@ -45,7 +45,7 @@ ENTER
 STRINGLN If you prefer to run qFlipper from your terminal, either use the absolute path
 STRINGLN or make sure $HOME/.local/bin/ is included in your PATH environment variable.
 ENTER
-STRINGLN Additional configurations might be required by your Linux distribution such as 
+STRINGLN Additional configurations might be required by your Linux distribution such as
 STRINGLN group membership, udev rules or else.
 STRINGLN ==========================================================================================
 STRINGLN "

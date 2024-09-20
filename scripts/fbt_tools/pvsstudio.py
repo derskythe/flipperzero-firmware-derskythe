@@ -17,9 +17,9 @@ __no_browser = False
 def _set_browser_action(target, source, env):
     """
 
-    :param target: 
-    :param source: 
-    :param env: 
+    :param target:
+    :param source:
+    :param env:
 
     """
     if env["PVSNOBROWSER"]:
@@ -30,9 +30,9 @@ def _set_browser_action(target, source, env):
 def _emit_pvsreport(target, source, env):
     """
 
-    :param target: 
-    :param source: 
-    :param env: 
+    :param target:
+    :param source:
+    :param env:
 
     """
     target_dir = env["REPORT_DIR"]
@@ -62,7 +62,7 @@ def atexist_handler():
 def generate(env):
     """
 
-    :param env: 
+    :param env:
 
     """
     env.SetDefault(
@@ -151,7 +151,7 @@ def generate(env):
 def exists(env):
     """
 
-    :param env: 
+    :param env:
 
     """
     return True
