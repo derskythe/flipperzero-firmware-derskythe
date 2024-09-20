@@ -1,9 +1,9 @@
 /**
  * @file elements.h
  * GUI: Elements API
- * 
+ *
  * Canvas helpers and UI building blocks.
- * 
+ *
  */
 
 #pragma once

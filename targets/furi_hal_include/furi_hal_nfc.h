@@ -98,7 +98,7 @@ typedef enum {
  *
  * This function is called automatically during the firmware initialisation,
  * so there is no need to call it explicitly.
- * 
+ *
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError furi_hal_nfc_init(void);
@@ -401,7 +401,7 @@ FuriHalNfcError furi_hal_nfc_iso14443a_tx_sdd_frame(const uint8_t* tx_data, size
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError
-    furi_hal_nfc_iso14443a_rx_sdd_frame(uint8_t* rx_data, size_t rx_data_size, size_t* rx_bits);
+furi_hal_nfc_iso14443a_rx_sdd_frame(uint8_t* rx_data, size_t rx_data_size, size_t* rx_bits);
 
 /**
  * @brief Transmit ISO14443 (Type A) frame with custom parity bits in poller mode.
@@ -414,7 +414,7 @@ FuriHalNfcError
  * @returns FuriHalNfcErrorNone on success, any other error code on failure.
  */
 FuriHalNfcError
-    furi_hal_nfc_iso14443a_poller_tx_custom_parity(const uint8_t* tx_data, size_t tx_bits);
+furi_hal_nfc_iso14443a_poller_tx_custom_parity(const uint8_t* tx_data, size_t tx_bits);
 
 /**
  * @brief Set ISO14443 (Type A) collision resolution parameters in listener mode.
@@ -454,7 +454,7 @@ FuriHalNfcError furi_hal_nfc_iso15693_listener_tx_sof(void);
 
 /**
  * @brief Set FeliCa collision resolution parameters in listener mode.
- * 
+ *
  * Configures the NFC hardware for automatic collision resolution.
  *
  * @param[in] idm pointer to a byte array containing the IDm.

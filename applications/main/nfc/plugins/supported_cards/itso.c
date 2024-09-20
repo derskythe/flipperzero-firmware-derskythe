@@ -46,7 +46,7 @@ static bool itso_parse(const NfcDevice* device, FuriString* parsed_data) {
             mf_desfire_get_file_settings(app, &itso_file_id);
 
         if(file_settings == NULL || file_settings->type != MfDesfireFileTypeStandard ||
-           file_settings->data.size < sizeof(ItsoFile))
+                file_settings->data.size < sizeof(ItsoFile))
             break;
 
         const MfDesfireFileData* file_data = mf_desfire_get_file_data(app, &itso_file_id);

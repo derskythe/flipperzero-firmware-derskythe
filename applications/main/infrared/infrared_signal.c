@@ -102,12 +102,12 @@ static bool infrared_signal_is_raw_valid(const InfraredRawSignal* raw) {
 }
 
 static inline InfraredErrorCode
-    infrared_signal_save_message(const InfraredMessage* message, FlipperFormat* ff) {
+infrared_signal_save_message(const InfraredMessage* message, FlipperFormat* ff) {
     const char* protocol_name = infrared_get_protocol_name(message->protocol);
     InfraredErrorCode error = InfraredErrorCodeNone;
     do {
         if(!flipper_format_write_string_cstr(
-               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_PARSED)) {
+                    ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_PARSED)) {
             error = InfraredErrorCodeSignalUnableToWriteType;
             break;
         }
@@ -118,13 +118,13 @@ static inline InfraredErrorCode
         }
 
         if(!flipper_format_write_hex(
-               ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message->address, 4)) {
+                    ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message->address, 4)) {
             error = InfraredErrorCodeSignalMessageUnableToWriteAddress;
             break;
         }
 
         if(!flipper_format_write_hex(
-               ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message->command, 4)) {
+                    ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message->command, 4)) {
             error = InfraredErrorCodeSignalMessageUnableToWriteCommand;
             break;
         }
@@ -135,13 +135,13 @@ static inline InfraredErrorCode
 }
 
 static inline InfraredErrorCode
-    infrared_signal_save_raw(const InfraredRawSignal* raw, FlipperFormat* ff) {
+infrared_signal_save_raw(const InfraredRawSignal* raw, FlipperFormat* ff) {
     furi_assert(raw->timings_size <= MAX_TIMINGS_AMOUNT);
 
     InfraredErrorCode error = InfraredErrorCodeNone;
     do {
         if(!flipper_format_write_string_cstr(
-               ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_RAW)) {
+                    ff, INFRARED_SIGNAL_TYPE_KEY, INFRARED_SIGNAL_TYPE_RAW)) {
             error = InfraredErrorCodeSignalUnableToWriteType;
             break;
         }
@@ -157,7 +157,7 @@ static inline InfraredErrorCode
         }
 
         if(!flipper_format_write_uint32(
-               ff, INFRARED_SIGNAL_DATA_KEY, raw->timings, raw->timings_size)) {
+                    ff, INFRARED_SIGNAL_DATA_KEY, raw->timings, raw->timings_size)) {
             error = InfraredErrorCodeSignalRawUnableToWriteData;
             break;
         }
@@ -166,7 +166,7 @@ static inline InfraredErrorCode
 }
 
 static inline InfraredErrorCode
-    infrared_signal_read_message(InfraredSignal* signal, FlipperFormat* ff) {
+infrared_signal_read_message(InfraredSignal* signal, FlipperFormat* ff) {
     FuriString* buf;
     buf = furi_string_alloc();
     InfraredErrorCode error = InfraredErrorCodeNone;
@@ -181,12 +181,12 @@ static inline InfraredErrorCode
         message.protocol = infrared_get_protocol_by_name(furi_string_get_cstr(buf));
 
         if(!flipper_format_read_hex(
-               ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message.address, 4)) {
+                    ff, INFRARED_SIGNAL_ADDRESS_KEY, (uint8_t*)&message.address, 4)) {
             error = InfraredErrorCodeSignalMessageUnableToReadAddress;
             break;
         }
         if(!flipper_format_read_hex(
-               ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message.command, 4)) {
+                    ff, INFRARED_SIGNAL_COMMAND_KEY, (uint8_t*)&message.command, 4)) {
             error = InfraredErrorCodeSignalMessageUnableToReadCommand;
             break;
         }
@@ -204,7 +204,7 @@ static inline InfraredErrorCode
 }
 
 static inline InfraredErrorCode
-    infrared_signal_read_raw(InfraredSignal* signal, FlipperFormat* ff) {
+infrared_signal_read_raw(InfraredSignal* signal, FlipperFormat* ff) {
     InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
@@ -294,7 +294,7 @@ bool infrared_signal_is_raw(const InfraredSignal* signal) {
 
 bool infrared_signal_is_valid(const InfraredSignal* signal) {
     return signal->is_raw ? infrared_signal_is_raw_valid(&signal->payload.raw) :
-                            infrared_signal_is_message_valid(&signal->payload.message);
+           infrared_signal_is_message_valid(&signal->payload.message);
 }
 
 void infrared_signal_set_signal(InfraredSignal* signal, const InfraredSignal* other) {
@@ -359,11 +359,11 @@ const InfraredMessage* infrared_signal_get_message(const InfraredSignal* signal)
 }
 
 InfraredErrorCode
-    infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name) {
+infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name) {
     InfraredErrorCode error = InfraredErrorCodeNone;
 
     if(!flipper_format_write_comment_cstr(ff, "") ||
-       !flipper_format_write_string_cstr(ff, INFRARED_SIGNAL_NAME_KEY, name)) {
+            !flipper_format_write_string_cstr(ff, INFRARED_SIGNAL_NAME_KEY, name)) {
         error = InfraredErrorCodeFileOperationFailed;
     } else if(signal->is_raw) {
         error = infrared_signal_save_raw(&signal->payload.raw, ff);
@@ -375,7 +375,7 @@ InfraredErrorCode
 }
 
 InfraredErrorCode
-    infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name) {
+infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name) {
     InfraredErrorCode error = InfraredErrorCodeNone;
 
     do {
@@ -390,8 +390,8 @@ InfraredErrorCode
 
 InfraredErrorCode infrared_signal_read_name(FlipperFormat* ff, FuriString* name) {
     return flipper_format_read_string(ff, INFRARED_SIGNAL_NAME_KEY, name) ?
-               InfraredErrorCodeNone :
-               InfraredErrorCodeSignalNameNotFound;
+           InfraredErrorCodeNone :
+           InfraredErrorCodeSignalNameNotFound;
 }
 
 InfraredErrorCode infrared_signal_search_by_name_and_read(

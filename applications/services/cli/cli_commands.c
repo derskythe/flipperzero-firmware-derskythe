@@ -109,15 +109,15 @@ void cli_command_date(Cli* cli, FuriString* args, void* context) {
     if(furi_string_size(args) > 0) {
         uint16_t hours, minutes, seconds, month, day, year, weekday;
         int ret = sscanf(
-            furi_string_get_cstr(args),
-            "%hu-%hu-%hu %hu:%hu:%hu %hu",
-            &year,
-            &month,
-            &day,
-            &hours,
-            &minutes,
-            &seconds,
-            &weekday);
+                      furi_string_get_cstr(args),
+                      "%hu-%hu-%hu %hu:%hu:%hu %hu",
+                      &year,
+                      &month,
+                      &day,
+                      &hours,
+                      &minutes,
+                      &seconds,
+                      &weekday);
 
         // Some variables are going to discard upper byte
         // There will be some funky behaviour which is not breaking anything
@@ -374,7 +374,7 @@ void cli_command_led(Cli* cli, FuriString* args, void* context) {
     // Read light value from the rest of the string
     uint32_t value;
     if(strint_to_uint32(furi_string_get_cstr(args), NULL, &value, 0) != StrintParseNoError ||
-       value >= 256) {
+            value >= 256) {
         cli_print_usage("led", "<r|g|b|bl> <0-255>", furi_string_get_cstr(args));
         return;
     }
@@ -497,7 +497,7 @@ void cli_command_i2c(Cli* cli, FuriString* args, void* context) {
         printf("%x | ", row);
         for(uint8_t column = 0; column <= 0xF; column++) {
             bool ret = furi_hal_i2c_is_device_ready(
-                &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, 2);
+                           &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, 2);
             printf("%c ", ret ? '#' : '-');
         }
         printf("\r\n");

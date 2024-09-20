@@ -86,7 +86,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                     const bool index_found =
                         infrared_remote_get_signal_index(infrared->remote, button_name, &index);
                     app_state->current_button_index = index_found ? (signed)index :
-                                                                    InfraredButtonIndexNone;
+                                                      InfraredButtonIndexNone;
                     FURI_LOG_D(TAG, "Sending signal with name \"%s\"", button_name);
                 } else {
                     FURI_LOG_D(
@@ -145,7 +145,7 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 void infrared_scene_rpc_on_exit(void* context) {
     InfraredApp* infrared = context;
     if(scene_manager_get_scene_state(infrared->scene_manager, InfraredSceneRpc) ==
-       InfraredRpcStateSending) {
+            InfraredRpcStateSending) {
         infrared_tx_stop(infrared);
     }
 

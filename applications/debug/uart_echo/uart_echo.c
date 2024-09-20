@@ -103,7 +103,7 @@ static uint32_t uart_echo_exit(void* context) {
 }
 
 static void
-    uart_echo_on_irq_cb(FuriHalSerialHandle* handle, FuriHalSerialRxEvent event, void* context) {
+uart_echo_on_irq_cb(FuriHalSerialHandle* handle, FuriHalSerialRxEvent event, void* context) {
     furi_assert(context);
     UNUSED(handle);
     UartEchoApp* app = context;
@@ -199,12 +199,12 @@ static int32_t uart_echo_worker(void* context) {
                     with_view_model(
                         app->view,
                         UartDumpModel * model,
-                        {
-                            for(size_t i = 0; i < length; i++) {
-                                uart_echo_push_to_list(model, data[i]);
-                            }
-                        },
-                        false);
+                    {
+                        for(size_t i = 0; i < length; i++) {
+                            uart_echo_push_to_list(model, data[i]);
+                        }
+                    },
+                    false);
                 }
             } while(length > 0);
 
@@ -217,7 +217,7 @@ static int32_t uart_echo_worker(void* context) {
         }
 
         if(events &
-           (WorkerEventRxOverrunError | WorkerEventRxFramingError | WorkerEventRxNoiseError)) {
+                (WorkerEventRxOverrunError | WorkerEventRxFramingError | WorkerEventRxNoiseError)) {
             if(events & WorkerEventRxOverrunError) {
                 furi_hal_serial_tx(app->serial_handle, (uint8_t*)"\r\nDetect ORE\r\n", 14);
             }
@@ -254,15 +254,15 @@ static UartEchoApp* uart_echo_app_alloc(uint32_t baudrate) {
     with_view_model(
         app->view,
         UartDumpModel * model,
-        {
-            for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
-                model->line = 0;
-                model->escape = false;
-                model->list[i] = malloc(sizeof(ListElement));
-                model->list[i]->text = furi_string_alloc();
-            }
-        },
-        true);
+    {
+        for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
+            model->line = 0;
+            model->escape = false;
+            model->list[i] = malloc(sizeof(ListElement));
+            model->list[i]->text = furi_string_alloc();
+        }
+    },
+    true);
 
     view_set_previous_callback(app->view, uart_echo_exit);
     view_dispatcher_add_view(app->view_dispatcher, 0, app->view);
@@ -298,13 +298,13 @@ static void uart_echo_app_free(UartEchoApp* app) {
     with_view_model(
         app->view,
         UartDumpModel * model,
-        {
-            for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
-                furi_string_free(model->list[i]->text);
-                free(model->list[i]);
-            }
-        },
-        true);
+    {
+        for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
+            furi_string_free(model->list[i]->text);
+            free(model->list[i]);
+        }
+    },
+    true);
     view_free(app->view);
     view_dispatcher_free(app->view_dispatcher);
 

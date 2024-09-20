@@ -55,11 +55,11 @@ void gpio_scene_start_on_enter(void* context) {
     variable_item_list_add(var_item_list, "GPIO Manual Control", 0, NULL, NULL);
 
     item = variable_item_list_add(
-        var_item_list,
-        "5V on GPIO",
-        GpioOtgSettingsNum,
-        gpio_scene_start_var_list_change_callback,
-        app);
+               var_item_list,
+               "5V on GPIO",
+               GpioOtgSettingsNum,
+               gpio_scene_start_var_list_change_callback,
+               app);
     if(furi_hal_power_is_otg_enabled()) {
         variable_item_set_current_value_index(item, GpioOtgOn);
         variable_item_set_current_value_text(item, gpio_otg_text[GpioOtgOn]);

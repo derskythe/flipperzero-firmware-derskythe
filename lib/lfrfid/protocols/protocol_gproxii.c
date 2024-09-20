@@ -301,15 +301,15 @@ const ProtocolBase protocol_gproxii = {
     .free = (ProtocolFree)protocol_gproxii_free,
     .get_data = (ProtocolGetData)protocol_gproxii_get_data,
     .decoder =
-        {
-            .start = (ProtocolDecoderStart)protocol_gproxii_decoder_start,
-            .feed = (ProtocolDecoderFeed)protocol_gproxii_decoder_feed,
-        },
+    {
+        .start = (ProtocolDecoderStart)protocol_gproxii_decoder_start,
+        .feed = (ProtocolDecoderFeed)protocol_gproxii_decoder_feed,
+    },
     .encoder =
-        {
-            .start = (ProtocolEncoderStart)protocol_gproxii_encoder_start,
-            .yield = (ProtocolEncoderYield)protocol_gproxii_encoder_yield,
-        },
+    {
+        .start = (ProtocolEncoderStart)protocol_gproxii_encoder_start,
+        .yield = (ProtocolEncoderYield)protocol_gproxii_encoder_yield,
+    },
     .render_data = (ProtocolRenderData)protocol_gproxii_render_data,
     .render_brief_data = (ProtocolRenderData)protocol_gproxii_render_data,
     .write_data = (ProtocolWriteData)protocol_gproxii_write_data,

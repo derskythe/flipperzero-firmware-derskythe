@@ -33,7 +33,7 @@ FuriTimer* furi_timer_alloc(FuriTimerCallback func, FuriTimerType type, void* co
 
     const UBaseType_t reload = (type == FuriTimerTypeOnce ? pdFALSE : pdTRUE);
     const TimerHandle_t hTimer = xTimerCreateStatic(
-        NULL, portMAX_DELAY, reload, instance, TimerCallback, &instance->container);
+                                     NULL, portMAX_DELAY, reload, instance, TimerCallback, &instance->container);
 
     furi_check(hTimer == (TimerHandle_t)instance);
 
@@ -95,7 +95,7 @@ FuriStatus furi_timer_restart(FuriTimer* instance, uint32_t ticks) {
     FuriStatus stat;
 
     if(xTimerChangePeriod(hTimer, ticks, portMAX_DELAY) == pdPASS &&
-       xTimerReset(hTimer, portMAX_DELAY) == pdPASS) {
+            xTimerReset(hTimer, portMAX_DELAY) == pdPASS) {
         stat = FuriStatusOk;
     } else {
         stat = FuriStatusErrorResource;

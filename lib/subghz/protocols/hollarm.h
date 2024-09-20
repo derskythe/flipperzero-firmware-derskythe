@@ -31,7 +31,7 @@ void subghz_protocol_encoder_hollarm_free(void* context);
  * @return status
  */
 SubGhzProtocolStatus
-    subghz_protocol_encoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format);
+subghz_protocol_encoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -42,7 +42,7 @@ void subghz_protocol_encoder_hollarm_stop(void* context);
 /**
  * Getting the level and duration of the upload to be loaded into DMA.
  * @param context Pointer to a SubGhzProtocolEncoderHollarm instance
- * @return LevelDuration 
+ * @return LevelDuration
  */
 LevelDuration subghz_protocol_encoder_hollarm_yield(void* context);
 
@@ -99,7 +99,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_hollarm_serialize(
  * @return status
  */
 SubGhzProtocolStatus
-    subghz_protocol_decoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format);
+subghz_protocol_decoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

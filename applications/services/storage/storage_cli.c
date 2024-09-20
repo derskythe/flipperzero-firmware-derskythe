@@ -269,7 +269,7 @@ static void storage_cli_read_chunks(Cli* cli, FuriString* path, FuriString* args
 
     uint32_t buffer_size;
     if(strint_to_uint32(furi_string_get_cstr(args), NULL, &buffer_size, 10) !=
-       StrintParseNoError) {
+            StrintParseNoError) {
         storage_cli_print_usage();
     } else if(storage_file_open(file, furi_string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint64_t file_size = storage_file_size(file);
@@ -308,7 +308,7 @@ static void storage_cli_write_chunk(Cli* cli, FuriString* path, FuriString* args
 
     uint32_t buffer_size;
     if(strint_to_uint32(furi_string_get_cstr(args), NULL, &buffer_size, 10) !=
-       StrintParseNoError) {
+            StrintParseNoError) {
         storage_cli_print_usage();
     } else {
         if(storage_file_open(file, furi_string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
@@ -406,7 +406,7 @@ static void storage_cli_copy(Cli* cli, FuriString* old_path, FuriString* args) {
         storage_cli_print_usage();
     } else {
         FS_Error error = storage_common_copy(
-            api, furi_string_get_cstr(old_path), furi_string_get_cstr(new_path));
+                             api, furi_string_get_cstr(old_path), furi_string_get_cstr(new_path));
 
         if(error != FSE_OK) {
             storage_cli_print_error(error);
@@ -440,7 +440,7 @@ static void storage_cli_rename(Cli* cli, FuriString* old_path, FuriString* args)
         storage_cli_print_usage();
     } else {
         FS_Error error = storage_common_rename(
-            api, furi_string_get_cstr(old_path), furi_string_get_cstr(new_path));
+                             api, furi_string_get_cstr(old_path), furi_string_get_cstr(new_path));
 
         if(error != FSE_OK) {
             storage_cli_print_error(error);

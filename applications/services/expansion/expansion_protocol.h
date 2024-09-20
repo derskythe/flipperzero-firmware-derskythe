@@ -286,7 +286,7 @@ typedef enum {
  * @returns checksum byte of the frame.
  */
 static inline ExpansionFrameChecksum
-    expansion_protocol_get_checksum(const uint8_t* data, size_t data_size) {
+expansion_protocol_get_checksum(const uint8_t* data, size_t data_size) {
     ExpansionFrameChecksum checksum = 0;
     for(size_t i = 0; i < data_size; ++i) {
         checksum ^= data[i];
@@ -361,7 +361,7 @@ static inline ExpansionProtocolStatus expansion_protocol_encode(
         expansion_protocol_get_checksum((const uint8_t*)frame, encoded_size);
 
     if((send((const uint8_t*)frame, encoded_size, context) != encoded_size) ||
-       (send(&checksum, sizeof(checksum), context) != sizeof(checksum))) {
+            (send(&checksum, sizeof(checksum), context) != sizeof(checksum))) {
         return ExpansionProtocolStatusErrorCommunication;
     } else {
         return ExpansionProtocolStatusOk;

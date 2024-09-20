@@ -55,4 +55,5 @@ const SubGhzProtocol* subghz_protocol_registry_items[] = {
 
 const SubGhzProtocolRegistry subghz_protocol_registry = {
     .items = subghz_protocol_registry_items,
-    .size = COUNT_OF(subghz_protocol_registry_items)};
+    .size = COUNT_OF(subghz_protocol_registry_items)
+};

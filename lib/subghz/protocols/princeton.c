@@ -79,8 +79,8 @@ const SubGhzProtocol subghz_protocol_princeton = {
     .name = SUBGHZ_PROTOCOL_PRINCETON_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_868 | SubGhzProtocolFlag_315 |
-            SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load |
-            SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send | SubGhzProtocolFlag_Princeton,
+    SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load |
+    SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send | SubGhzProtocolFlag_Princeton,
 
     .decoder = &subghz_protocol_princeton_decoder,
     .encoder = &subghz_protocol_princeton_encoder,
@@ -216,7 +216,7 @@ static uint8_t subghz_protocol_princeton_get_btn_code(void) {
  * @return true On success
  */
 static bool
-    subghz_protocol_encoder_princeton_get_upload(SubGhzProtocolEncoderPrinceton* instance) {
+subghz_protocol_encoder_princeton_get_upload(SubGhzProtocolEncoderPrinceton* instance) {
     furi_assert(instance);
 
     // Generate new key using custom or default button
@@ -259,7 +259,7 @@ static bool
     return true;
 }
 
-/** 
+/**
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
@@ -275,15 +275,15 @@ static void subghz_protocol_princeton_check_remote_controller(SubGhzBlockGeneric
 }
 
 SubGhzProtocolStatus
-    subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
+subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderPrinceton* instance = context;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_princeton_const.min_count_bit_for_found);
+                  &instance->generic,
+                  flipper_format,
+                  subghz_protocol_princeton_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
@@ -299,7 +299,7 @@ SubGhzProtocolStatus
         }
         //optional parameter parameter
         if(!flipper_format_read_uint32(
-               flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
+                    flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
             instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
         } else {
             // Guard Time value should be between 15 -> 72 otherwise default value will be used
@@ -410,9 +410,9 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
             if(duration >= ((uint32_t)subghz_protocol_princeton_const.te_long * 2)) {
                 instance->decoder.parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_princeton_const.min_count_bit_for_found) {
+                        subghz_protocol_princeton_const.min_count_bit_for_found) {
                     if((instance->last_data == instance->decoder.decode_data) &&
-                       instance->last_data) {
+                            instance->last_data) {
                         instance->te /= (instance->decoder.decode_count_bit * 4 + 1);
 
                         instance->generic.data = instance->decoder.decode_data;
@@ -437,9 +437,9 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
             instance->te += duration;
 
             if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_princeton_const.te_short) <
-                subghz_protocol_princeton_const.te_delta) &&
-               (DURATION_DIFF(duration, subghz_protocol_princeton_const.te_long) <
-                subghz_protocol_princeton_const.te_delta * 3)) {
+                    subghz_protocol_princeton_const.te_delta) &&
+                    (DURATION_DIFF(duration, subghz_protocol_princeton_const.te_long) <
+                     subghz_protocol_princeton_const.te_delta * 3)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 instance->decoder.parser_step = PrincetonDecoderStepSaveDuration;
             } else if(
@@ -463,7 +463,7 @@ uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
+               &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
@@ -475,12 +475,12 @@ SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
     SubGhzProtocolStatus ret =
         subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
+            !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
         FURI_LOG_E(TAG, "Unable to add TE");
         ret = SubGhzProtocolStatusErrorParserTe;
     }
     if((ret == SubGhzProtocolStatusOk) &&
-       !flipper_format_write_uint32(flipper_format, "Guard_time", &instance->guard_time, 1)) {
+            !flipper_format_write_uint32(flipper_format, "Guard_time", &instance->guard_time, 1)) {
         FURI_LOG_E(TAG, "Unable to add Guard_time");
         ret = SubGhzProtocolStatusErrorParserOthers;
     }
@@ -489,15 +489,15 @@ SubGhzProtocolStatus subghz_protocol_decoder_princeton_serialize(
 }
 
 SubGhzProtocolStatus
-    subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
+subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_princeton_const.min_count_bit_for_found);
+                  &instance->generic,
+                  flipper_format,
+                  subghz_protocol_princeton_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
@@ -512,7 +512,7 @@ SubGhzProtocolStatus
             break;
         }
         if(!flipper_format_read_uint32(
-               flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
+                    flipper_format, "Guard_time", (uint32_t*)&instance->guard_time, 1)) {
             instance->guard_time = PRINCETON_GUARD_TIME_DEFALUT;
         } else {
             // Guard Time value should be between 15 -> 72 otherwise default value will be used
@@ -531,7 +531,7 @@ void subghz_protocol_decoder_princeton_get_string(void* context, FuriString* out
     SubGhzProtocolDecoderPrinceton* instance = context;
     subghz_protocol_princeton_check_remote_controller(&instance->generic);
     uint32_t data_rev = subghz_protocol_blocks_reverse_key(
-        instance->generic.data, instance->generic.data_count_bit);
+                            instance->generic.data, instance->generic.data_count_bit);
 
     furi_string_cat_printf(
         output,

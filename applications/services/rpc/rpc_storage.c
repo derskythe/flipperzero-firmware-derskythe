@@ -119,10 +119,10 @@ static void rpc_system_storage_info_process(const PB_Main* request, void* contex
     response->command_id = request->command_id;
 
     FS_Error error = storage_common_fs_info(
-        rpc_storage->api,
-        request->content.storage_info_request.path,
-        &response->content.storage_info_response.total_space,
-        &response->content.storage_info_response.free_space);
+                         rpc_storage->api,
+                         request->content.storage_info_request.path,
+                         &response->content.storage_info_response.total_space,
+                         &response->content.storage_info_response.free_space);
 
     response->command_status = rpc_system_storage_get_error(error);
     if(error == FSE_OK) {
@@ -194,8 +194,8 @@ static void rpc_system_storage_stat_process(const PB_Main* request, void* contex
         response->which_content = PB_Main_storage_stat_response_tag;
         response->content.storage_stat_response.has_file = true;
         response->content.storage_stat_response.file.type = file_info_is_dir(&fileinfo) ?
-                                                                PB_Storage_File_FileType_DIR :
-                                                                PB_Storage_File_FileType_FILE;
+            PB_Storage_File_FileType_DIR :
+            PB_Storage_File_FileType_FILE;
         response->content.storage_stat_response.file.size = fileinfo.size;
     }
 
@@ -305,7 +305,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
                     i = 0;
                 }
                 list->file[i].type = file_info_is_dir(&fileinfo) ? PB_Storage_File_FileType_DIR :
-                                                                   PB_Storage_File_FileType_FILE;
+                                     PB_Storage_File_FileType_FILE;
                 list->file[i].size = fileinfo.size;
                 list->file[i].data = NULL;
                 list->file[i].name = name;
@@ -430,7 +430,7 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
     }
 
     if((request->command_id != rpc_storage->current_command_id) &&
-       (rpc_storage->state == RpcStorageStateWriting)) {
+            (rpc_storage->state == RpcStorageStateWriting)) {
         rpc_system_storage_reset_state(rpc_storage, session, true);
     }
 
@@ -448,8 +448,8 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
 
     if(fs_operation_success) {
         if(request->content.storage_write_request.has_file &&
-           request->content.storage_write_request.file.data &&
-           request->content.storage_write_request.file.data->size) {
+                request->content.storage_write_request.file.data &&
+                request->content.storage_write_request.file.data->size) {
             uint8_t* buffer = request->content.storage_write_request.file.data->bytes;
             size_t buffer_size = request->content.storage_write_request.file.data->size;
             size_t written_size = storage_file_write(file, buffer, buffer_size);
@@ -523,7 +523,7 @@ static void rpc_system_storage_delete_process(const PB_Main* request, void* cont
         // FSE_DENIED is for empty directory, but not only for this
         // that's why we have to check it
         if((error_remove == FSE_DENIED) &&
-           !rpc_system_storage_is_dir_is_empty(rpc_storage->api, path)) {
+                !rpc_system_storage_is_dir_is_empty(rpc_storage->api, path)) {
             if(request->content.storage_delete_request.recursive) {
                 bool deleted = storage_simply_remove_recursive(rpc_storage->api, path);
                 status = deleted ? PB_CommandStatus_OK : PB_CommandStatus_ERROR;
@@ -630,9 +630,9 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
 
     if(path_contains_only_ascii(request->content.storage_rename_request.new_path)) {
         FS_Error error = storage_common_rename(
-            rpc_storage->api,
-            request->content.storage_rename_request.old_path,
-            request->content.storage_rename_request.new_path);
+                             rpc_storage->api,
+                             request->content.storage_rename_request.old_path,
+                             request->content.storage_rename_request.new_path);
         status = rpc_system_storage_get_error(error);
     } else {
         status = PB_CommandStatus_ERROR_STORAGE_INVALID_NAME;
@@ -655,7 +655,7 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
     bool backup_ok = int_backup_create(
-        rpc_storage->api, request->content.storage_backup_create_request.archive_path);
+                         rpc_storage->api, request->content.storage_backup_create_request.archive_path);
 
     rpc_send_and_release_empty(
         session, request->command_id, backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR);
@@ -675,7 +675,7 @@ static void rpc_system_storage_backup_restore_process(const PB_Main* request, vo
     rpc_system_storage_reset_state(rpc_storage, session, true);
 
     bool backup_ok = int_backup_unpack(
-        rpc_storage->api, request->content.storage_backup_restore_request.archive_path);
+                         rpc_storage->api, request->content.storage_backup_restore_request.archive_path);
 
     rpc_send_and_release_empty(
         session, request->command_id, backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR);
@@ -699,7 +699,7 @@ static void rpc_system_storage_tar_extract_process(const PB_Main* request, void*
 
     do {
         const char *tar_path = request->content.storage_tar_extract_request.tar_path,
-                   *out_path = request->content.storage_tar_extract_request.out_path;
+                    *out_path = request->content.storage_tar_extract_request.out_path;
         if(!path_contains_only_ascii(out_path)) {
             status = PB_CommandStatus_ERROR_STORAGE_INVALID_NAME;
             break;

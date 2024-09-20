@@ -99,8 +99,8 @@ bool infrared_brute_force_start(
 
     InfraredBruteForceRecordDict_it_t it;
     for(InfraredBruteForceRecordDict_it(it, brute_force->records);
-        !InfraredBruteForceRecordDict_end_p(it);
-        InfraredBruteForceRecordDict_next(it)) {
+            !InfraredBruteForceRecordDict_end_p(it);
+            InfraredBruteForceRecordDict_next(it)) {
         const InfraredBruteForceRecordDict_itref_t* record = InfraredBruteForceRecordDict_cref(it);
         if(record->value.index == index) {
             *record_count = record->value.count;

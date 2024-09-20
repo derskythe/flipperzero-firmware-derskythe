@@ -65,8 +65,8 @@ static FelicaError felica_listener_command_handler_read(
     FURI_LOG_D(TAG, "Read cmd");
 
     FelicaListenerReadCommandResponse* resp = malloc(
-        sizeof(FelicaCommandResponseHeader) + 1 +
-        FELICA_LISTENER_READ_BLOCK_COUNT_MAX * FELICA_DATA_BLOCK_SIZE);
+            sizeof(FelicaCommandResponseHeader) + 1 +
+            FELICA_LISTENER_READ_BLOCK_COUNT_MAX * FELICA_DATA_BLOCK_SIZE);
 
     resp->header.response_code = FELICA_LISTENER_RESPONSE_CODE_READ;
     resp->header.idm = request->base.header.idm;
@@ -182,7 +182,7 @@ NfcCommand felica_listener_run(NfcGenericEvent event, void* context) {
 
             uint8_t size = bit_buffer_get_size_bytes(nfc_event->data.buffer) - 2;
             if((request->length != size) ||
-               (!felica_listener_check_block_list_size(instance, request))) {
+                    (!felica_listener_check_block_list_size(instance, request))) {
                 FURI_LOG_E(TAG, "Wrong request length");
                 break;
             }

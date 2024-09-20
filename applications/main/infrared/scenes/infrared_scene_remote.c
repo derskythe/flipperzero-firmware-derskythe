@@ -7,7 +7,7 @@ typedef enum {
 } ButtonIndex;
 
 static void
-    infrared_scene_remote_button_menu_callback(void* context, int32_t index, InputType type) {
+infrared_scene_remote_button_menu_callback(void* context, int32_t index, InputType type) {
     InfraredApp* infrared = context;
 
     uint16_t custom_type;
@@ -75,7 +75,7 @@ bool infrared_scene_remote_on_event(void* context, SceneManagerEvent event) {
         if(is_transmitter_idle) {
             const uint32_t possible_scenes[] = {InfraredSceneRemoteList, InfraredSceneStart};
             consumed = scene_manager_search_and_switch_to_previous_scene_one_of(
-                scene_manager, possible_scenes, COUNT_OF(possible_scenes));
+                           scene_manager, possible_scenes, COUNT_OF(possible_scenes));
         } else {
             consumed = true;
         }

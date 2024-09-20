@@ -271,7 +271,7 @@ static void nfc_worker_listener_pass_col_res(Nfc* instance, uint8_t* rx_data, ui
     } else if(rx_bits == 8 * 8) {
         FelicaPollingRequest* request = (FelicaPollingRequest*)rx_data;
         if(request->system_code == 0xFFFF ||
-           request->system_code == instance->pt_memory.system_code) {
+                request->system_code == instance->pt_memory.system_code) {
             uint8_t response_size = sizeof(FelicaSensfResData) + 1;
             bit_buffer_reset(tx_buffer);
             bit_buffer_append_byte(tx_buffer, response_size);
@@ -317,7 +317,7 @@ static int32_t nfc_worker_listener(void* context) {
             nfc_test_print(
                 NfcTransportLogLevelInfo, "RDR", message.data.data, message.data.data_bits);
             if(instance->software_col_res_required &&
-               (instance->col_res_status != Iso14443_3aColResStatusDone)) {
+                    (instance->col_res_status != Iso14443_3aColResStatusDone)) {
                 nfc_worker_listener_pass_col_res(
                     instance, message.data.data, message.data.data_bits);
             } else {
@@ -423,7 +423,7 @@ NfcError nfc_iso14443a_listener_tx_custom_parity(Nfc* instance, const BitBuffer*
 }
 
 NfcError
-    nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt) {
+nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt) {
     furi_check(instance);
     furi_check(tx_buffer);
     furi_check(rx_buffer);

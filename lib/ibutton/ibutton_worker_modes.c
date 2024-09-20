@@ -129,7 +129,7 @@ void ibutton_worker_mode_write_id_tick(iButtonWorker* worker) {
     const bool success = ibutton_protocols_write_id(worker->protocols, worker->key);
     // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
+                                            iButtonWorkerWriteNoDetect;
     if(worker->write_cb != NULL) {
         worker->write_cb(worker->cb_ctx, result);
     }
@@ -141,7 +141,7 @@ void ibutton_worker_mode_write_copy_tick(iButtonWorker* worker) {
     const bool success = ibutton_protocols_write_copy(worker->protocols, worker->key);
     // TODO FL-3527: pass a proper result to the callback
     const iButtonWorkerWriteResult result = success ? iButtonWorkerWriteOK :
-                                                      iButtonWorkerWriteNoDetect;
+                                            iButtonWorkerWriteNoDetect;
     if(worker->write_cb != NULL) {
         worker->write_cb(worker->cb_ctx, result);
     }

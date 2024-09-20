@@ -36,12 +36,12 @@ bool resource_manifest_reader_open(ResourceManifestReader* resource_manifest, co
     furi_assert(resource_manifest);
 
     return buffered_file_stream_open(
-        resource_manifest->stream, filename, FSAM_READ, FSOM_OPEN_EXISTING);
+               resource_manifest->stream, filename, FSAM_READ, FSOM_OPEN_EXISTING);
 }
 
 /* Read entries in format of
  * F:<hash>:<size>:<name>
- * D:<name> 
+ * D:<name>
  */
 ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* resource_manifest) {
     furi_assert(resource_manifest);
@@ -85,7 +85,7 @@ ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* res
             furi_string_right(resource_manifest->linebuf, 2);
 
             if(furi_string_search_char(resource_manifest->linebuf, ':') !=
-               sizeof(resource_manifest->entry.hash) * 2) {
+                    sizeof(resource_manifest->entry.hash) * 2) {
                 /* Invalid hash */
                 continue;
             }
@@ -99,10 +99,10 @@ ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* res
                 resource_manifest->linebuf, sizeof(resource_manifest->entry.hash) * 2 + 1);
 
             if(strint_to_uint32(
-                   furi_string_get_cstr(resource_manifest->linebuf),
-                   NULL,
-                   &resource_manifest->entry.size,
-                   10) != StrintParseNoError)
+                        furi_string_get_cstr(resource_manifest->linebuf),
+                        NULL,
+                        &resource_manifest->entry.size,
+                        10) != StrintParseNoError)
                 break;
 
             /* Remove size */
@@ -127,7 +127,7 @@ ResourceManifestEntry* resource_manifest_reader_next(ResourceManifestReader* res
 }
 
 ResourceManifestEntry*
-    resource_manifest_reader_previous(ResourceManifestReader* resource_manifest) {
+resource_manifest_reader_previous(ResourceManifestReader* resource_manifest) {
     furi_assert(resource_manifest);
 
     // Snapshot position for rollback

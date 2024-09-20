@@ -62,7 +62,7 @@ const SubGhzProtocol subghz_protocol_hay21 = {
     .name = SUBGHZ_PROTOCOL_HAY21_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+    SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_hay21_decoder,
     .encoder = &subghz_protocol_hay21_encoder,
@@ -196,7 +196,7 @@ static void subghz_protocol_encoder_hay21_get_upload(SubGhzProtocolEncoderHay21*
     return;
 }
 
-/** 
+/**
  * Analysis of received data and parsing serial number
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
@@ -243,15 +243,15 @@ static void subghz_protocol_hay21_remote_controller(SubGhzBlockGeneric* instance
 }
 
 SubGhzProtocolStatus
-    subghz_protocol_encoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
+subghz_protocol_encoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHay21* instance = context;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-            &instance->generic,
-            flipper_format,
-            subghz_protocol_hay21_const.min_count_bit_for_found);
+                  &instance->generic,
+                  flipper_format,
+                  subghz_protocol_hay21_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
@@ -350,9 +350,9 @@ void subghz_protocol_decoder_hay21_feed(void* context, bool level, volatile uint
         if(!level) {
             // Bit 1 is long + short timing
             if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_hay21_const.te_long) <
-                subghz_protocol_hay21_const.te_delta) &&
-               (DURATION_DIFF(duration, subghz_protocol_hay21_const.te_short) <
-                subghz_protocol_hay21_const.te_delta)) {
+                    subghz_protocol_hay21_const.te_delta) &&
+                    (DURATION_DIFF(duration, subghz_protocol_hay21_const.te_short) <
+                     subghz_protocol_hay21_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 instance->decoder.parser_step = Hay21DecoderStepSaveDuration;
                 // Bit 0 is short + long timing
@@ -369,16 +369,16 @@ void subghz_protocol_decoder_hay21_feed(void* context, bool level, volatile uint
                 subghz_protocol_hay21_const.te_delta * 2) {
                 //Found next GAP and add bit 0 or 1
                 if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_hay21_const.te_long) <
-                    subghz_protocol_hay21_const.te_delta)) {
+                        subghz_protocol_hay21_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_hay21_const.te_short) <
-                    subghz_protocol_hay21_const.te_delta)) {
+                        subghz_protocol_hay21_const.te_delta)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 // If got 21 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_hay21_const.min_count_bit_for_found) {
+                        subghz_protocol_hay21_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
@@ -397,7 +397,7 @@ void subghz_protocol_decoder_hay21_feed(void* context, bool level, volatile uint
     }
 }
 
-/** 
+/**
  * Get button name.
  * @param btn Button number, 4 bit
  */
@@ -424,7 +424,7 @@ uint8_t subghz_protocol_decoder_hay21_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderHay21* instance = context;
     return subghz_protocol_blocks_get_hash_data(
-        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
+               &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_hay21_serialize(
@@ -437,11 +437,11 @@ SubGhzProtocolStatus subghz_protocol_decoder_hay21_serialize(
 }
 
 SubGhzProtocolStatus
-    subghz_protocol_decoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
+subghz_protocol_decoder_hay21_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHay21* instance = context;
     return subghz_block_generic_deserialize_check_count_bit(
-        &instance->generic, flipper_format, subghz_protocol_hay21_const.min_count_bit_for_found);
+               &instance->generic, flipper_format, subghz_protocol_hay21_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_hay21_get_string(void* context, FuriString* output) {

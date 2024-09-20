@@ -11,18 +11,18 @@ extern "C" {
 #endif
 
 /** Check if CPU is in IRQ or kernel running and IRQ is masked
- * 
+ *
  * Originally this primitive was born as a workaround for FreeRTOS kernel primitives shenanigans with PRIMASK.
- * 
+ *
  * Meaningful use cases are:
- * 
+ *
  * - When kernel is started and you want to ensure that you are not in IRQ or IRQ is not masked(like in critical section)
  * - When kernel is not started and you want to make sure that you are not in IRQ mode, ignoring PRIMASK.
- * 
+ *
  * As you can see there will be edge case when kernel is not started and PRIMASK is not 0 that may cause some funky behavior.
  * Most likely it will happen after kernel primitives being used, but control not yet passed to kernel.
  * It's up to you to figure out if it is safe for your code or not.
- * 
+ *
  * @return     true if CPU is in IRQ or kernel running and IRQ is masked
  */
 bool furi_kernel_is_irq_or_masked(void);
@@ -101,12 +101,12 @@ uint32_t furi_get_tick(void);
 uint32_t furi_ms_to_ticks(uint32_t milliseconds);
 
 /** Delay in milliseconds
- * 
+ *
  * This method uses kernel ticks on the inside, which causes delay to be aliased to scheduler timer intervals.
  * Real wait time will be between X+ milliseconds.
  * Special value: 0, will cause task yield.
  * Also if used when kernel is not running will fall back to `furi_delay_us`.
- * 
+ *
  * @warning    Cannot be used from ISR
  *
  * @param[in]  milliseconds  milliseconds to wait
@@ -114,7 +114,7 @@ uint32_t furi_ms_to_ticks(uint32_t milliseconds);
 void furi_delay_ms(uint32_t milliseconds);
 
 /** Delay in microseconds
- * 
+ *
  * Implemented using Cortex DWT counter. Blocking and non aliased.
  *
  * @param[in]  microseconds  microseconds to wait

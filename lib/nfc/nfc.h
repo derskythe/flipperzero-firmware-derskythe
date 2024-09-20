@@ -235,7 +235,7 @@ void nfc_stop(Nfc* instance);
  * @returns NfcErrorNone on success, any other error code on failure.
  */
 NfcError
-    nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt);
+nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt);
 
 /**
  * @brief Transmit a data frame in listener mode.
@@ -353,7 +353,7 @@ NfcError nfc_iso14443a_listener_set_col_res_data(
 
 /**
  * @brief Set FeliCa collision resolution parameters in listener mode.
- * 
+ *
  * Configures the NFC hardware for automatic collision resolution.
  *
  * @param[in,out] instance pointer to the instance to be configured.

@@ -94,9 +94,9 @@ static void updater_start_app(void* context, uint32_t arg) {
         return;
     }
 
-    /* We need to spawn a separate thread, because these callbacks are executed 
-     * inside loader process, at startup. 
-     * So, accessing its record would cause a deadlock 
+    /* We need to spawn a separate thread, because these callbacks are executed
+     * inside loader process, at startup.
+     * So, accessing its record would cause a deadlock
      */
     Loader* loader = furi_record_open(RECORD_LOADER);
     loader_start(loader, "UpdaterApp", NULL, NULL);

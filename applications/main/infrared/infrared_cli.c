@@ -43,15 +43,15 @@ static void signal_received_callback(void* context, InfraredWorkerSignal* receiv
     if(infrared_worker_signal_is_decoded(received_signal)) {
         const InfraredMessage* message = infrared_worker_get_decoded_signal(received_signal);
         buf_cnt = snprintf(
-            buf,
-            sizeof(buf),
-            "%s, A:0x%0*lX, C:0x%0*lX%s\r\n",
-            infrared_get_protocol_name(message->protocol),
-            ROUND_UP_TO(infrared_get_protocol_address_length(message->protocol), 4),
-            message->address,
-            ROUND_UP_TO(infrared_get_protocol_command_length(message->protocol), 4),
-            message->command,
-            message->repeat ? " R" : "");
+                      buf,
+                      sizeof(buf),
+                      "%s, A:0x%0*lX, C:0x%0*lX%s\r\n",
+                      infrared_get_protocol_name(message->protocol),
+                      ROUND_UP_TO(infrared_get_protocol_address_length(message->protocol), 4),
+                      message->address,
+                      ROUND_UP_TO(infrared_get_protocol_command_length(message->protocol), 4),
+                      message->command,
+                      message->repeat ? " R" : "");
         cli_write(cli, (uint8_t*)buf, buf_cnt);
     } else {
         const uint32_t* timings;
@@ -180,7 +180,7 @@ static bool infrared_cli_parse_raw(const char* str, InfraredSignal* signal) {
     uint32_t frequency;
     uint32_t duty_cycle_u32;
     if(strint_to_uint32(frequency_str, NULL, &frequency, 10) != StrintParseNoError ||
-       strint_to_uint32(duty_cycle_str, NULL, &duty_cycle_u32, 10) != StrintParseNoError)
+            strint_to_uint32(duty_cycle_str, NULL, &duty_cycle_u32, 10) != StrintParseNoError)
         return false;
     float duty_cycle = duty_cycle_u32 / 100.0f;
 
@@ -231,7 +231,7 @@ static void infrared_cli_start_ir_tx(Cli* cli, FuriString* args) {
 }
 
 static bool
-    infrared_cli_save_signal(InfraredSignal* signal, FlipperFormat* file, const char* name) {
+infrared_cli_save_signal(InfraredSignal* signal, FlipperFormat* file, const char* name) {
     bool ret = true;
     InfraredErrorCode error = infrared_signal_save(signal, file, name);
     if(INFRARED_ERROR_PRESENT(error)) {
@@ -310,7 +310,7 @@ static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* o
         }
         if(!infrared_signal_is_raw(signal)) {
             if(output_file &&
-               !infrared_cli_save_signal(signal, output_file, furi_string_get_cstr(tmp))) {
+                    !infrared_cli_save_signal(signal, output_file, furi_string_get_cstr(tmp))) {
                 break;
             } else {
                 printf("Skipping decoded signal\r\n");
@@ -323,7 +323,7 @@ static bool infrared_cli_decode_file(FlipperFormat* input_file, FlipperFormat* o
             furi_string_get_cstr(tmp),
             raw_signal->timings_size);
         if(!infrared_cli_decode_raw_signal(
-               raw_signal, decoder, output_file, furi_string_get_cstr(tmp)))
+                    raw_signal, decoder, output_file, furi_string_get_cstr(tmp)))
             break;
         ret = true;
     }
@@ -356,13 +356,13 @@ static void infrared_cli_process_decode(Cli* cli, FuriString* args) {
         }
         args_read_probably_quoted_string_and_trim(args, output_path);
         if(!flipper_format_buffered_file_open_existing(
-               input_file, furi_string_get_cstr(input_path))) {
+                    input_file, furi_string_get_cstr(input_path))) {
             printf(
                 "Failed to open file for reading: \"%s\"\r\n", furi_string_get_cstr(input_path));
             break;
         }
         if(!flipper_format_read_header(input_file, header, &version) ||
-           (!furi_string_start_with_str(header, "IR")) || version != 1) {
+                (!furi_string_start_with_str(header, "IR")) || version != 1) {
             printf(
                 "Invalid or corrupted input file: \"%s\"\r\n", furi_string_get_cstr(input_path));
             break;
@@ -372,7 +372,7 @@ static void infrared_cli_process_decode(Cli* cli, FuriString* args) {
             output_file = flipper_format_file_alloc(storage);
         }
         if(output_file &&
-           !flipper_format_file_open_always(output_file, furi_string_get_cstr(output_path))) {
+                !flipper_format_file_open_always(output_file, furi_string_get_cstr(output_path))) {
             printf(
                 "Failed to open file for writing: \"%s\"\r\n", furi_string_get_cstr(output_path));
             break;
@@ -408,10 +408,10 @@ static void infrared_cli_list_remote_signals(FuriString* remote_name) {
     Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
     FuriString* remote_path = furi_string_alloc_printf(
-        "%s/%s%s",
-        INFRARED_ASSETS_FOLDER,
-        furi_string_get_cstr(remote_name),
-        INFRARED_FILE_EXTENSION);
+                                  "%s/%s%s",
+                                  INFRARED_ASSETS_FOLDER,
+                                  furi_string_get_cstr(remote_name),
+                                  INFRARED_FILE_EXTENSION);
 
     do {
         if(!flipper_format_buffered_file_open_existing(ff, furi_string_get_cstr(remote_path))) {
@@ -456,10 +456,10 @@ static void infrared_cli_list_remote_signals(FuriString* remote_name) {
 }
 
 static void
-    infrared_cli_brute_force_signals(Cli* cli, FuriString* remote_name, FuriString* signal_name) {
+infrared_cli_brute_force_signals(Cli* cli, FuriString* remote_name, FuriString* signal_name) {
     InfraredBruteForce* brute_force = infrared_brute_force_alloc();
     FuriString* remote_path = furi_string_alloc_printf(
-        "%s/%s.ir", INFRARED_ASSETS_FOLDER, furi_string_get_cstr(remote_name));
+                                  "%s/%s.ir", INFRARED_ASSETS_FOLDER, furi_string_get_cstr(remote_name));
 
     infrared_brute_force_set_db_filename(brute_force, furi_string_get_cstr(remote_path));
     infrared_brute_force_add_record(
@@ -477,7 +477,7 @@ static void
 
         uint32_t record_count;
         bool running = infrared_brute_force_start(
-            brute_force, INFRARED_BRUTE_FORCE_DUMMY_INDEX, &record_count);
+                           brute_force, INFRARED_BRUTE_FORCE_DUMMY_INDEX, &record_count);
 
         if(record_count <= 0) {
             printf("Invalid signal name.\r\n");

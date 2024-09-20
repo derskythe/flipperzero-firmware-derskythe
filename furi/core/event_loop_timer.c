@@ -14,7 +14,7 @@ static inline uint32_t furi_event_loop_timer_get_elapsed_time(const FuriEventLoo
 }
 
 static inline uint32_t
-    furi_event_loop_timer_get_remaining_time_private(const FuriEventLoopTimer* timer) {
+furi_event_loop_timer_get_remaining_time_private(const FuriEventLoopTimer* timer) {
     const uint32_t elapsed_time = furi_event_loop_timer_get_elapsed_time(timer);
     return elapsed_time < timer->interval ? timer->interval - elapsed_time : 0;
 }
@@ -32,7 +32,7 @@ static void furi_event_loop_schedule_timer(FuriEventLoop* instance, FuriEventLoo
 
     TimerList_it_t it;
     for(TimerList_it_last(it, instance->timer_list); !TimerList_end_p(it);
-        TimerList_previous(it)) {
+            TimerList_previous(it)) {
         FuriEventLoopTimer* tmp = TimerList_ref(it);
         if(remaining_time >= furi_event_loop_timer_get_remaining_time_private(tmp)) {
             timer_pos = tmp;

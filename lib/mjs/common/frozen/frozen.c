@@ -185,9 +185,9 @@ static int json_get_escape_len(const char* s, int len) {
     case 'u':
         return len < 6 ? JSON_STRING_INCOMPLETE :
                json_isxdigit(s[1]) && json_isxdigit(s[2]) && json_isxdigit(s[3]) &&
-                       json_isxdigit(s[4]) ?
-                         5 :
-                         JSON_STRING_INVALID;
+               json_isxdigit(s[4]) ?
+               5 :
+               JSON_STRING_INVALID;
     case '"':
     case '\\':
     case '/':
@@ -208,7 +208,7 @@ static int json_parse_identifier(struct frozen* f) {
     {
         SET_STATE(f, f->cur, "", 0);
         while(f->cur < f->end &&
-              (*f->cur == '_' || json_isalpha(*f->cur) || json_isdigit(*f->cur))) {
+                (*f->cur == '_' || json_isalpha(*f->cur) || json_isdigit(*f->cur))) {
             f->cur++;
         }
         json_truncate_path(f, fstate.path_len);
@@ -628,15 +628,15 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
                 }
             } else {
                 /*
-         * we delegate printing to the system printf.
-         * The goal here is to delegate all modifiers parsing to the system
-         * printf, as you can see below we still have to parse the format
-         * types.
-         *
-         * Currently, %s with strings longer than 20 chars will require
-         * double-buffering (an auxiliary buffer will be allocated from heap).
-         * TODO(dfrank): reimplement %s and %.*s in order to avoid that.
-         */
+                * we delegate printing to the system printf.
+                * The goal here is to delegate all modifiers parsing to the system
+                * printf, as you can see below we still have to parse the format
+                * types.
+                *
+                * Currently, %s with strings longer than 20 chars will require
+                * double-buffering (an auxiliary buffer will be allocated from heap).
+                * TODO(dfrank): reimplement %s and %.*s in order to avoid that.
+                */
 
                 const char* end_of_format_specifier = "sdfFeEgGlhuIcx.*-0123456789";
                 int n = strspn(fmt + 1, end_of_format_specifier);
@@ -652,9 +652,9 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
 
                 if(need_len < 0) {
                     /*
-           * Windows & eCos vsnprintf implementation return -1 on overflow
-           * instead of needed size.
-           */
+                    * Windows & eCos vsnprintf implementation return -1 on overflow
+                    * instead of needed size.
+                    */
                     pbuf = NULL;
                     while(need_len < 0) {
                         free(pbuf);
@@ -666,9 +666,9 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
                     }
                 } else if(need_len >= (int)sizeof(buf)) {
                     /*
-           * resulting string doesn't fit into a stack-allocated buffer `buf`,
-           * so we need to allocate a new buffer from heap and use it
-           */
+                    * resulting string doesn't fit into a stack-allocated buffer `buf`,
+                    * so we need to allocate a new buffer from heap and use it
+                    */
                     if((pbuf = (char*)malloc(need_len + 1)) != NULL) {
                         va_copy(ap_copy, ap);
                         vsnprintf(pbuf, need_len + 1, fmt2, ap_copy);
@@ -681,13 +681,13 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
                 }
 
                 /*
-         * however we need to parse the type ourselves in order to advance
-         * the va_list by the correct amount; there is no portable way to
-         * inherit the advancement made by vprintf.
-         * 32-bit (linux or windows) passes va_list by value.
-         */
+                * however we need to parse the type ourselves in order to advance
+                * the va_list by the correct amount; there is no portable way to
+                * inherit the advancement made by vprintf.
+                * 32-bit (linux or windows) passes va_list by value.
+                */
                 if((n + 1 == strlen("%" PRId64) && strcmp(fmt2, "%" PRId64) == 0) ||
-                   (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
+                        (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
                     (void)va_arg(ap, int64_t);
                 } else if(strcmp(fmt2, "%.*s") == 0) {
                     (void)va_arg(ap, int);
@@ -919,9 +919,9 @@ static void json_scanf_cb(
 
     if(token->ptr == NULL) {
         /*
-     * We're not interested here in the events for which we have no value;
-     * namely, JSON_TYPE_OBJECT_START and JSON_TYPE_ARRAY_START
-     */
+        * We're not interested here in the events for which we have no value;
+        * namely, JSON_TYPE_OBJECT_START and JSON_TYPE_ARRAY_START
+        */
         return;
     }
 
@@ -1011,7 +1011,7 @@ static void json_scanf_cb(
         buf[token->len] = '\0';
         /* NB: Use of base 0 for %d, %ld, %u and %lu is intentional. */
         if(info->fmt[1] == 'd' || (info->fmt[1] == 'l' && info->fmt[2] == 'd') ||
-           info->fmt[1] == 'i') {
+                info->fmt[1] == 'i') {
             char* endptr = NULL;
             long r = strtol(buf, &endptr, 0 /* base */);
             if(*endptr == '\0') {
@@ -1182,29 +1182,29 @@ static void json_vsetf_cb(
     if(len > data->matched) data->matched = len;
 
     /*
-   * If there is no exact path match, set the mutation position to tbe end
-   * of the object or array
-   */
+    * If there is no exact path match, set the mutation position to tbe end
+    * of the object or array
+    */
     if(len < data->matched && data->pos == 0 &&
-       (t->type == JSON_TYPE_OBJECT_END || t->type == JSON_TYPE_ARRAY_END)) {
+            (t->type == JSON_TYPE_OBJECT_END || t->type == JSON_TYPE_ARRAY_END)) {
         data->pos = data->end = data->prev;
     }
 
     /* Exact path match. Set mutation position to the value of this token */
     if(strcmp(path, data->json_path) == 0 && t->type != JSON_TYPE_OBJECT_START &&
-       t->type != JSON_TYPE_ARRAY_START) {
+            t->type != JSON_TYPE_ARRAY_START) {
         data->pos = off;
         data->end = off + t->len;
     }
 
     /*
-   * For deletion, we need to know where the previous value ends, because
-   * we don't know where matched value key starts.
-   * When the mutation position is not yet set, remember each value end.
-   * When the mutation position is already set, but it is at the beginning
-   * of the object/array, we catch the end of the object/array and see
-   * whether the object/array start is closer then previously stored prev.
-   */
+    * For deletion, we need to know where the previous value ends, because
+    * we don't know where matched value key starts.
+    * When the mutation position is not yet set, remember each value end.
+    * When the mutation position is already set, but it is at the beginning
+    * of the object/array, we catch the end of the object/array and see
+    * whether the object/array start is closer then previously stored prev.
+    */
     if(data->pos == 0) {
         data->prev = off + t->len; /* pos is not yet set */
     } else if((t->ptr[0] == '[' || t->ptr[0] == '{') && off + 1 < data->pos && off + 1 > data->prev) {
@@ -1317,7 +1317,7 @@ static void indent(struct json_out* out, int level) {
 
 static void print_key(struct prettify_data* pd, const char* path, const char* name, int name_len) {
     if(pd->last_token != JSON_TYPE_INVALID && pd->last_token != JSON_TYPE_ARRAY_START &&
-       pd->last_token != JSON_TYPE_OBJECT_START) {
+            pd->last_token != JSON_TYPE_OBJECT_START) {
         pd->out->printer(pd->out, ",", 1);
     }
     if(path[0] != '\0') pd->out->printer(pd->out, "\n", 1);
@@ -1348,7 +1348,7 @@ static void prettify_cb(
     case JSON_TYPE_ARRAY_END:
         pd->level--;
         if(pd->last_token != JSON_TYPE_INVALID && pd->last_token != JSON_TYPE_ARRAY_START &&
-           pd->last_token != JSON_TYPE_OBJECT_START) {
+                pd->last_token != JSON_TYPE_OBJECT_START) {
             pd->out->printer(pd->out, "\n", 1);
             indent(pd->out, pd->level);
         }

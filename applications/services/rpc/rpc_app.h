@@ -36,7 +36,7 @@ typedef enum {
  */
 typedef struct {
     RpcAppSystemEventDataType
-        type; /**< Type of the data. The meaning of other fields depends on this one. */
+    type; /**< Type of the data. The meaning of other fields depends on this one. */
     union {
         const char* string; /**< Pointer to a zero-terminated character string. */
         int32_t i32; /**< Signed 32-bit integer value. */

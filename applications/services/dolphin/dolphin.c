@@ -141,19 +141,19 @@ static Dolphin* dolphin_alloc(void) {
     dolphin->event_loop = furi_event_loop_alloc();
 
     dolphin->butthurt_timer = furi_event_loop_timer_alloc(
-        dolphin->event_loop,
-        dolphin_butthurt_timer_callback,
-        FuriEventLoopTimerTypePeriodic,
-        dolphin);
+                                  dolphin->event_loop,
+                                  dolphin_butthurt_timer_callback,
+                                  FuriEventLoopTimerTypePeriodic,
+                                  dolphin);
 
     dolphin->flush_timer = furi_event_loop_timer_alloc(
-        dolphin->event_loop, dolphin_flush_timer_callback, FuriEventLoopTimerTypeOnce, dolphin);
+                               dolphin->event_loop, dolphin_flush_timer_callback, FuriEventLoopTimerTypeOnce, dolphin);
 
     dolphin->clear_limits_timer = furi_event_loop_timer_alloc(
-        dolphin->event_loop,
-        dolphin_clear_limits_timer_callback,
-        FuriEventLoopTimerTypePeriodic,
-        dolphin);
+                                      dolphin->event_loop,
+                                      dolphin_clear_limits_timer_callback,
+                                      FuriEventLoopTimerTypePeriodic,
+                                      dolphin);
 
     return dolphin;
 }
@@ -232,8 +232,8 @@ static bool dolphin_process_event(FuriEventLoopObject* object, void* context) {
     } else if(event.type == DolphinEventTypeStats) {
         event.stats->icounter = dolphin->state->data.icounter;
         event.stats->butthurt = (dolphin->state->data.flags & DolphinFlagHappyMode) ?
-                                    0 :
-                                    dolphin->state->data.butthurt;
+                                0 :
+                                dolphin->state->data.butthurt;
         event.stats->timestamp = dolphin->state->data.timestamp;
         event.stats->level = dolphin_get_level(dolphin->state->data.icounter);
         event.stats->level_up_is_pending =

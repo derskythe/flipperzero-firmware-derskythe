@@ -4,7 +4,7 @@
 
 /**
  * Generate data for protocol
- * 
+ *
  * @param instance Pointer to a SubGhzTxRx
  * @param preset_name Name of preset
  * @param frequency Frequency in Hz
@@ -23,7 +23,7 @@ bool subghz_txrx_gen_data_protocol(
 
 /**
  * Generate data for protocol and te
- * 
+ *
  * @param instance Pointer to a SubGhzTxRx
  * @param preset_name Name of preset
  * @param frequency Frequency in Hz
@@ -44,7 +44,7 @@ bool subghz_txrx_gen_data_protocol_and_te(
 
 /**
  * Generate data Keeloq protocol
- * 
+ *
  * @param instance Pointer to a SubGhzTxRx
  * @param preset_name Name of preset
  * @param frequency Frequency in Hz
@@ -117,7 +117,7 @@ bool subghz_txrx_gen_came_atomo_protocol(
 
 /**
  * Generate data SecPlus v2 protocol
- * 
+ *
  * @param instance Pointer to a SubGhzTxRx
  * @param name_preset Name of preset
  * @param frequency Frequency in Hz
@@ -136,7 +136,7 @@ bool subghz_txrx_gen_secplus_v2_protocol(
 
 /**
  * Generate data SecPlus v1 protocol
- * 
+ *
  * @param instance Pointer to a SubGhzTxRx
  * @param name_preset Name of preset
  * @param frequency Frequency in Hz
@@ -149,7 +149,7 @@ bool subghz_txrx_gen_secplus_v1_protocol(
 
 /**
  * Generate valid serial number for GangQi protocol
- * 
+ *
  * @return uint64_t if success
  */
 void subghz_txrx_gen_serial_gangqi(uint64_t* result_key);

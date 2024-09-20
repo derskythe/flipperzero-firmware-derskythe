@@ -28,7 +28,7 @@ static bool update_task_pre_update(UpdateTask* update_task) {
     /* to avoid bootloops */
     furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     if((success =
-            int_backup_create(update_task->storage, furi_string_get_cstr(backup_file_path)))) {
+                int_backup_create(update_task->storage, furi_string_get_cstr(backup_file_path)))) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeUpdate);
     }
 
@@ -118,7 +118,7 @@ static void update_task_cleanup_resources(UpdateTask* update_task) {
 
                     FURI_LOG_D(TAG, "Removing folder %s", furi_string_get_cstr(folder_path));
                     FS_Error result = storage_common_remove(
-                        update_task->storage, furi_string_get_cstr(folder_path));
+                                          update_task->storage, furi_string_get_cstr(folder_path));
                     if(result != FSE_OK && result != FSE_EXIST) {
                         FURI_LOG_E(
                             TAG,
@@ -164,7 +164,7 @@ static bool update_task_post_update(UpdateTask* update_task) {
                 file_path);
 
             CHECK_RESULT(tar_archive_open(
-                archive, furi_string_get_cstr(file_path), TarOpenModeReadHeatshrink));
+                             archive, furi_string_get_cstr(file_path), TarOpenModeReadHeatshrink));
 
             update_task_cleanup_resources(update_task);
 
@@ -179,9 +179,9 @@ static bool update_task_post_update(UpdateTask* update_task) {
             tmp_path = furi_string_alloc_set(update_task->update_path);
             path_append(tmp_path, furi_string_get_cstr(update_task->manifest->splash_file));
             if(storage_common_copy(
-                   update_task->storage,
-                   furi_string_get_cstr(tmp_path),
-                   INT_PATH(SLIDESHOW_FILE_NAME)) != FSE_OK) {
+                        update_task->storage,
+                        furi_string_get_cstr(tmp_path),
+                        INT_PATH(SLIDESHOW_FILE_NAME)) != FSE_OK) {
                 // actually, not critical
             }
             furi_string_free(tmp_path);

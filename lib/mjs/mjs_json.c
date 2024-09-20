@@ -63,16 +63,16 @@ static int snquote(char* buf, size_t size, const char* s, size_t len) {
     char* limit = buf + size;
     const char* end;
     /*
-   * String single character escape sequence:
-   * http://www.ecma-international.org/ecma-262/6.0/index.html#table-34
-   *
-   * 0x8 -> \b
-   * 0x9 -> \t
-   * 0xa -> \n
-   * 0xb -> \v
-   * 0xc -> \f
-   * 0xd -> \r
-   */
+    * String single character escape sequence:
+    * http://www.ecma-international.org/ecma-262/6.0/index.html#table-34
+    *
+    * 0x8 -> \b
+    * 0x9 -> \t
+    * 0xa -> \n
+    * 0xb -> \v
+    * 0xc -> \f
+    * 0xd -> \r
+    */
     const char* specials = "btnvfr";
     size_t i = 0;
 
@@ -105,9 +105,9 @@ static int snquote(char* buf, size_t size, const char* s, size_t len) {
         *buf = '\0';
     } else if(size != 0) {
         /*
-     * There is no room for the NULL char, but the size wasn't zero, so we can
-     * safely put NULL in the previous byte
-     */
+        * There is no room for the NULL char, but the size wasn't zero, so we can
+        * safely put NULL in the previous byte
+        */
         *(buf - 1) = '\0';
     }
     return i;
@@ -125,8 +125,8 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
     mjs_err_t rcode = MJS_OK;
     size_t len = 0;
     /*
-   * TODO(dfrank) : also push all `mjs_val_t`s that are declared below
-   */
+    * TODO(dfrank) : also push all `mjs_val_t`s that are declared below
+    */
 
     if(size > 0) *buf = '\0';
 
@@ -135,8 +135,8 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
     }
 
     for(vp = mjs->json_visited_stack.buf;
-        vp < mjs->json_visited_stack.buf + mjs->json_visited_stack.len;
-        vp += sizeof(mjs_val_t)) {
+            vp < mjs->json_visited_stack.buf + mjs->json_visited_stack.len;
+            vp += sizeof(mjs_val_t)) {
         if(*(mjs_val_t*)vp == v) {
             len = strlcpy(buf, "[Circular]", size);
             goto clean;
@@ -152,23 +152,23 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
     case MJS_TYPE_ARRAY_BUF:
     case MJS_TYPE_ARRAY_BUF_VIEW:
         /* For those types, regular `mjs_to_string()` works */
-        {
-            /* refactor: mjs_to_string allocates memory every time */
-            char* p = NULL;
-            int need_free = 0;
-            rcode = mjs_to_string(mjs, &v, &p, &len, &need_free);
-            c_snprintf(buf, size, "%.*s", (int)len, p);
-            if(need_free) {
-                free(p);
-            }
+    {
+        /* refactor: mjs_to_string allocates memory every time */
+        char* p = NULL;
+        int need_free = 0;
+        rcode = mjs_to_string(mjs, &v, &p, &len, &need_free);
+        c_snprintf(buf, size, "%.*s", (int)len, p);
+        if(need_free) {
+            free(p);
         }
-        goto clean;
+    }
+    goto clean;
 
     case MJS_TYPE_STRING: {
         /*
-       * For strings we can't just use `primitive_to_str()`, because we need
-       * quoted value
-       */
+        * For strings we can't just use `primitive_to_str()`, because we need
+        * quoted value
+        */
         size_t n;
         const char* str = mjs_get_string(mjs, &v, &n);
         len = snquote(buf, size, str, n);
@@ -209,7 +209,7 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
         b += c_snprintf(b, BUF_LEFT(size, b - buf), "}");
         mjs->json_visited_stack.len -= sizeof(v);
 
-    clean_iter:
+clean_iter:
         len = b - buf;
         goto clean;
     }
@@ -265,7 +265,7 @@ clean:
 }
 
 MJS_PRIVATE mjs_err_t
-    mjs_json_stringify(struct mjs* mjs, mjs_val_t v, char* buf, size_t size, char** res) {
+mjs_json_stringify(struct mjs* mjs, mjs_val_t v, char* buf, size_t size, char** res) {
     mjs_err_t rcode = MJS_OK;
     char* p = buf;
     size_t len;
@@ -285,9 +285,9 @@ MJS_PRIVATE mjs_err_t
 
 clean:
     /*
-   * If we're going to return an error, and we allocated a buffer, then free
-   * it. Otherwise, caller should free it.
-   */
+    * If we're going to return an error, and we allocated a buffer, then free
+    * it. Otherwise, caller should free it.
+    */
     if(rcode != MJS_OK && p != buf) {
         free(p);
     }
@@ -324,7 +324,7 @@ static struct json_parse_frame* alloc_json_frame(struct json_parse_ctx* ctx, mjs
 
 /* Free JSON parse frame, return the previous one (which may be NULL) */
 static struct json_parse_frame*
-    free_json_frame(struct json_parse_ctx* ctx, struct json_parse_frame* frame) {
+free_json_frame(struct json_parse_ctx* ctx, struct json_parse_frame* frame) {
     struct json_parse_frame* up = frame->up;
     mjs_disown(ctx->mjs, &frame->val);
     free(frame);
@@ -358,9 +358,9 @@ static void frozen_cb(
             free(dst);
         } else {
             /*
-         * This branch is for 0-len strings, and for malloc errors
-         * TODO(lsm): on malloc error, propagate the error upstream
-         */
+            * This branch is for 0-len strings, and for malloc errors
+            * TODO(lsm): on malloc error, propagate the error upstream
+            */
             v = mjs_mk_string(ctx->mjs, "", 0, 1 /* copy */);
         }
         break;
@@ -388,7 +388,8 @@ static void frozen_cb(
     case JSON_TYPE_ARRAY_END: {
         /* Object or array has finished: deallocate its frame */
         ctx->frame = free_json_frame(ctx, ctx->frame);
-    } break;
+    }
+    break;
 
     default:
         LOG(LL_ERROR, ("Wrong token type %d\n", token->type));
@@ -402,9 +403,9 @@ static void frozen_cb(
                 mjs_set(ctx->mjs, ctx->frame->val, name, name_len, v);
             } else if(mjs_is_array(ctx->frame->val)) {
                 /*
-         * TODO(dfrank): consult name_len. Currently it's not a problem due to
-         * the implementation details of frozen, but it might change
-         */
+                * TODO(dfrank): consult name_len. Currently it's not a problem due to
+                * the implementation details of frozen, but it might change
+                */
                 int idx = (int)strtod(name, NULL);
                 mjs_array_set(ctx->mjs, ctx->frame->val, idx, v);
             } else {
@@ -415,15 +416,15 @@ static void frozen_cb(
             assert(ctx->frame == NULL);
 
             /*
-       * This value will also be the overall result of JSON parsing
-       * (it's already owned by the `mjs_alt_json_parse()`)
-       */
+            * This value will also be the overall result of JSON parsing
+            * (it's already owned by the `mjs_alt_json_parse()`)
+            */
             ctx->result = v;
         }
 
         if(token->type == JSON_TYPE_OBJECT_START || token->type == JSON_TYPE_ARRAY_START) {
             /* New object or array has just started, so we need to allocate a frame
-       * for it */
+            * for it */
             struct json_parse_frame* new_frame = alloc_json_frame(ctx, v);
             new_frame->up = ctx->frame;
             ctx->frame = new_frame;
@@ -447,10 +448,10 @@ MJS_PRIVATE mjs_err_t mjs_json_parse(struct mjs* mjs, const char* str, size_t le
 
     {
         /*
-     * We have to reallocate the buffer before invoking json_walk, because
-     * frozen_cb can create new strings, which can result in the reallocation
-     * of mjs string mbuf, invalidating the `str` pointer.
-     */
+        * We have to reallocate the buffer before invoking json_walk, because
+        * frozen_cb can create new strings, which can result in the reallocation
+        * of mjs string mbuf, invalidating the `str` pointer.
+        */
         char* stmp = malloc(len);
         memcpy(stmp, str, len);
         json_res = json_walk(stmp, len, frozen_cb, ctx);

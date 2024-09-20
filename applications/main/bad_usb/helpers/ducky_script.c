@@ -392,10 +392,10 @@ static int32_t bad_usb_worker(void* context) {
     while(1) {
         if(worker_state == BadUsbStateInit) { // State: initialization
             if(storage_file_open(
-                   script_file,
-                   furi_string_get_cstr(bad_usb->file_path),
-                   FSAM_READ,
-                   FSOM_OPEN_EXISTING)) {
+                        script_file,
+                        furi_string_get_cstr(bad_usb->file_path),
+                        FSAM_READ,
+                        FSOM_OPEN_EXISTING)) {
                 if((ducky_script_preload(bad_usb, script_file)) && (bad_usb->st.line_nb > 0)) {
                     if(bad_usb->hid->is_connected(bad_usb->hid_inst)) {
                         worker_state = BadUsbStateIdle; // Ready to run
@@ -413,8 +413,8 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateNotConnected) { // State: USB not connected
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtStartStop,
-                FuriWaitForever);
+                                 WorkerEvtEnd | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtStartStop,
+                                 FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
@@ -427,7 +427,7 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateIdle) { // State: ready to start
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtDisconnect, FuriWaitForever);
+                                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtDisconnect, FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
@@ -451,7 +451,7 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateWillRun) { // State: start on connection
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtConnect | WorkerEvtStartStop, FuriWaitForever);
+                                 WorkerEvtEnd | WorkerEvtConnect | WorkerEvtStartStop, FuriWaitForever);
 
             if(flags & WorkerEvtEnd) {
                 break;
@@ -468,9 +468,9 @@ static int32_t bad_usb_worker(void* context) {
                 storage_file_seek(script_file, 0, true);
                 // extra time for PC to recognize Flipper as keyboard
                 flags = furi_thread_flags_wait(
-                    WorkerEvtEnd | WorkerEvtDisconnect | WorkerEvtStartStop,
-                    FuriFlagWaitAny | FuriFlagNoClear,
-                    1500);
+                            WorkerEvtEnd | WorkerEvtDisconnect | WorkerEvtStartStop,
+                            FuriFlagWaitAny | FuriFlagNoClear,
+                            1500);
                 if(flags == (unsigned)FuriFlagErrorTimeout) {
                     // If nothing happened - start script execution
                     worker_state = BadUsbStateRunning;
@@ -486,9 +486,9 @@ static int32_t bad_usb_worker(void* context) {
         } else if(worker_state == BadUsbStateRunning) { // State: running
             uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
             uint32_t flags = furi_thread_flags_wait(
-                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
-                FuriFlagWaitAny,
-                delay_cur);
+                                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                                 FuriFlagWaitAny,
+                                 delay_cur);
 
             delay_val -= delay_cur;
             if(!(flags & FuriFlagError)) {
@@ -542,8 +542,8 @@ static int32_t bad_usb_worker(void* context) {
             }
         } else if(worker_state == BadUsbStateWaitForBtn) { // State: Wait for button Press
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
-                FuriWaitForever);
+                                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                                 FuriWaitForever);
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
                     break;
@@ -559,8 +559,8 @@ static int32_t bad_usb_worker(void* context) {
             }
         } else if(worker_state == BadUsbStatePaused) { // State: Paused
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
-                FuriWaitForever);
+                                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                                 FuriWaitForever);
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
                     break;
@@ -591,10 +591,10 @@ static int32_t bad_usb_worker(void* context) {
             }
         } else if(worker_state == BadUsbStateStringDelay) { // State: print string with delays
             uint32_t delay = (bad_usb->stringdelay == 0) ? bad_usb->defstringdelay :
-                                                           bad_usb->stringdelay;
+                             bad_usb->stringdelay;
             uint32_t flags = bad_usb_flags_get(
-                WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
-                delay);
+                                 WorkerEvtEnd | WorkerEvtStartStop | WorkerEvtPauseResume | WorkerEvtDisconnect,
+                                 delay);
 
             if(!(flags & FuriFlagError)) {
                 if(flags & WorkerEvtEnd) {
@@ -691,7 +691,7 @@ void bad_usb_script_set_keyboard_layout(BadUsbScript* bad_usb, FuriString* layou
     File* layout_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
     if(!furi_string_empty(layout_path)) { //-V1051
         if(storage_file_open(
-               layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+                    layout_file, furi_string_get_cstr(layout_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
             uint16_t layout[128];
             if(storage_file_read(layout_file, layout, sizeof(layout)) == sizeof(layout)) {
                 memcpy(bad_usb->layout, layout, sizeof(layout));

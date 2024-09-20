@@ -50,7 +50,7 @@ void iso7816_xfr_datablock_callback(
     ISO7816_Command_APDU* command_apdu = (ISO7816_Command_APDU*)command_apdu_buffer;
 
     uint8_t result = iso7816_read_command_apdu(
-        command_apdu, pc_to_reader_datablock, pc_to_reader_datablock_len, CCID_SHORT_APDU_SIZE);
+                         command_apdu, pc_to_reader_datablock, pc_to_reader_datablock_len, CCID_SHORT_APDU_SIZE);
 
     if(result == ISO7816_READ_COMMAND_APDU_OK) {
         handler->iso7816_process_command(command_apdu, response_apdu);

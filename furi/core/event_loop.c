@@ -34,7 +34,7 @@ static bool furi_event_loop_item_is_waiting(FuriEventLoopItem* instance);
 
 static void furi_event_loop_process_pending_callbacks(FuriEventLoop* instance) {
     for(; !PendingQueue_empty_p(instance->pending_queue);
-        PendingQueue_pop_back(NULL, instance->pending_queue)) {
+            PendingQueue_pop_back(NULL, instance->pending_queue)) {
         const FuriEventLoopPendingQueueItem* item = PendingQueue_back(instance->pending_queue);
         item->callback(item->context);
     }
@@ -92,7 +92,7 @@ void furi_event_loop_free(FuriEventLoop* instance) {
 
     uint32_t flags = 0;
     BaseType_t ret = xTaskNotifyWaitIndexed(
-        FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0, FuriEventLoopFlagAll, &flags, 0);
+                         FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0, FuriEventLoopFlagAll, &flags, 0);
     if(ret == pdTRUE) {
         FURI_LOG_D(TAG, "Some events were not processed: 0x%lx", flags);
     }
@@ -101,7 +101,7 @@ void furi_event_loop_free(FuriEventLoop* instance) {
 }
 
 static inline FuriEventLoopProcessStatus
-    furi_event_loop_poll_process_level_event(FuriEventLoopItem* item) {
+furi_event_loop_poll_process_level_event(FuriEventLoopItem* item) {
     if(!item->contract->get_level(item->object, item->event)) {
         return FuriEventLoopProcessStatusComplete;
     } else if(item->callback(item->object, item->callback_context)) {
@@ -112,7 +112,7 @@ static inline FuriEventLoopProcessStatus
 }
 
 static inline FuriEventLoopProcessStatus
-    furi_event_loop_poll_process_edge_event(FuriEventLoopItem* item) {
+furi_event_loop_poll_process_edge_event(FuriEventLoopItem* item) {
     if(item->callback(item->object, item->callback_context)) {
         return FuriEventLoopProcessStatusComplete;
     } else {
@@ -121,7 +121,7 @@ static inline FuriEventLoopProcessStatus
 }
 
 static inline FuriEventLoopProcessStatus
-    furi_event_loop_poll_process_event(FuriEventLoop* instance, FuriEventLoopItem* item) {
+furi_event_loop_poll_process_event(FuriEventLoop* instance, FuriEventLoopItem* item) {
     FuriEventLoopProcessStatus status;
     if(item->event & FuriEventLoopEventFlagOnce) {
         furi_event_loop_unsubscribe(instance, item->object);
@@ -204,7 +204,7 @@ void furi_event_loop_run(FuriEventLoop* instance) {
 
         uint32_t flags = 0;
         BaseType_t ret = xTaskNotifyWaitIndexed(
-            FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0, FuriEventLoopFlagAll, &flags, ticks_to_sleep);
+                             FURI_EVENT_LOOP_FLAG_NOTIFY_INDEX, 0, FuriEventLoopFlagAll, &flags, ticks_to_sleep);
 
         instance->state = FuriEventLoopStateProcessing;
 
@@ -418,7 +418,7 @@ void furi_event_loop_unsubscribe(FuriEventLoop* instance, FuriEventLoopObject* o
     FURI_CRITICAL_EXIT();
 }
 
-/* 
+/*
  * Private Event Loop Item functions
  */
 

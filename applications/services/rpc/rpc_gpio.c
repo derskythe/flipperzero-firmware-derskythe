@@ -202,7 +202,7 @@ void rpc_system_gpio_get_otg_mode(const PB_Main* request, void* context) {
     response->command_id = request->command_id;
     response->which_content = PB_Main_gpio_get_otg_mode_response_tag;
     response->content.gpio_get_otg_mode_response.mode = otg_enabled ? PB_Gpio_GpioOtgMode_ON :
-                                                                      PB_Gpio_GpioOtgMode_OFF;
+        PB_Gpio_GpioOtgMode_OFF;
 
     rpc_send_and_release(session, response);
 

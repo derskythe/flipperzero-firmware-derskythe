@@ -80,12 +80,12 @@ static size_t expansion_worker_receive_callback(uint8_t* data, size_t data_size,
 
     while(true) {
         received_size += furi_stream_buffer_receive(
-            instance->rx_buf, data + received_size, data_size - received_size, 0);
+                             instance->rx_buf, data + received_size, data_size - received_size, 0);
 
         if(received_size == data_size) break;
 
         const uint32_t flags = furi_thread_flags_wait(
-            EXPANSION_ALL_FLAGS, FuriFlagWaitAny, furi_ms_to_ticks(EXPANSION_PROTOCOL_TIMEOUT_MS));
+                                   EXPANSION_ALL_FLAGS, FuriFlagWaitAny, furi_ms_to_ticks(EXPANSION_PROTOCOL_TIMEOUT_MS));
 
         if(flags & FuriFlagError) {
             if(flags == (unsigned)FuriFlagErrorTimeout) {
@@ -114,13 +114,13 @@ static size_t expansion_worker_receive_callback(uint8_t* data, size_t data_size,
 }
 
 static inline bool
-    expansion_worker_receive_frame(ExpansionWorker* instance, ExpansionFrame* frame) {
+expansion_worker_receive_frame(ExpansionWorker* instance, ExpansionFrame* frame) {
     return expansion_protocol_decode(frame, expansion_worker_receive_callback, instance) ==
            ExpansionProtocolStatusOk;
 }
 
 static size_t
-    expansion_worker_send_callback(const uint8_t* data, size_t data_size, void* context) {
+expansion_worker_send_callback(const uint8_t* data, size_t data_size, void* context) {
     ExpansionWorker* instance = context;
     furi_hal_serial_tx(instance->serial_handle, data, data_size);
     furi_hal_serial_tx_wait_complete(instance->serial_handle);
@@ -128,7 +128,7 @@ static size_t
 }
 
 static inline bool
-    expansion_worker_send_frame(ExpansionWorker* instance, const ExpansionFrame* frame) {
+expansion_worker_send_frame(ExpansionWorker* instance, const ExpansionFrame* frame) {
     return expansion_protocol_encode(frame, expansion_worker_send_callback, instance) ==
            ExpansionProtocolStatusOk;
 }
@@ -143,7 +143,7 @@ static bool expansion_worker_send_heartbeat(ExpansionWorker* instance) {
 }
 
 static bool
-    expansion_worker_send_status_response(ExpansionWorker* instance, ExpansionFrameError error) {
+expansion_worker_send_status_response(ExpansionWorker* instance, ExpansionFrameError error) {
     const ExpansionFrame frame = {
         .header.type = ExpansionFrameTypeStatus,
         .content.status.error = error,
@@ -173,8 +173,8 @@ static void expansion_worker_rpc_send_callback(void* context, uint8_t* data, siz
 
     for(size_t sent_data_size = 0; sent_data_size < data_size;) {
         if(furi_semaphore_acquire(
-               instance->tx_semaphore, furi_ms_to_ticks(EXPANSION_PROTOCOL_TIMEOUT_MS)) !=
-           FuriStatusOk) {
+                    instance->tx_semaphore, furi_ms_to_ticks(EXPANSION_PROTOCOL_TIMEOUT_MS)) !=
+                FuriStatusOk) {
             furi_thread_flags_set(furi_thread_get_id(instance->thread), ExpansionWorkerFlagError);
             break;
         }
@@ -281,10 +281,10 @@ static bool expansion_worker_handle_state_rpc_active(
             if(!expansion_worker_send_status_response(instance, ExpansionFrameErrorNone)) break;
 
             const size_t size_consumed = rpc_session_feed(
-                instance->rpc_session,
-                rx_frame->content.data.bytes,
-                rx_frame->content.data.size,
-                EXPANSION_PROTOCOL_TIMEOUT_MS);
+                                             instance->rpc_session,
+                                             rx_frame->content.data.bytes,
+                                             rx_frame->content.data.size,
+                                             EXPANSION_PROTOCOL_TIMEOUT_MS);
             if(size_consumed != rx_frame->content.data.size) break;
 
         } else if(rx_frame->header.type == ExpansionFrameTypeControl) {
@@ -375,7 +375,7 @@ ExpansionWorker* expansion_worker_alloc(FuriHalSerialId serial_id) {
     ExpansionWorker* instance = malloc(sizeof(ExpansionWorker));
 
     instance->thread = furi_thread_alloc_ex(
-        TAG "Worker", EXPANSION_WORKER_STACK_SZIE, expansion_worker, instance);
+                           TAG "Worker", EXPANSION_WORKER_STACK_SZIE, expansion_worker, instance);
     instance->rx_buf = furi_stream_buffer_alloc(EXPANSION_WORKER_BUFFER_SIZE, 1);
     instance->serial_id = serial_id;
 
