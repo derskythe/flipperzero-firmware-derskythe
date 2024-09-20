@@ -74,35 +74,35 @@ We designed the OTA update process to be as fail-safe as possible. We don't star
 
 Even if something goes wrong, updater allows you to retry failed operations and reports its state with an error code. These error codes have an `[XX-YY]` format, where `XX` encodes the failed operation, and `YY` contains extra details on its progress where the error occurred.
 
-|    Stage description    |   Code | Progress   | Description                                |
-| :---------------------: | -----: | ---------- | ------------------------------------------ |
-| Loading update manifest |  **1** | **13**     | Updater reported hardware version mismatch |
-|                         |        | **20**     | Failed to get saved manifest path          |
-|                         |        | **30**     | Failed to load manifest                    |
-|                         |        | **40**     | Unsupported update package version         |
-|                         |        | **50**     | Package has mismatching HW target          |
-|                         |        | **60**     | Missing DFU file                           |
-|                         |        | **80**     | Missing radio firmware file                |
-| Backing up configuration|  **2** | **0-100**  | FS read/write error                        |
-|    Checking radio FW    |  **3** | **0-99**   | Error reading radio firmware file          |
-|                         |        | **100**    | CRC mismatch                               |
-|  Uninstalling radio FW  |  **4** | **0**      | SHCI Delete command error                  |
-|                         |        | **80**     | Error awaiting command status              |
-|    Writing radio FW     |  **5** | **0-100**  | Block read/write error                     |
-|   Installing radio FW   |  **6** | **10**     | SHCI Install command error                 |
-|                         |        | **80**     | Error awaiting command status              |
-|      Core2 is busy      |  **7** | **10**     | Couldn't start C2                          |
-|                         |        | **20**     | Failed to switch C2 to FUS mode            |
-|                         |        | **30**     | Error in FUS operation                     |
-|                         |        | **50**     | Failed to switch C2 to stack mode          |
-|  Validating opt. bytes  |  **8** | **yy**     | Option byte code                           |
-|    Checking DFU file    |  **9** | **0**      | Error opening DFU file                     |
-|                         |        | **1-98**   | Error reading DFU file                     |
-|                         |        | **99-100** | Corrupted DFU file                         |
-|      Writing flash      | **10** | **0-100**  | Block read/write error                     |
-|    Validating flash     | **11** | **0-100**  | Block read/write error                     |
-| Restoring configuration | **12** | **0-100**  | FS read/write error                        |
-|   Updating resources    | **13-15** | **0-100**  | SD card read/write error                   |
+|    Stage description     |      Code | Progress   | Description                                |
+| :----------------------: | --------: | ---------- | ------------------------------------------ |
+| Loading update manifest  |     **1** | **13**     | Updater reported hardware version mismatch |
+|                          |           | **20**     | Failed to get saved manifest path          |
+|                          |           | **30**     | Failed to load manifest                    |
+|                          |           | **40**     | Unsupported update package version         |
+|                          |           | **50**     | Package has mismatching HW target          |
+|                          |           | **60**     | Missing DFU file                           |
+|                          |           | **80**     | Missing radio firmware file                |
+| Backing up configuration |     **2** | **0-100**  | FS read/write error                        |
+|    Checking radio FW     |     **3** | **0-99**   | Error reading radio firmware file          |
+|                          |           | **100**    | CRC mismatch                               |
+|  Uninstalling radio FW   |     **4** | **0**      | SHCI Delete command error                  |
+|                          |           | **80**     | Error awaiting command status              |
+|     Writing radio FW     |     **5** | **0-100**  | Block read/write error                     |
+|   Installing radio FW    |     **6** | **10**     | SHCI Install command error                 |
+|                          |           | **80**     | Error awaiting command status              |
+|      Core2 is busy       |     **7** | **10**     | Couldn't start C2                          |
+|                          |           | **20**     | Failed to switch C2 to FUS mode            |
+|                          |           | **30**     | Error in FUS operation                     |
+|                          |           | **50**     | Failed to switch C2 to stack mode          |
+|  Validating opt. bytes   |     **8** | **yy**     | Option byte code                           |
+|    Checking DFU file     |     **9** | **0**      | Error opening DFU file                     |
+|                          |           | **1-98**   | Error reading DFU file                     |
+|                          |           | **99-100** | Corrupted DFU file                         |
+|      Writing flash       |    **10** | **0-100**  | Block read/write error                     |
+|     Validating flash     |    **11** | **0-100**  | Block read/write error                     |
+| Restoring configuration  |    **12** | **0-100**  | FS read/write error                        |
+|    Updating resources    | **13-15** | **0-100**  | SD card read/write error                   |
 
 ## Building update packages
 

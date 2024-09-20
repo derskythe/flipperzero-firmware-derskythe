@@ -23,7 +23,7 @@
 Depending on the UART selected for communication, the following pins area available for the expansion modules to connect to:
 
 | UART   | Tx pin | Rx pin |
-|--------|--------|--------|
+| ------ | ------ | ------ |
 | USART  | 13     | 14     |
 | LPUART | 15     | 16     |
 
@@ -32,7 +32,7 @@ Depending on the UART selected for communication, the following pins area availa
 Each frame consists of a header (1 byte), contents (size depends of frame type) and checksum (1 byte) fields:
 
 | Header (1 byte) | Contents (0 or more bytes) | Checksum (1 byte) |
-|-----------------|----------------------------|-------------------|
+| --------------- | -------------------------- | ----------------- |
 | Frame type      | Frame payload              | XOR checksum      |
 
 ### Heartbeat frame
@@ -40,7 +40,7 @@ Each frame consists of a header (1 byte), contents (size depends of frame type) 
 HEARTBEAT frames are used to maintain an idle connection. In the event of not receiving any frames within Tto, either side must cease all communications and be ready to initiate the connection again.
 
 | Header (1 byte) | Checksum (1 byte) |
-|-----------------|-------------------|
+| --------------- | ----------------- |
 | 0x01            | XOR checksum      |
 
 Note that the contents field is not present (0 bytes length).
@@ -50,13 +50,13 @@ Note that the contents field is not present (0 bytes length).
 STATUS frames are used to report the status of a transaction. Every received frame MUST be confirmed by a matching STATUS response.
 
 | Header (1 byte) | Contents (1 byte) | Checksum (1 byte) |
-|-----------------|-------------------|-------------------|
+| --------------- | ----------------- | ----------------- |
 | 0x02            | Error code        | XOR checksum      |
 
 The `Error code` field SHALL have one of the following values:
 
 | Error code | Meaning                 |
-|------------|-------------------------|
+| ---------- | ----------------------- |
 | 0x00       | OK (No error)           |
 | 0x01       | Unknown error           |
 | 0x02       | Baud rate not supported |
@@ -66,7 +66,7 @@ The `Error code` field SHALL have one of the following values:
 BAUD RATE frames are used to negotiate communication speed. The initial connection SHALL always happen at 9600 baud. The first message sent by the module MUST be a BAUD RATE frame, even if a different speed is not required.
 
 | Header (1 byte) | Contents (4 bytes) | Checksum (1 byte) |
-|-----------------|--------------------|-------------------|
+| --------------- | ------------------ | ----------------- |
 | 0x03            | Baud rate          | XOR checksum      |
 
 If the requested baud rate is supported by the host, it SHALL respond with a STATUS frame with an OK error code, otherwise the error code SHALL be 0x02 (Baud rate not supported). Until the negotiation succeeds, the speed SHALL remain at 9600 baud. The module MAY send additional BAUD RATE frames with alternative speeds in case the initial request was refused. No other frames are allowed until the speed negotiation succeeds.
@@ -76,17 +76,17 @@ If the requested baud rate is supported by the host, it SHALL respond with a STA
 CONTROL frames are used to control various aspects of the communication and enable/disable various device features.
 
 | Header (1 byte) | Contents (1 byte) | Checksum (1 byte) |
-|-----------------|-------------------|-------------------|
+| --------------- | ----------------- | ----------------- |
 | 0x04            | Command           | XOR checksum      |
 
 The `Command` field SHALL have one of the followind values:
 
 | Command | Meaning                  | Note |
-|---------|--------------------------|:----:|
-| 0x00    | Start RPC session        | 1    |
-| 0x01    | Stop RPC session         | 2    |
-| 0x02    | Enable OTG (5V) on GPIO  | 3    |
-| 0x03    | Disable OTG (5V) on GPIO | 3    |
+| ------- | ------------------------ | :--: |
+| 0x00    | Start RPC session        |  1   |
+| 0x01    | Stop RPC session         |  2   |
+| 0x02    | Enable OTG (5V) on GPIO  |  3   |
+| 0x03    | Disable OTG (5V) on GPIO |  3   |
 
 Notes:
 
@@ -99,13 +99,13 @@ Notes:
 DATA frames are used to transmit arbitrary data in either direction. Each DATA frame can hold up to 64 bytes. If an RPC session is curretly open, all received bytes are forwarded to it.
 
 | Header (1 byte) | Contents (1 to 65 byte(s)) | Checksum (1 byte) |
-|-----------------|----------------------------|-------------------|
+| --------------- | -------------------------- | ----------------- |
 | 0x05            | Data                       | XOR checksum      |
 
 The `Data` field SHALL have the following structure:
 
 | Data size (1 byte) | Data (0 to 64 bytes) |
-|--------------------|----------------------|
+| ------------------ | -------------------- |
 | 0x00 ... 0x40      | Arbitrary data       |
 
 ## Communication flow
@@ -123,7 +123,7 @@ Pull down RX                -->
 Baud Rate                   -->
                             <--       Status [OK | Error]
                              |
-(Module changes baud rate    |        (Flipper changes 
+(Module changes baud rate    |        (Flipper changes
  and waits for Tdt)          |         baud rate)
                              |
 Control [Start RPC]         -->

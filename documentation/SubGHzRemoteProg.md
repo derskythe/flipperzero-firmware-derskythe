@@ -1,9 +1,11 @@
 # How to use Flipper as a new SubGHz remote (not clone of original remote)
 
 ### If your system is not added here that doesn't mean flipper don't support it! Look into add manually menu, and search for your manufacturers inscturctions!
+
 ### Also many supported systems can be used only from `Read` mode, `Add Manually` is used only to make new remotes that can be binded with receiver
 
 ## FAAC SLH (NEW!)
+
 1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> FAAC SLH (select your frequency)
 2. Open your new remote file
 3. Open your receiver box, find programming button on the receiver board.
@@ -12,24 +14,26 @@
 6. Release all buttons
 7. Press send button on the flipper couple times holding it for 1-3 seconds
 8. Done!
-Watch this video to learn more : https://www.youtube.com/watch?v=NfZmMy37XUs
+   Watch this video to learn more : https://www.youtube.com/watch?v=NfZmMy37XUs
 
 ...
-How to get Seed value from your original remote or bind new remote using existing (master) remote? 
+How to get Seed value from your original remote or bind new remote using existing (master) remote?
+
 1. Go to SubGHz -> Read - Select frequency 868.35 or 433.92 and modulation AM650
 2. Hold two buttons on the original master remote until led turns on
 3. Click one button that you want to get seed from (Seed is unique for each button on original remote!)
 4. You will get signal in the read screen on flipper, open that and see your original remote seed for button you used
-5. You can create new remote using that seed and bind that to receiver without opening the box! Faac has procedure that allows to bind new remotes using master remote, you can use flipper for that 
+5. You can create new remote using that seed and bind that to receiver without opening the box! Faac has procedure that allows to bind new remotes using master remote, you can use flipper for that
 6. Go to SubGHz -> Add Manually -> FAAC SLH Man. (your Freq)
 7. Enter those values -> REPLACE `R` with any random digits like 1,2,3..
-FIX -> A0 RR RR R6
-COUNTER -> 00 00 02
-SEED -> Your seed from the remote button you got earlier
+   FIX -> A0 RR RR R6
+   COUNTER -> 00 00 02
+   SEED -> Your seed from the remote button you got earlier
 8. Flipper will act as new remote, press Send button couple times near the receiver to register new remote
 9. Done!
 
 ## Dea Mio
+
 1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> Dea Mio 433Mhz
 2. Open your new remote file
 3. Right arrow button on the flipper simulates press of hidden button in original remote
@@ -39,6 +43,7 @@ SEED -> Your seed from the remote button you got earlier
 ## AN-Motors AT4
 
 **This instruction for older boards, if your has no** `Learn` **button but has buttons** `F`, `CL`, `+`, `-` **read instruction from Alutech AT4N**
+
 1. Create new remote with randomly generated serial: Go to SubGHz -> Add Manually -> AN-Motors AT4 433Mhz
 2. Open your new remote file
 3. Open your receiver box, find button `Learn` click it one time, led will turn on.
@@ -68,7 +73,7 @@ Watch this video to learn more and see how different boards can be programmed (v
 3. Push all 4 buttons at same time on your existing remote thats already works with receiver
 4. Receiver makes a continuous beep
 5. Press `Send` on your flipper for ~2 seconds
-6. Wait until receiver stops beeping 
+6. Wait until receiver stops beeping
 7. Done?
 
 ## Doorhan
@@ -91,7 +96,7 @@ Watch this videos to learn more (videos in Russian language): https://www.youtub
 4. Press and hold the ‘Prog’ button on the flipper (Left Arrow), until the blinds move shortly up and down again.
 5. Done?
 
-## BFT Mitto 
+## BFT Mitto
 
 How to create new remote and bind it to receiver (will not conflict with original remotes):
 
@@ -142,36 +147,40 @@ How to get seed to make full clone of your remote (**will conflict with original
 - Open your new remote file
 
 ### Coding using an existing remote
+
 To enter the code of a new remote control without using your receiver, you will need
 an authorised remote control (note: the first remote control must always be entered
 using the receiver key). Now, with the two remote controls (your already coded
 remote, and your new remote), which we shall call NEW (the one whose code we want
 to enter) and OLD (the authorised one), position yourself within 3m of the gate/garage
 receiver and then:
+
 1. Press and hold the `Send` button on the flipper for at least 5 seconds and then
-release.
+   release.
 2. Press the button on the already programmed remote 3 times slowly.
 3. Press the `Send` button on the flipper slowly and then release.
 
 ### Coding directly to your receiver
+
 Your new remote will program to your receiver as per your original remote
 instructions, so please refer to your manual. But for a typical NICE FLOX2R Receiver,
 the programming procedure is as follows:
+
 1. Press the learning button on your receiver for 1-2 seconds. The LED will turn on
-for 5 seconds. Within 5 seconds, complete the next step.
+   for 5 seconds. Within 5 seconds, complete the next step.
 2. Press a `Send` button on your flipper until the LED on your receiver turns off.
 3. Release the remote button and wait for 2 seconds.
 4. Press the `Send` button on your flipper again. The LED on your receiver
-will now flash 3 times. This indicates that your remote has been successfully
-coded. If this does not happen, repeat the whole procedure from the
-beginning, and try again.
+   will now flash 3 times. This indicates that your remote has been successfully
+   coded. If this does not happen, repeat the whole procedure from the
+   beginning, and try again.
 5. Wait 5 seconds. Press the button on your new remote to test if it opens your
-garage/gate.
-
+   garage/gate.
 
 #### Follow links below to find more detailed instructions!!!
 
 #### Materials used:
+
 - [FAAC SLH](https://www.youtube.com/watch?v=NfZmMy37XUs)
 - [Somfy Telis](https://pushstack.wordpress.com/somfy-rts-protocol/)
 - [BFT Mitto](https://www.retroremotes.com.au/wp-content/uploads/2017/03/BFT-MITTO-2-4-19-6-17.pdf)
