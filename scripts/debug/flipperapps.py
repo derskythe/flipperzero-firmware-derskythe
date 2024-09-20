@@ -2,7 +2,10 @@ import posixpath
 import struct
 import zlib
 from dataclasses import dataclass
-from typing import ClassVar, Dict, Optional, Tuple
+from typing import ClassVar
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 import gdb
 
