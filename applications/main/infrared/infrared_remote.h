@@ -108,7 +108,7 @@ bool infrared_remote_get_signal_index(
  * @return InfraredErrorCodeNone if the signal was successfully loaded, otherwise error code.
  */
 InfraredErrorCode
-infrared_remote_load_signal(const InfraredRemote* remote, InfraredSignal* signal, size_t index);
+    infrared_remote_load_signal(const InfraredRemote* remote, InfraredSignal* signal, size_t index);
 
 /**
  * @brief Append a signal to the file associated with an InfraredRemote instance.
@@ -159,7 +159,7 @@ InfraredErrorCode infrared_remote_insert_signal(
  * @returns InfraredErrorCodeNone if the signal was successfully renamed, otherwise error code.
  */
 InfraredErrorCode
-infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const char* new_name);
+    infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const char* new_name);
 
 /**
  * @brief Change a signal's position in the file associated with an InfraredRemote instance.
@@ -173,7 +173,7 @@ infrared_remote_rename_signal(InfraredRemote* remote, size_t index, const char* 
  * code describing what error happened ORed with index pointing which signal caused an error.
  */
 InfraredErrorCode
-infrared_remote_move_signal(InfraredRemote* remote, size_t index, size_t new_index);
+    infrared_remote_move_signal(InfraredRemote* remote, size_t index, size_t new_index);
 
 /**
  * @brief Delete a signal in the file associated with an InfraredRemote instance.

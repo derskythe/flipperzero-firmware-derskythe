@@ -60,7 +60,7 @@ const SubGhzProtocol subghz_protocol_marantec24 = {
     .name = SUBGHZ_PROTOCOL_MARANTEC24_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_868 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-    SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_marantec24_decoder,
     .encoder = &subghz_protocol_marantec24_encoder,
@@ -92,7 +92,7 @@ void subghz_protocol_encoder_marantec24_free(void* context) {
  * @param instance Pointer to a SubGhzProtocolEncoderMarantec24 instance
  */
 static void
-subghz_protocol_encoder_marantec24_get_upload(SubGhzProtocolEncoderMarantec24* instance) {
+    subghz_protocol_encoder_marantec24_get_upload(SubGhzProtocolEncoderMarantec24* instance) {
     furi_assert(instance);
     size_t index = 0;
 
@@ -105,12 +105,12 @@ subghz_protocol_encoder_marantec24_get_upload(SubGhzProtocolEncoderMarantec24* i
             if(i == 1) {
                 //Send gap if bit was last
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false,
-                                                        (uint32_t)subghz_protocol_marantec24_const.te_long * 9 +
-                                                        subghz_protocol_marantec24_const.te_short);
+                    false,
+                    (uint32_t)subghz_protocol_marantec24_const.te_long * 9 +
+                        subghz_protocol_marantec24_const.te_short);
             } else {
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false, (uint32_t)subghz_protocol_marantec24_const.te_long * 2);
+                    false, (uint32_t)subghz_protocol_marantec24_const.te_long * 2);
             }
         } else {
             // Send bit 0
@@ -119,12 +119,12 @@ subghz_protocol_encoder_marantec24_get_upload(SubGhzProtocolEncoderMarantec24* i
             if(i == 1) {
                 //Send gap if bit was last
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false,
-                                                        (uint32_t)subghz_protocol_marantec24_const.te_long * 9 +
-                                                        subghz_protocol_marantec24_const.te_short);
+                    false,
+                    (uint32_t)subghz_protocol_marantec24_const.te_long * 9 +
+                        subghz_protocol_marantec24_const.te_short);
             } else {
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false, (uint32_t)subghz_protocol_marantec24_const.te_short * 3);
+                    false, (uint32_t)subghz_protocol_marantec24_const.te_short * 3);
             }
         }
     }
@@ -143,15 +143,15 @@ static void subghz_protocol_marantec24_check_remote_controller(SubGhzBlockGeneri
 }
 
 SubGhzProtocolStatus
-subghz_protocol_encoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format) {
+    subghz_protocol_encoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderMarantec24* instance = context;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-                  &instance->generic,
-                  flipper_format,
-                  subghz_protocol_marantec24_const.min_count_bit_for_found);
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_marantec24_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
@@ -242,9 +242,9 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
         if(!level) {
             // Bit 0 is long and short x2 timing = 1600us HIGH (te_last) and 2400us LOW
             if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_marantec24_const.te_long) <
-                    subghz_protocol_marantec24_const.te_delta) &&
-                    (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_short * 3) <
-                     subghz_protocol_marantec24_const.te_delta)) {
+                subghz_protocol_marantec24_const.te_delta) &&
+               (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_short * 3) <
+                subghz_protocol_marantec24_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 instance->decoder.parser_step = Marantec24DecoderStepSaveDuration;
                 // Bit 1 is short and long x2 timing = 800us HIGH (te_last) and 3200us LOW
@@ -262,22 +262,22 @@ void subghz_protocol_decoder_marantec24_feed(void* context, bool level, volatile
                 subghz_protocol_marantec24_const.te_delta * 4) {
                 //Found next GAP and add bit 0 or 1 (only bit 0 was found on the remotes)
                 if((DURATION_DIFF(
-                            instance->decoder.te_last, subghz_protocol_marantec24_const.te_long) <
-                        subghz_protocol_marantec24_const.te_delta) &&
-                        (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                         subghz_protocol_marantec24_const.te_delta * 4)) {
+                        instance->decoder.te_last, subghz_protocol_marantec24_const.te_long) <
+                    subghz_protocol_marantec24_const.te_delta) &&
+                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
+                    subghz_protocol_marantec24_const.te_delta * 4)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 }
                 if((DURATION_DIFF(
-                            instance->decoder.te_last, subghz_protocol_marantec24_const.te_short) <
-                        subghz_protocol_marantec24_const.te_delta) &&
-                        (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
-                         subghz_protocol_marantec24_const.te_delta * 4)) {
+                        instance->decoder.te_last, subghz_protocol_marantec24_const.te_short) <
+                    subghz_protocol_marantec24_const.te_delta) &&
+                   (DURATION_DIFF(duration, subghz_protocol_marantec24_const.te_long * 9) <
+                    subghz_protocol_marantec24_const.te_delta * 4)) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 // If got 24 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
-                        subghz_protocol_marantec24_const.min_count_bit_for_found) {
+                   subghz_protocol_marantec24_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
                     if(instance->base.callback)
@@ -300,7 +300,7 @@ uint8_t subghz_protocol_decoder_marantec24_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderMarantec24* instance = context;
     return subghz_protocol_blocks_get_hash_data(
-               &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
+        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_marantec24_serialize(
@@ -313,13 +313,13 @@ SubGhzProtocolStatus subghz_protocol_decoder_marantec24_serialize(
 }
 
 SubGhzProtocolStatus
-subghz_protocol_decoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format) {
+    subghz_protocol_decoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderMarantec24* instance = context;
     return subghz_block_generic_deserialize_check_count_bit(
-               &instance->generic,
-               flipper_format,
-               subghz_protocol_marantec24_const.min_count_bit_for_found);
+        &instance->generic,
+        flipper_format,
+        subghz_protocol_marantec24_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_marantec24_get_string(void* context, FuriString* output) {

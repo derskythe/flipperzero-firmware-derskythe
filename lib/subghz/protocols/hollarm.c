@@ -62,7 +62,7 @@ const SubGhzProtocol subghz_protocol_hollarm = {
     .name = SUBGHZ_PROTOCOL_HOLLARM_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-    SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_hollarm_decoder,
     .encoder = &subghz_protocol_hollarm_encoder,
@@ -186,10 +186,10 @@ static void subghz_protocol_encoder_hollarm_get_upload(SubGhzProtocolEncoderHoll
             if(i == 1) {
                 //Send gap if bit was last
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false, (uint32_t)subghz_protocol_hollarm_const.te_short * 12);
+                    false, (uint32_t)subghz_protocol_hollarm_const.te_short * 12);
             } else {
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false, (uint32_t)subghz_protocol_hollarm_const.te_short * 8);
+                    false, (uint32_t)subghz_protocol_hollarm_const.te_short * 8);
             }
         } else {
             // Send bit 0
@@ -198,7 +198,7 @@ static void subghz_protocol_encoder_hollarm_get_upload(SubGhzProtocolEncoderHoll
             if(i == 1) {
                 //Send gap if bit was last
                 instance->encoder.upload[index++] = level_duration_make(
-                                                        false, (uint32_t)subghz_protocol_hollarm_const.te_short * 12);
+                    false, (uint32_t)subghz_protocol_hollarm_const.te_short * 12);
             } else {
                 instance->encoder.upload[index++] =
                     level_duration_make(false, (uint32_t)subghz_protocol_hollarm_const.te_long);
@@ -241,15 +241,15 @@ static void subghz_protocol_hollarm_remote_controller(SubGhzBlockGeneric* instan
 }
 
 SubGhzProtocolStatus
-subghz_protocol_encoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
+    subghz_protocol_encoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderHollarm* instance = context;
     SubGhzProtocolStatus ret = SubGhzProtocolStatusError;
     do {
         ret = subghz_block_generic_deserialize_check_count_bit(
-                  &instance->generic,
-                  flipper_format,
-                  subghz_protocol_hollarm_const.min_count_bit_for_found);
+            &instance->generic,
+            flipper_format,
+            subghz_protocol_hollarm_const.min_count_bit_for_found);
         if(ret != SubGhzProtocolStatusOk) {
             break;
         }
@@ -349,9 +349,9 @@ void subghz_protocol_decoder_hollarm_feed(void* context, bool level, volatile ui
         if(!level) {
             // Bit 0 is short 200us HIGH + long 1000us LOW timing
             if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_hollarm_const.te_short) <
-                    subghz_protocol_hollarm_const.te_delta) &&
-                    (DURATION_DIFF(duration, subghz_protocol_hollarm_const.te_long) <
-                     subghz_protocol_hollarm_const.te_delta)) {
+                subghz_protocol_hollarm_const.te_delta) &&
+               (DURATION_DIFF(duration, subghz_protocol_hollarm_const.te_long) <
+                subghz_protocol_hollarm_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 instance->decoder.parser_step = HollarmDecoderStepSaveDuration;
                 // Bit 1 is short 200us HIGH + short x8 = 1600us LOW timing
@@ -372,7 +372,7 @@ void subghz_protocol_decoder_hollarm_feed(void* context, bool level, volatile ui
 
                 // If got 42 bits key reading is finished
                 if(instance->decoder.decode_count_bit ==
-                        subghz_protocol_hollarm_const.min_count_bit_for_found) {
+                   subghz_protocol_hollarm_const.min_count_bit_for_found) {
                     // Saving with 2bit to the right offset for proper parsing
                     instance->generic.data = (instance->decoder.decode_data >> 2);
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -413,8 +413,7 @@ static const char* subghz_protocol_hollarm_get_button_name(uint8_t btn) {
         "Not used\n(in settings)",
         "Volume setting",
         "0xE",
-        "0xF"
-    };
+        "0xF"};
     return btn <= 0xf ? name_btn[btn] : name_btn[0];
 }
 
@@ -422,7 +421,7 @@ uint8_t subghz_protocol_decoder_hollarm_get_hash_data(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderHollarm* instance = context;
     return subghz_protocol_blocks_get_hash_data(
-               &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
+        &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
 SubGhzProtocolStatus subghz_protocol_decoder_hollarm_serialize(
@@ -435,11 +434,11 @@ SubGhzProtocolStatus subghz_protocol_decoder_hollarm_serialize(
 }
 
 SubGhzProtocolStatus
-subghz_protocol_decoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
+    subghz_protocol_decoder_hollarm_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderHollarm* instance = context;
     return subghz_block_generic_deserialize_check_count_bit(
-               &instance->generic, flipper_format, subghz_protocol_hollarm_const.min_count_bit_for_found);
+        &instance->generic, flipper_format, subghz_protocol_hollarm_const.min_count_bit_for_found);
 }
 
 void subghz_protocol_decoder_hollarm_get_string(void* context, FuriString* output) {

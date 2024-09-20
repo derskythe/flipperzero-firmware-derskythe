@@ -56,7 +56,7 @@ static FuriHalNfcError furi_hal_nfc_felica_poller_init(FuriHalSpiBusHandle* hand
         handle,
         ST25R3916_REG_CORR_CONF1,
         ST25R3916_REG_CORR_CONF1_corr_s6 | ST25R3916_REG_CORR_CONF1_corr_s4 |
-        ST25R3916_REG_CORR_CONF1_corr_s3);
+            ST25R3916_REG_CORR_CONF1_corr_s3);
 
     return FuriHalNfcErrorNone;
 }
@@ -74,7 +74,7 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
         handle,
         ST25R3916_REG_OP_CONTROL,
         ST25R3916_REG_OP_CONTROL_en | ST25R3916_REG_OP_CONTROL_rx_en |
-        ST25R3916_REG_OP_CONTROL_en_fd_auto_efd);
+            ST25R3916_REG_OP_CONTROL_en_fd_auto_efd);
 
     // Enable Target Felica mode, AM modulation
     st25r3916_write_reg(
@@ -99,7 +99,7 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
         handle,
         ST25R3916_REG_RX_CONF2,
         ST25R3916_REG_RX_CONF2_agc6_3 | ST25R3916_REG_RX_CONF2_agc_m |
-        ST25R3916_REG_RX_CONF2_agc_en | ST25R3916_REG_RX_CONF2_sqm_dyn);
+            ST25R3916_REG_RX_CONF2_agc_en | ST25R3916_REG_RX_CONF2_sqm_dyn);
     // HF operation, full gain on AM and PM channels
     st25r3916_write_reg(handle, ST25R3916_REG_RX_CONF3, 0x00);
     // No gain reduction on AM and PM channels
@@ -112,7 +112,7 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
         handle,
         ST25R3916_REG_CORR_CONF1,
         ST25R3916_REG_CORR_CONF1_corr_s6 | ST25R3916_REG_CORR_CONF1_corr_s4 |
-        ST25R3916_REG_CORR_CONF1_corr_s2);
+            ST25R3916_REG_CORR_CONF1_corr_s2);
 
     // Sleep mode disable, 424kHz mode off
     st25r3916_write_reg(handle, ST25R3916_REG_CORR_CONF2, 0x00);
@@ -133,7 +133,7 @@ static FuriHalNfcError furi_hal_nfc_felica_listener_init(FuriHalSpiBusHandle* ha
         handle,
         ST25R3916_REG_PASSIVE_TARGET,
         ST25R3916_REG_PASSIVE_TARGET_d_106_ac_a | ST25R3916_REG_PASSIVE_TARGET_d_ac_ap2p |
-        ST25R3916_REG_PASSIVE_TARGET_fdel_1);
+            ST25R3916_REG_PASSIVE_TARGET_fdel_1);
     // Enable interrupts
     st25r3916_mask_irq(handle, ~interrupts);
     st25r3916_direct_cmd(handle, ST25R3916_CMD_GOTO_SENSE);
@@ -197,31 +197,31 @@ FuriHalNfcError furi_hal_nfc_felica_listener_set_sensf_res_data(
 
 const FuriHalNfcTechBase furi_hal_nfc_felica = {
     .poller =
-    {
-        .compensation =
         {
-            .fdt = FURI_HAL_NFC_POLLER_FDT_COMP_FC,
-            .fwt = FURI_HAL_NFC_POLLER_FWT_COMP_FC,
+            .compensation =
+                {
+                    .fdt = FURI_HAL_NFC_POLLER_FDT_COMP_FC,
+                    .fwt = FURI_HAL_NFC_POLLER_FWT_COMP_FC,
+                },
+            .init = furi_hal_nfc_felica_poller_init,
+            .deinit = furi_hal_nfc_felica_poller_deinit,
+            .wait_event = furi_hal_nfc_wait_event_common,
+            .tx = furi_hal_nfc_poller_tx_common,
+            .rx = furi_hal_nfc_common_fifo_rx,
         },
-        .init = furi_hal_nfc_felica_poller_init,
-        .deinit = furi_hal_nfc_felica_poller_deinit,
-        .wait_event = furi_hal_nfc_wait_event_common,
-        .tx = furi_hal_nfc_poller_tx_common,
-        .rx = furi_hal_nfc_common_fifo_rx,
-    },
 
     .listener =
-    {
-        .compensation =
         {
-            .fdt = FURI_HAL_NFC_FELICA_LISTENER_FDT_COMP_FC,
+            .compensation =
+                {
+                    .fdt = FURI_HAL_NFC_FELICA_LISTENER_FDT_COMP_FC,
+                },
+            .init = furi_hal_nfc_felica_listener_init,
+            .deinit = furi_hal_nfc_felica_listener_deinit,
+            .wait_event = furi_hal_nfc_felica_listener_wait_event,
+            .tx = furi_hal_nfc_felica_listener_tx,
+            .rx = furi_hal_nfc_common_fifo_rx,
+            .sleep = furi_hal_nfc_felica_listener_sleep,
+            .idle = furi_hal_nfc_felica_listener_idle,
         },
-        .init = furi_hal_nfc_felica_listener_init,
-        .deinit = furi_hal_nfc_felica_listener_deinit,
-        .wait_event = furi_hal_nfc_felica_listener_wait_event,
-        .tx = furi_hal_nfc_felica_listener_tx,
-        .rx = furi_hal_nfc_common_fifo_rx,
-        .sleep = furi_hal_nfc_felica_listener_sleep,
-        .idle = furi_hal_nfc_felica_listener_idle,
-    },
 };

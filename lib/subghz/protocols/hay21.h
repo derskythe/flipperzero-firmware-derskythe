@@ -31,7 +31,7 @@ void subghz_protocol_encoder_hay21_free(void* context);
  * @return status
  */
 SubGhzProtocolStatus
-subghz_protocol_encoder_hay21_deserialize(void* context, FlipperFormat* flipper_format);
+    subghz_protocol_encoder_hay21_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -99,7 +99,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_hay21_serialize(
  * @return status
  */
 SubGhzProtocolStatus
-subghz_protocol_decoder_hay21_deserialize(void* context, FlipperFormat* flipper_format);
+    subghz_protocol_decoder_hay21_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

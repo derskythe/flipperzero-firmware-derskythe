@@ -42,7 +42,7 @@ const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
 };
 
 const uint32_t auto_lock_delay_value[AUTO_LOCK_DELAY_COUNT] =
-{0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
+    {0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
 
 #define CLOCK_ENABLE_COUNT 2
 const char* const clock_enable_text[CLOCK_ENABLE_COUNT] = {
@@ -55,7 +55,7 @@ const uint32_t clock_enable_value[CLOCK_ENABLE_COUNT] = {0, 1};
 #define BATTERY_VIEW_COUNT 6
 
 const char* const battery_view_count_text[BATTERY_VIEW_COUNT] =
-{"Bar", "%", "Inv. %", "Retro 3", "Retro 5", "Bar %"};
+    {"Bar", "%", "Inv. %", "Retro 3", "Retro 5", "Bar %"};
 
 const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {
     DISPLAY_BATTERY_BAR,
@@ -63,8 +63,7 @@ const uint32_t displayBatteryPercentage_value[BATTERY_VIEW_COUNT] = {
     DISPLAY_BATTERY_INVERTED_PERCENT,
     DISPLAY_BATTERY_RETRO_3,
     DISPLAY_BATTERY_RETRO_5,
-    DISPLAY_BATTERY_BAR_PERCENT
-};
+    DISPLAY_BATTERY_BAR_PERCENT};
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -105,37 +104,37 @@ void desktop_settings_scene_start_on_enter(void* context) {
     variable_item_list_add(variable_item_list, "PIN Setup", 1, NULL, NULL);
 
     item = variable_item_list_add(
-               variable_item_list,
-               "Auto Lock Time",
-               AUTO_LOCK_DELAY_COUNT,
-               desktop_settings_scene_start_auto_lock_delay_changed,
-               app);
+        variable_item_list,
+        "Auto Lock Time",
+        AUTO_LOCK_DELAY_COUNT,
+        desktop_settings_scene_start_auto_lock_delay_changed,
+        app);
 
     value_index = value_index_uint32(
-                      app->settings.auto_lock_delay_ms, auto_lock_delay_value, AUTO_LOCK_DELAY_COUNT);
+        app->settings.auto_lock_delay_ms, auto_lock_delay_value, AUTO_LOCK_DELAY_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, auto_lock_delay_text[value_index]);
 
     item = variable_item_list_add(
-               variable_item_list,
-               "Battery View",
-               BATTERY_VIEW_COUNT,
-               desktop_settings_scene_start_battery_view_changed,
-               app);
+        variable_item_list,
+        "Battery View",
+        BATTERY_VIEW_COUNT,
+        desktop_settings_scene_start_battery_view_changed,
+        app);
 
     value_index = value_index_uint32(
-                      app->settings.displayBatteryPercentage,
-                      displayBatteryPercentage_value,
-                      BATTERY_VIEW_COUNT);
+        app->settings.displayBatteryPercentage,
+        displayBatteryPercentage_value,
+        BATTERY_VIEW_COUNT);
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, battery_view_count_text[value_index]);
 
     item = variable_item_list_add(
-               variable_item_list,
-               "Show Clock",
-               CLOCK_ENABLE_COUNT,
-               desktop_settings_scene_start_clock_enable_changed,
-               app);
+        variable_item_list,
+        "Show Clock",
+        CLOCK_ENABLE_COUNT,
+        desktop_settings_scene_start_clock_enable_changed,
+        app);
 
     value_index =
         value_index_uint32(app->settings.display_clock, clock_enable_value, CLOCK_ENABLE_COUNT);
@@ -177,10 +176,10 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinMenu);
             break;
 
-        // case DesktopSettingsAutoLockDelay:
-        // case DesktopSettingsBatteryDisplay:
-        // case DesktopSettingsClockDisplay:
-        // Proces in default
+            // case DesktopSettingsAutoLockDelay:
+            // case DesktopSettingsBatteryDisplay:
+            // case DesktopSettingsClockDisplay:
+            // Proces in default
 
         case DesktopSettingsChangeName:
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneChangeName);

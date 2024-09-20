@@ -135,8 +135,8 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
     }
 
     for(vp = mjs->json_visited_stack.buf;
-            vp < mjs->json_visited_stack.buf + mjs->json_visited_stack.len;
-            vp += sizeof(mjs_val_t)) {
+        vp < mjs->json_visited_stack.buf + mjs->json_visited_stack.len;
+        vp += sizeof(mjs_val_t)) {
         if(*(mjs_val_t*)vp == v) {
             len = strlcpy(buf, "[Circular]", size);
             goto clean;
@@ -152,17 +152,17 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
     case MJS_TYPE_ARRAY_BUF:
     case MJS_TYPE_ARRAY_BUF_VIEW:
         /* For those types, regular `mjs_to_string()` works */
-    {
-        /* refactor: mjs_to_string allocates memory every time */
-        char* p = NULL;
-        int need_free = 0;
-        rcode = mjs_to_string(mjs, &v, &p, &len, &need_free);
-        c_snprintf(buf, size, "%.*s", (int)len, p);
-        if(need_free) {
-            free(p);
+        {
+            /* refactor: mjs_to_string allocates memory every time */
+            char* p = NULL;
+            int need_free = 0;
+            rcode = mjs_to_string(mjs, &v, &p, &len, &need_free);
+            c_snprintf(buf, size, "%.*s", (int)len, p);
+            if(need_free) {
+                free(p);
+            }
         }
-    }
-    goto clean;
+        goto clean;
 
     case MJS_TYPE_STRING: {
         /*
@@ -209,7 +209,7 @@ MJS_PRIVATE mjs_err_t to_json_or_debug(
         b += c_snprintf(b, BUF_LEFT(size, b - buf), "}");
         mjs->json_visited_stack.len -= sizeof(v);
 
-clean_iter:
+    clean_iter:
         len = b - buf;
         goto clean;
     }
@@ -265,7 +265,7 @@ clean:
 }
 
 MJS_PRIVATE mjs_err_t
-mjs_json_stringify(struct mjs* mjs, mjs_val_t v, char* buf, size_t size, char** res) {
+    mjs_json_stringify(struct mjs* mjs, mjs_val_t v, char* buf, size_t size, char** res) {
     mjs_err_t rcode = MJS_OK;
     char* p = buf;
     size_t len;
@@ -324,7 +324,7 @@ static struct json_parse_frame* alloc_json_frame(struct json_parse_ctx* ctx, mjs
 
 /* Free JSON parse frame, return the previous one (which may be NULL) */
 static struct json_parse_frame*
-free_json_frame(struct json_parse_ctx* ctx, struct json_parse_frame* frame) {
+    free_json_frame(struct json_parse_ctx* ctx, struct json_parse_frame* frame) {
     struct json_parse_frame* up = frame->up;
     mjs_disown(ctx->mjs, &frame->val);
     free(frame);
@@ -388,8 +388,7 @@ static void frozen_cb(
     case JSON_TYPE_ARRAY_END: {
         /* Object or array has finished: deallocate its frame */
         ctx->frame = free_json_frame(ctx, ctx->frame);
-    }
-    break;
+    } break;
 
     default:
         LOG(LL_ERROR, ("Wrong token type %d\n", token->type));

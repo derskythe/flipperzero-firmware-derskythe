@@ -316,7 +316,7 @@ static bool nfc_save_internal(NfcApp* instance, const char* extension) {
     nfc_make_app_folders(instance);
 
     if(furi_string_end_with(instance->file_path, NFC_APP_EXTENSION) ||
-            (furi_string_end_with(instance->file_path, NFC_APP_SHADOW_EXTENSION))) {
+       (furi_string_end_with(instance->file_path, NFC_APP_SHADOW_EXTENSION))) {
         size_t filename_start = furi_string_search_rchar(instance->file_path, '/');
         furi_string_left(instance->file_path, filename_start);
     }
@@ -413,7 +413,7 @@ bool nfc_load_from_file_select(NfcApp* instance) {
     do {
         // Input events and views are managed by file_browser
         if(!dialog_file_browser_show(
-                    instance->dialogs, instance->file_path, instance->file_path, &browser_options))
+               instance->dialogs, instance->file_path, instance->file_path, &browser_options))
             break;
         success = nfc_load_file(instance, instance->file_path, true);
     } while(!success);
@@ -465,8 +465,8 @@ static void nfc_show_initial_scene_for_device(NfcApp* nfc) {
     NfcProtocol prot = nfc_device_get_protocol(nfc->nfc_device);
     uint32_t scene = nfc_protocol_support_has_feature(
                          prot, NfcProtocolFeatureEmulateFull | NfcProtocolFeatureEmulateUid) ?
-                     NfcSceneEmulate :
-                     NfcSceneSavedMenu;
+                         NfcSceneEmulate :
+                         NfcSceneSavedMenu;
     // Load plugins (parsers) in case if we are in the saved menu
     if(scene == NfcSceneSavedMenu) {
         nfc_show_loading_popup(nfc, true);

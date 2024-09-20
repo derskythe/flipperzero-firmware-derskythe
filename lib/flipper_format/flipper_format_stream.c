@@ -286,41 +286,34 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                 case FlipperStreamValueStr: {
                     const char* data = write_data->data;
                     furi_string_printf(value, "%s", data);
-                };
-                break;
+                }; break;
                 case FlipperStreamValueHex: {
                     const uint8_t* data = write_data->data;
                     furi_string_printf(value, "%02X", data[i]);
-                };
-                break;
+                }; break;
 #ifndef FLIPPER_STREAM_LITE
                 case FlipperStreamValueFloat: {
                     const float* data = write_data->data;
                     furi_string_printf(value, "%f", (double)data[i]);
-                };
-                break;
+                }; break;
 #endif
                 case FlipperStreamValueInt32: {
                     const int32_t* data = write_data->data;
                     furi_string_printf(value, "%" PRIi32, data[i]);
-                };
-                break;
+                }; break;
                 case FlipperStreamValueUint32: {
                     const uint32_t* data = write_data->data;
                     furi_string_printf(value, "%" PRIu32, data[i]);
-                };
-                break;
+                }; break;
                 case FlipperStreamValueHexUint64: {
                     const uint64_t* data = write_data->data;
                     furi_string_printf(
                         value, "%08lX%08lX", (uint32_t)(data[i] >> 32), (uint32_t)data[i]);
-                };
-                break;
+                }; break;
                 case FlipperStreamValueBool: {
                     const bool* data = write_data->data;
                     furi_string_printf(value, data[i] ? "true" : "false");
-                };
-                break;
+                }; break;
                 default:
                     furi_crash("Unknown FF type");
                 }
@@ -330,7 +323,7 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                 }
 
                 if(!flipper_format_stream_write(
-                            stream, furi_string_get_cstr(value), furi_string_size(value))) {
+                       stream, furi_string_get_cstr(value), furi_string_size(value))) {
                     cycle_error = true;
                     break;
                 }
@@ -382,14 +375,13 @@ bool flipper_format_stream_read_value_line(
                         if(furi_string_size(value) >= 2) {
                             // sscanf "%02X" does not work here
                             if(hex_char_to_uint8(
-                                        furi_string_get_char(value, 0),
-                                        furi_string_get_char(value, 1),
-                                        &data[i])) {
+                                   furi_string_get_char(value, 0),
+                                   furi_string_get_char(value, 1),
+                                   &data[i])) {
                                 scan_values = 1;
                             }
                         }
-                    };
-                    break;
+                    }; break;
 #ifndef FLIPPER_STREAM_LITE
                     case FlipperStreamValueFloat: {
                         float* data = _data;
@@ -401,25 +393,22 @@ bool flipper_format_stream_read_value_line(
                             // most likely ok
                             scan_values = 1;
                         }
-                    };
-                    break;
+                    }; break;
 #endif
                     case FlipperStreamValueInt32: {
                         int32_t* data = _data;
                         if(strint_to_int32(furi_string_get_cstr(value), NULL, &data[i], 10) ==
-                                StrintParseNoError) {
+                           StrintParseNoError) {
                             scan_values = 1;
                         }
-                    };
-                    break;
+                    }; break;
                     case FlipperStreamValueUint32: {
                         uint32_t* data = _data;
                         if(strint_to_uint32(furi_string_get_cstr(value), NULL, &data[i], 10) ==
-                                StrintParseNoError) {
+                           StrintParseNoError) {
                             scan_values = 1;
                         }
-                    };
-                    break;
+                    }; break;
                     case FlipperStreamValueHexUint64: {
                         uint64_t* data = _data;
                         if(furi_string_size(value) >= 16) {
@@ -427,14 +416,12 @@ bool flipper_format_stream_read_value_line(
                                 scan_values = 1;
                             }
                         }
-                    };
-                    break;
+                    }; break;
                     case FlipperStreamValueBool: {
                         bool* data = _data;
                         data[i] = !furi_string_cmpi(value, "true");
                         scan_values = 1;
-                    };
-                    break;
+                    }; break;
                     default:
                         furi_crash("Unknown FF type");
                     }
@@ -531,10 +518,10 @@ bool flipper_format_stream_delete_key_and_write(
 
         if(!stream_seek(stream, start_position, StreamOffsetFromStart)) break;
         if(!stream_delete_and_insert(
-                    stream,
-                    end_position - start_position,
-                    (StreamWriteCB)flipper_format_stream_write_value_line,
-                    write_data))
+               stream,
+               end_position - start_position,
+               (StreamWriteCB)flipper_format_stream_write_value_line,
+               write_data))
             break;
 
         result = true;

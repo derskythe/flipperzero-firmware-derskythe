@@ -531,7 +531,7 @@ FS_Error storage_int_backup(Storage* storage, const char* dstname);
  * @return FSE_OK if the storage was successfully restored, any other error code on failure.
  */
 FS_Error
-storage_int_restore(Storage* storage, const char* dstname, StorageNameConverter converter);
+    storage_int_restore(Storage* storage, const char* dstname, StorageNameConverter converter);
 
 /***************** Simplified Functions ******************/
 

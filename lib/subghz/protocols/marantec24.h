@@ -31,7 +31,7 @@ void subghz_protocol_encoder_marantec24_free(void* context);
  * @return status
  */
 SubGhzProtocolStatus
-subghz_protocol_encoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format);
+    subghz_protocol_encoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Forced transmission stop.
@@ -99,7 +99,7 @@ SubGhzProtocolStatus subghz_protocol_decoder_marantec24_serialize(
  * @return status
  */
 SubGhzProtocolStatus
-subghz_protocol_decoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format);
+    subghz_protocol_decoder_marantec24_deserialize(void* context, FlipperFormat* flipper_format);
 
 /**
  * Getting a textual representation of the received data.

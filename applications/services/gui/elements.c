@@ -283,7 +283,7 @@ void elements_button_center(Canvas* canvas, const char* str) {
 }
 
 static size_t
-elements_get_max_chars_to_fit(Canvas* canvas, Align horizontal, const char* text, int32_t x) {
+    elements_get_max_chars_to_fit(Canvas* canvas, Align horizontal, const char* text, int32_t x) {
     const char* end = strchr(text, '\n');
     if(end == NULL) {
         end = text + strlen(text);
@@ -953,7 +953,7 @@ void elements_text_box(
                 if((i == line_num - 1) && strip_to_dots) {
                     size_t next_symbol_width = canvas_glyph_width(canvas, line[i].text[j]);
                     if((line[i].x + (int32_t)next_symbol_width + (int32_t)dots_width) >
-                            (x + (int32_t)width)) {
+                       (x + (int32_t)width)) {
                         canvas_draw_str(canvas, line[i].x, line[i].y, "...");
                         break;
                     }

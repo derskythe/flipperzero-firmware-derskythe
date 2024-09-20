@@ -177,7 +177,7 @@ bool ibutton_load_key(iButton* ibutton, bool show_error) {
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewLoading);
 
     const bool success = ibutton_protocols_load(
-                             ibutton->protocols, ibutton->key, furi_string_get_cstr(ibutton->file_path));
+        ibutton->protocols, ibutton->key, furi_string_get_cstr(ibutton->file_path));
 
     if(success) {
         FuriString* tmp = furi_string_alloc();
@@ -206,7 +206,7 @@ bool ibutton_select_and_load_key(iButton* ibutton) {
 
     do {
         if(!dialog_file_browser_show(
-                    ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options))
+               ibutton->dialogs, ibutton->file_path, ibutton->file_path, &browser_options))
             break;
         success = ibutton_load_key(ibutton, true);
     } while(!success);

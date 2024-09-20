@@ -13,15 +13,15 @@
 #define INFRARED_TASK_STACK_SIZE    (2048UL)
 
 static const NotificationSequence*
-infrared_notification_sequences[InfraredNotificationMessageCount] = {
-    &sequence_success,
-    &sequence_set_only_green_255,
-    &sequence_reset_green,
-    &sequence_solid_yellow,
-    &sequence_reset_rgb,
-    &sequence_blink_start_cyan,
-    &sequence_blink_start_magenta,
-    &sequence_blink_stop,
+    infrared_notification_sequences[InfraredNotificationMessageCount] = {
+        &sequence_success,
+        &sequence_set_only_green_255,
+        &sequence_reset_green,
+        &sequence_solid_yellow,
+        &sequence_reset_rgb,
+        &sequence_blink_start_cyan,
+        &sequence_blink_start_magenta,
+        &sequence_blink_stop,
 };
 
 static void infrared_make_app_folder(InfraredApp* infrared) {
@@ -317,7 +317,7 @@ InfraredErrorCode infrared_add_remote_with_button(
 }
 
 InfraredErrorCode
-infrared_rename_current_remote(const InfraredApp* infrared, const char* new_name) {
+    infrared_rename_current_remote(const InfraredApp* infrared, const char* new_name) {
     InfraredRemote* remote = infrared->remote;
     const char* old_path = infrared_remote_get_path(remote);
 
@@ -471,11 +471,11 @@ static void infrared_load_settings(InfraredApp* infrared) {
     InfraredSettings settings = {0};
 
     if(!saved_struct_load(
-                INFRARED_SETTINGS_PATH,
-                &settings,
-                sizeof(InfraredSettings),
-                INFRARED_SETTINGS_MAGIC,
-                INFRARED_SETTINGS_VERSION)) {
+           INFRARED_SETTINGS_PATH,
+           &settings,
+           sizeof(InfraredSettings),
+           INFRARED_SETTINGS_MAGIC,
+           INFRARED_SETTINGS_VERSION)) {
         FURI_LOG_D(TAG, "Failed to load settings, using defaults");
         infrared_save_settings(infrared);
     }
@@ -493,11 +493,11 @@ void infrared_save_settings(InfraredApp* infrared) {
     };
 
     if(!saved_struct_save(
-                INFRARED_SETTINGS_PATH,
-                &settings,
-                sizeof(InfraredSettings),
-                INFRARED_SETTINGS_MAGIC,
-                INFRARED_SETTINGS_VERSION)) {
+           INFRARED_SETTINGS_PATH,
+           &settings,
+           sizeof(InfraredSettings),
+           INFRARED_SETTINGS_MAGIC,
+           INFRARED_SETTINGS_VERSION)) {
         FURI_LOG_E(TAG, "Failed to save settings");
     }
 }
@@ -566,8 +566,8 @@ int32_t infrared_app(void* p) {
                 is_remote_loaded = false;
                 bool wrong_file_type = INFRARED_ERROR_CHECK(error, InfraredErrorCodeWrongFileType);
                 const char* format = wrong_file_type ?
-                                     "Library file\n\"%s\" can't be openned as a remote" :
-                                     "Failed to load\n\"%s\"";
+                                         "Library file\n\"%s\" can't be openned as a remote" :
+                                         "Failed to load\n\"%s\"";
 
                 infrared_show_error_message(infrared, format, file_path);
                 return -1;

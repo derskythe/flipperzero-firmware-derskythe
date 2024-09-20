@@ -222,8 +222,8 @@ static const struct {
 static const char* update_task_get_error_message(UpdateTaskStage stage, uint8_t percent) {
     for(size_t i = 0; i < COUNT_OF(update_task_error_detail); i++) {
         if(update_task_error_detail[i].stage == stage &&
-                percent >= update_task_error_detail[i].percent_min &&
-                percent <= update_task_error_detail[i].percent_max) {
+           percent >= update_task_error_detail[i].percent_min &&
+           percent <= update_task_error_detail[i].percent_max) {
             return update_task_error_detail[i].descr;
         }
     }
@@ -236,7 +236,10 @@ typedef struct {
 } UpdateTaskStageGroupMap;
 
 #define STAGE_DEF(GROUP, WEIGHT) \
-    { .group = (GROUP), .weight = (WEIGHT), }
+    {                            \
+        .group = (GROUP),        \
+        .weight = (WEIGHT),      \
+    }
 
 static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageProgress] = STAGE_DEF(UpdateTaskStageGroupMisc, 0),
@@ -292,8 +295,8 @@ static UpdateTaskStageGroup update_task_get_task_groups(UpdateTask* update_task)
 static void update_task_calc_completed_stages(UpdateTask* update_task) {
     uint32_t completed_stages_points = 0;
     for(UpdateTaskStage past_stage = UpdateTaskStageProgress;
-            past_stage < update_task->state.stage;
-            ++past_stage) {
+        past_stage < update_task->state.stage;
+        ++past_stage) {
         const UpdateTaskStageGroupMap* grp_descr = &update_task_stage_progress[past_stage];
         if((grp_descr->group & update_task->state.groups) == 0) {
             continue;
@@ -340,10 +343,10 @@ void update_task_set_progress(UpdateTask* update_task, UpdateTaskStage stage, ui
     if(update_task->state.total_progress_points != 0) {
         if(stage < UpdateTaskStageCompleted) {
             adapted_progress = MIN(
-                                   (update_task->state.completed_stages_points +
-                                    (update_task_stage_progress[update_task->state.stage].weight * progress / 100)) *
-                                   100 / (update_task->state.total_progress_points),
-                                   100u);
+                (update_task->state.completed_stages_points +
+                 (update_task_stage_progress[update_task->state.stage].weight * progress / 100)) *
+                    100 / (update_task->state.total_progress_points),
+                100u);
 
         } else {
             adapted_progress = update_task->state.overall_progress;
@@ -387,7 +390,7 @@ bool update_task_open_file(UpdateTask* update_task, FuriString* filename) {
     tmp_path = furi_string_alloc_set(update_task->update_path);
     path_append(tmp_path, furi_string_get_cstr(filename));
     bool open_success = storage_file_open(
-                            update_task->file, furi_string_get_cstr(tmp_path), FSAM_READ, FSOM_OPEN_EXISTING);
+        update_task->file, furi_string_get_cstr(tmp_path), FSAM_READ, FSOM_OPEN_EXISTING);
     furi_string_free(tmp_path);
     return open_success;
 }
@@ -421,7 +424,7 @@ UpdateTask* update_task_alloc(void) {
     update_task->update_path = furi_string_alloc();
 
     FuriThread* thread = update_task->thread =
-                             furi_thread_alloc_ex("UpdateWorker", 5120, NULL, update_task);
+        furi_thread_alloc_ex("UpdateWorker", 5120, NULL, update_task);
 
     furi_thread_set_state_callback(thread, update_task_worker_thread_cb);
     furi_thread_set_state_context(thread, update_task);
@@ -473,7 +476,7 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
 
         update_task_set_progress(update_task, UpdateTaskStageProgress, 20);
         if(!update_operation_get_current_package_manifest_path(
-                    update_task->storage, manifest_path)) {
+               update_task->storage, manifest_path)) {
             break;
         }
 
@@ -493,13 +496,13 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
         update_task_set_progress(update_task, UpdateTaskStageProgress, 50);
         /* Check target only if it's set - skipped for pre-production samples */
         if(furi_hal_version_get_hw_target() &&
-                (manifest->target != furi_hal_version_get_hw_target())) {
+           (manifest->target != furi_hal_version_get_hw_target())) {
             break;
         }
 
         update_task->state.groups = update_task_get_task_groups(update_task);
         for(size_t stage_counter = 0; stage_counter < COUNT_OF(update_task_stage_progress);
-                ++stage_counter) {
+            ++stage_counter) {
             const UpdateTaskStageGroupMap* grp_descr = &update_task_stage_progress[stage_counter];
             if((grp_descr->group & update_task->state.groups) != 0) {
                 update_task->state.total_progress_points += grp_descr->weight;
@@ -508,14 +511,14 @@ bool update_task_parse_manifest(UpdateTask* update_task) {
 
         update_task_set_progress(update_task, UpdateTaskStageProgress, 60);
         if((update_task->state.groups & UpdateTaskStageGroupFirmware) &&
-                !update_task_check_file_exists(update_task, manifest->firmware_dfu_image)) {
+           !update_task_check_file_exists(update_task, manifest->firmware_dfu_image)) {
             break;
         }
 
         update_task_set_progress(update_task, UpdateTaskStageProgress, 80);
         if((update_task->state.groups & UpdateTaskStageGroupRadio) &&
-                (!update_task_check_file_exists(update_task, manifest->radio_image) ||
-                 (manifest->radio_version.version.type == 0))) {
+           (!update_task_check_file_exists(update_task, manifest->radio_image) ||
+            (manifest->radio_version.version.type == 0))) {
             break;
         }
 

@@ -67,8 +67,7 @@ static bool storage_file_open_internal(
             .access_mode = access_mode,
             .open_mode = open_mode,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     file->type = FileTypeOpenFile;
 
@@ -82,7 +81,7 @@ static void storage_file_close_callback(const void* message, void* context) {
     const StorageEvent* storage_event = message;
 
     if(storage_event->type == StorageEventTypeFileClose ||
-            storage_event->type == StorageEventTypeDirClose) {
+       storage_event->type == StorageEventTypeDirClose) {
         furi_assert(context);
         FuriEventFlag* event = context;
         furi_event_flag_set(event, StorageEventFlagFileClose);
@@ -99,7 +98,7 @@ bool storage_file_open(
     bool result;
     FuriEventFlag* event = furi_event_flag_alloc();
     FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
-            storage_get_pubsub(file->storage), storage_file_close_callback, event);
+        storage_get_pubsub(file->storage), storage_file_close_callback, event);
 
     do {
         result = storage_file_open_internal(file, path, access_mode, open_mode);
@@ -156,8 +155,7 @@ static uint16_t storage_file_read_underlying(File* file, void* buff, uint16_t by
             .file = file,
             .buff = buff,
             .bytes_to_read = bytes_to_read,
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandFileRead);
     S_API_EPILOGUE;
@@ -165,7 +163,7 @@ static uint16_t storage_file_read_underlying(File* file, void* buff, uint16_t by
 }
 
 static uint16_t
-storage_file_write_underlying(File* file, const void* buff, uint16_t bytes_to_write) {
+    storage_file_write_underlying(File* file, const void* buff, uint16_t bytes_to_write) {
     if(bytes_to_write == 0) {
         return 0;
     }
@@ -178,8 +176,7 @@ storage_file_write_underlying(File* file, const void* buff, uint16_t bytes_to_wr
             .file = file,
             .buff = buff,
             .bytes_to_write = bytes_to_write,
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandFileWrite);
     S_API_EPILOGUE;
@@ -231,8 +228,7 @@ bool storage_file_seek(File* file, uint32_t offset, bool from_start) {
             .file = file,
             .offset = offset,
             .from_start = from_start,
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandFileSeek);
     S_API_EPILOGUE;
@@ -332,8 +328,7 @@ static bool storage_dir_open_internal(File* file, const char* path) {
             .file = file,
             .path = path,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     file->type = FileTypeOpenDir;
 
@@ -348,7 +343,7 @@ bool storage_dir_open(File* file, const char* path) {
     bool result;
     FuriEventFlag* event = furi_event_flag_alloc();
     FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
-            storage_get_pubsub(file->storage), storage_file_close_callback, event);
+        storage_get_pubsub(file->storage), storage_file_close_callback, event);
 
     do {
         result = storage_dir_open_internal(file, path);
@@ -402,8 +397,7 @@ bool storage_dir_read(File* file, FileInfo* fileinfo, char* name, uint16_t name_
             .fileinfo = fileinfo,
             .name = name,
             .name_length = name_length,
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandDirRead);
     S_API_EPILOGUE;
@@ -443,8 +437,7 @@ FS_Error storage_common_timestamp(Storage* storage, const char* path, uint32_t* 
             .path = path,
             .timestamp = timestamp,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonTimestamp);
     S_API_EPILOGUE;
@@ -460,8 +453,7 @@ FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* filei
             .path = path,
             .fileinfo = fileinfo,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonStat);
     S_API_EPILOGUE;
@@ -476,8 +468,7 @@ FS_Error storage_common_remove(Storage* storage, const char* path) {
         .path = {
             .path = path,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonRemove);
     S_API_EPILOGUE;
@@ -531,7 +522,7 @@ FS_Error storage_common_rename(Storage* storage, const char* old_path, const cha
 }
 
 static FS_Error
-storage_copy_recursive(Storage* storage, const char* old_path, const char* new_path) {
+    storage_copy_recursive(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error = storage_common_mkdir(storage, new_path);
     DirWalk* dir_walk = dir_walk_alloc(storage);
     FuriString* path;
@@ -567,9 +558,9 @@ storage_copy_recursive(Storage* storage, const char* old_path, const char* new_p
                     error = storage_common_mkdir(storage, furi_string_get_cstr(tmp_new_path));
                 } else {
                     error = storage_common_copy(
-                                storage,
-                                furi_string_get_cstr(tmp_old_path),
-                                furi_string_get_cstr(tmp_new_path));
+                        storage,
+                        furi_string_get_cstr(tmp_old_path),
+                        furi_string_get_cstr(tmp_new_path));
                 }
 
                 if(error != FSE_OK) break;
@@ -620,7 +611,7 @@ FS_Error storage_common_copy(Storage* storage, const char* old_path, const char*
 }
 
 static FS_Error
-storage_merge_recursive(Storage* storage, const char* old_path, const char* new_path) {
+    storage_merge_recursive(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error = FSE_OK;
     DirWalk* dir_walk = dir_walk_alloc(storage);
     FuriString *path, *file_basename, *tmp_new_path;
@@ -652,7 +643,7 @@ storage_merge_recursive(Storage* storage, const char* old_path, const char* new_
 
                 if(file_info_is_dir(&fileinfo)) {
                     if(storage_common_stat(
-                                storage, furi_string_get_cstr(tmp_new_path), &fileinfo) == FSE_OK) {
+                           storage, furi_string_get_cstr(tmp_new_path), &fileinfo) == FSE_OK) {
                         if(file_info_is_dir(&fileinfo)) {
                             error =
                                 storage_common_mkdir(storage, furi_string_get_cstr(tmp_new_path));
@@ -663,7 +654,7 @@ storage_merge_recursive(Storage* storage, const char* old_path, const char* new_
                     }
                 }
                 error = storage_common_merge(
-                            storage, furi_string_get_cstr(path), furi_string_get_cstr(tmp_new_path));
+                    storage, furi_string_get_cstr(path), furi_string_get_cstr(tmp_new_path));
 
                 if(error != FSE_OK) {
                     break;
@@ -758,8 +749,7 @@ FS_Error storage_common_mkdir(Storage* storage, const char* path) {
         .path = {
             .path = path,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonMkDir);
     S_API_EPILOGUE;
@@ -781,8 +771,7 @@ FS_Error storage_common_fs_info(
             .total_space = total_space,
             .free_space = free_space,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonFSInfo);
     S_API_EPILOGUE;
@@ -798,8 +787,7 @@ void storage_common_resolve_path_and_ensure_app_directory(Storage* storage, Furi
         .cresolvepath = {
             .path = path,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonResolvePath);
     S_API_EPILOGUE;
@@ -843,8 +831,7 @@ static bool storage_internal_equivalent_path(
             .path2 = path2,
             .check_subdir = check_subdir,
             .thread_id = furi_thread_get_current_id(),
-        }
-    };
+        }};
 
     S_API_MESSAGE(StorageCommandCommonEquivalentPath);
     S_API_EPILOGUE;
@@ -920,8 +907,7 @@ FS_Error storage_sd_info(Storage* storage, SDInfo* info) {
     SAData data = {
         .sdinfo = {
             .info = info,
-        }
-    };
+        }};
     S_API_MESSAGE(StorageCommandSDInfo);
     S_API_EPILOGUE;
     return S_RETURN_ERROR;

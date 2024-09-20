@@ -46,7 +46,7 @@ static bool animation_storage_load_single_manifest_info(
         /* skip other animation names */
         flipper_format_set_strict_mode(file, false);
         while(flipper_format_read_string(file, "Name", read_string) &&
-                furi_string_cmp_str(read_string, name))
+              furi_string_cmp_str(read_string, name))
             ;
         if(furi_string_cmp_str(read_string, name)) break;
         flipper_format_set_strict_mode(file, true);
@@ -180,7 +180,7 @@ StorageAnimationManifestInfo* animation_storage_get_meta(StorageAnimation* stora
 }
 
 const BubbleAnimation*
-animation_storage_get_bubble_animation(StorageAnimation* storage_animation) {
+    animation_storage_get_bubble_animation(StorageAnimation* storage_animation) {
     furi_assert(storage_animation);
     animation_storage_cache_animation(storage_animation);
     return storage_animation->animation;
@@ -308,7 +308,7 @@ static bool animation_storage_load_frames(
             break;
         }
         if(!storage_file_open(
-                    file, furi_string_get_cstr(filename), FSAM_READ, FSOM_OPEN_EXISTING)) {
+               file, furi_string_get_cstr(filename), FSAM_READ, FSOM_OPEN_EXISTING)) {
             FURI_LOG_E(TAG, "Can't open file \'%s\'", furi_string_get_cstr(filename));
             break;
         }

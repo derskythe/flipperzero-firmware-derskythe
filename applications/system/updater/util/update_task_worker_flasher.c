@@ -97,7 +97,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
     storage_file_seek(update_task->file, 0, true);
 
     if(!check_address_boundaries(update_task->manifest->radio_address) ||
-            !check_address_boundaries(update_task->manifest->radio_address + stack_size)) {
+       !check_address_boundaries(update_task->manifest->radio_address + stack_size)) {
         return false;
     }
 

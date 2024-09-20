@@ -126,7 +126,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     do {
         if(!flipper_format_file_open_existing(
-                    instance->flipper_format, furi_string_get_cstr(instance->file_path))) {
+               instance->flipper_format, furi_string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
                 TAG,
                 "Unable to open file for read: %s",
@@ -151,7 +151,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
             if(stream_read_line(stream, instance->str_data)) {
                 furi_string_trim(instance->str_data);
                 if(!subghz_file_encoder_worker_data_parse(
-                            instance, furi_string_get_cstr(instance->str_data))) {
+                       instance, furi_string_get_cstr(instance->str_data))) {
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
                     break;
                 }
@@ -170,7 +170,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
 
     FURI_LOG_I(TAG, "End read file");
     while(instance->device && !subghz_devices_is_async_complete_tx(instance->device) &&
-            instance->worker_running) {
+          instance->worker_running) {
         furi_delay_ms(5);
     }
 

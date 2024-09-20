@@ -65,19 +65,19 @@ typedef bool (*NfcWorkerPollerStateHandler)(Nfc* instance);
 
 static const FuriHalNfcTech nfc_tech_table[NfcModeNum][NfcTechNum] = {
     [NfcModePoller] =
-    {
-        [NfcTechIso14443a] = FuriHalNfcTechIso14443a,
-        [NfcTechIso14443b] = FuriHalNfcTechIso14443b,
-        [NfcTechIso15693] = FuriHalNfcTechIso15693,
-        [NfcTechFelica] = FuriHalNfcTechFelica,
-    },
+        {
+            [NfcTechIso14443a] = FuriHalNfcTechIso14443a,
+            [NfcTechIso14443b] = FuriHalNfcTechIso14443b,
+            [NfcTechIso15693] = FuriHalNfcTechIso15693,
+            [NfcTechFelica] = FuriHalNfcTechFelica,
+        },
     [NfcModeListener] =
-    {
-        [NfcTechIso14443a] = FuriHalNfcTechIso14443a,
-        [NfcTechIso14443b] = FuriHalNfcTechInvalid,
-        [NfcTechIso15693] = FuriHalNfcTechIso15693,
-        [NfcTechFelica] = FuriHalNfcTechFelica,
-    },
+        {
+            [NfcTechIso14443a] = FuriHalNfcTechIso14443a,
+            [NfcTechIso14443b] = FuriHalNfcTechInvalid,
+            [NfcTechIso15693] = FuriHalNfcTechIso15693,
+            [NfcTechFelica] = FuriHalNfcTechFelica,
+        },
 };
 
 static NfcError nfc_process_hal_error(FuriHalNfcError error) {
@@ -273,7 +273,7 @@ void nfc_config(Nfc* instance, NfcMode mode, NfcTech tech) {
         furi_crash("Unsupported mode for given tech");
     }
     FuriHalNfcMode hal_mode = (mode == NfcModePoller) ? FuriHalNfcModePoller :
-                              FuriHalNfcModeListener;
+                                                        FuriHalNfcModeListener;
     furi_hal_nfc_low_power_mode_stop();
     furi_hal_nfc_set_mode(hal_mode, hal_tech);
 
@@ -441,7 +441,7 @@ NfcError nfc_iso14443a_poller_trx_custom_parity(
         }
 
         error = furi_hal_nfc_poller_rx(
-                    instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
+            instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
         if(error != FuriHalNfcErrorNone) {
             FURI_LOG_D(TAG, "Failed in poller RX");
             ret = nfc_process_hal_error(error);
@@ -461,7 +461,7 @@ NfcError nfc_iso14443a_poller_trx_custom_parity(
 }
 
 NfcError
-nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt) {
+    nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt) {
     furi_check(instance);
     furi_check(tx_buffer);
     furi_check(rx_buffer);
@@ -492,7 +492,7 @@ nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, 
         }
 
         error = furi_hal_nfc_poller_rx(
-                    instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
+            instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
         if(error != FuriHalNfcErrorNone) {
             FURI_LOG_D(TAG, "Failed in poller RX");
             ret = nfc_process_hal_error(error);
@@ -528,8 +528,8 @@ NfcError nfc_iso14443a_poller_trx_short_frame(
     furi_check(rx_buffer);
 
     FuriHalNfcaShortFrame short_frame = (frame == NfcIso14443aShortFrameAllReqa) ?
-                                        FuriHalNfcaShortFrameAllReq :
-                                        FuriHalNfcaShortFrameSensReq;
+                                            FuriHalNfcaShortFrameAllReq :
+                                            FuriHalNfcaShortFrameSensReq;
 
     furi_check(instance->poller_state == NfcPollerStateReady);
 
@@ -556,7 +556,7 @@ NfcError nfc_iso14443a_poller_trx_short_frame(
         }
 
         error = furi_hal_nfc_poller_rx(
-                    instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
+            instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
         if(error != FuriHalNfcErrorNone) {
             FURI_LOG_D(TAG, "Failed in poller RX");
             ret = nfc_process_hal_error(error);
@@ -590,7 +590,7 @@ NfcError nfc_iso14443a_poller_trx_sdd_frame(
             if(event & FuriHalNfcEventTimerBlockTxExpired) break;
         }
         error = furi_hal_nfc_iso14443a_tx_sdd_frame(
-                    bit_buffer_get_data(tx_buffer), bit_buffer_get_size(tx_buffer));
+            bit_buffer_get_data(tx_buffer), bit_buffer_get_size(tx_buffer));
         if(error != FuriHalNfcErrorNone) {
             FURI_LOG_D(TAG, "Failed in poller TX");
             ret = nfc_process_hal_error(error);
@@ -604,7 +604,7 @@ NfcError nfc_iso14443a_poller_trx_sdd_frame(
         }
 
         error = furi_hal_nfc_poller_rx(
-                    instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
+            instance->rx_buffer, sizeof(instance->rx_buffer), &instance->rx_bits);
         if(error != FuriHalNfcErrorNone) {
             FURI_LOG_D(TAG, "Failed in poller RX");
             ret = nfc_process_hal_error(error);

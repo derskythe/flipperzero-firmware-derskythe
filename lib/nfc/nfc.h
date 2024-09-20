@@ -235,7 +235,7 @@ void nfc_stop(Nfc* instance);
  * @returns NfcErrorNone on success, any other error code on failure.
  */
 NfcError
-nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt);
+    nfc_poller_trx(Nfc* instance, const BitBuffer* tx_buffer, BitBuffer* rx_buffer, uint32_t fwt);
 
 /**
  * @brief Transmit a data frame in listener mode.

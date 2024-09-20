@@ -1,7 +1,7 @@
 #include "../example_number_input.h"
 
 static void
-example_number_input_scene_confirm_dialog_callback(DialogExResult result, void* context) {
+    example_number_input_scene_confirm_dialog_callback(DialogExResult result, void* context) {
     ExampleNumberInput* app = context;
 
     view_dispatcher_send_custom_event(app->view_dispatcher, result);

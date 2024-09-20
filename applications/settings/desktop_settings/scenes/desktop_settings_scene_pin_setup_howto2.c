@@ -41,7 +41,7 @@ bool desktop_settings_scene_pin_setup_howto2_on_event(void* context, SceneManage
         case DesktopSettingsCustomEventExit: {
             bool scene_found = false;
             scene_found = scene_manager_search_and_switch_to_previous_scene(
-                              app->scene_manager, DesktopSettingsAppScenePinMenu);
+                app->scene_manager, DesktopSettingsAppScenePinMenu);
             if(!scene_found) {
                 view_dispatcher_stop(app->view_dispatcher);
             }

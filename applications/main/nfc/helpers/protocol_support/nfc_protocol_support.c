@@ -128,7 +128,7 @@ static void nfc_protocol_support_scene_more_info_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_more_info_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_more_info_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
@@ -177,7 +177,7 @@ static bool nfc_protocol_support_scene_read_on_event(NfcApp* instance, SceneMana
             nfc_poller_stop(instance->poller);
             nfc_poller_free(instance->poller);
             bool card_read = nfc_supported_cards_read(
-                                 instance->nfc_supported_cards, instance->nfc_device, instance->nfc);
+                instance->nfc_supported_cards, instance->nfc_device, instance->nfc);
             if(card_read) {
                 notification_message(instance->notifications, &sequence_success);
                 scene_manager_next_scene(instance->scene_manager, NfcSceneReadSuccess);
@@ -275,7 +275,7 @@ static void nfc_protocol_support_scene_read_menu_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_read_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_read_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -333,7 +333,7 @@ static void nfc_protocol_support_scene_read_success_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_read_success_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_read_success_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -432,7 +432,7 @@ static void nfc_protocol_support_scene_saved_menu_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_saved_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_saved_menu_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -498,9 +498,9 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
         name_is_empty);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-            furi_string_get_cstr(folder_path),
-            NFC_APP_EXTENSION,
-            furi_string_get_cstr(instance->file_name));
+        furi_string_get_cstr(folder_path),
+        NFC_APP_EXTENSION,
+        furi_string_get_cstr(instance->file_name));
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     furi_string_free(folder_path);
@@ -509,7 +509,7 @@ static void nfc_protocol_support_scene_save_name_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_save_name_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_save_name_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -523,15 +523,15 @@ nfc_protocol_support_scene_save_name_on_event(NfcApp* instance, SceneManagerEven
                 scene_manager_next_scene(instance->scene_manager, NfcSceneSaveSuccess);
                 dolphin_deed(
                     scene_manager_has_previous_scene(instance->scene_manager, NfcSceneSetType) ?
-                    DolphinDeedNfcAddSave :
-                    DolphinDeedNfcSave);
+                        DolphinDeedNfcAddSave :
+                        DolphinDeedNfcSave);
 
                 const NfcProtocol protocol = nfc_device_get_protocol(instance->nfc_device);
                 consumed =
                     nfc_protocol_support[protocol]->scene_save_name.on_event(instance, event);
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
-                               instance->scene_manager, NfcSceneStart);
+                    instance->scene_manager, NfcSceneStart);
             }
         }
     }
@@ -622,7 +622,7 @@ static void nfc_protocol_support_scene_emulate_on_enter(NfcApp* instance) {
 }
 
 static bool
-nfc_protocol_support_scene_emulate_on_event(NfcApp* instance, SceneManagerEvent event) {
+    nfc_protocol_support_scene_emulate_on_event(NfcApp* instance, SceneManagerEvent event) {
     bool consumed = false;
 
     const uint32_t state = scene_manager_get_scene_state(instance->scene_manager, NfcSceneEmulate);
@@ -755,59 +755,59 @@ static void nfc_protocol_support_scene_rpc_on_exit(NfcApp* instance) {
 }
 
 static const NfcProtocolSupportCommonSceneBase
-nfc_protocol_support_scenes[NfcProtocolSupportSceneCount] = {
-    [NfcProtocolSupportSceneInfo] =
-    {
-        .on_enter = nfc_protocol_support_scene_info_on_enter,
-        .on_event = nfc_protocol_support_scene_info_on_event,
-        .on_exit = nfc_protocol_support_scene_info_on_exit,
-    },
-    [NfcProtocolSupportSceneMoreInfo] =
-    {
-        .on_enter = nfc_protocol_support_scene_more_info_on_enter,
-        .on_event = nfc_protocol_support_scene_more_info_on_event,
-        .on_exit = nfc_protocol_support_scene_more_info_on_exit,
-    },
-    [NfcProtocolSupportSceneRead] =
-    {
-        .on_enter = nfc_protocol_support_scene_read_on_enter,
-        .on_event = nfc_protocol_support_scene_read_on_event,
-        .on_exit = nfc_protocol_support_scene_read_on_exit,
-    },
-    [NfcProtocolSupportSceneReadMenu] =
-    {
-        .on_enter = nfc_protocol_support_scene_read_menu_on_enter,
-        .on_event = nfc_protocol_support_scene_read_menu_on_event,
-        .on_exit = nfc_protocol_support_scene_read_saved_menu_on_exit,
-    },
-    [NfcProtocolSupportSceneReadSuccess] =
-    {
-        .on_enter = nfc_protocol_support_scene_read_success_on_enter,
-        .on_event = nfc_protocol_support_scene_read_success_on_event,
-        .on_exit = nfc_protocol_support_scene_read_success_on_exit,
-    },
-    [NfcProtocolSupportSceneSavedMenu] =
-    {
-        .on_enter = nfc_protocol_support_scene_saved_menu_on_enter,
-        .on_event = nfc_protocol_support_scene_saved_menu_on_event,
-        .on_exit = nfc_protocol_support_scene_read_saved_menu_on_exit,
-    },
-    [NfcProtocolSupportSceneSaveName] =
-    {
-        .on_enter = nfc_protocol_support_scene_save_name_on_enter,
-        .on_event = nfc_protocol_support_scene_save_name_on_event,
-        .on_exit = nfc_protocol_support_scene_save_name_on_exit,
-    },
-    [NfcProtocolSupportSceneEmulate] =
-    {
-        .on_enter = nfc_protocol_support_scene_emulate_on_enter,
-        .on_event = nfc_protocol_support_scene_emulate_on_event,
-        .on_exit = nfc_protocol_support_scene_emulate_on_exit,
-    },
-    [NfcProtocolSupportSceneRpc] =
-    {
-        .on_enter = nfc_protocol_support_scene_rpc_on_enter,
-        .on_event = nfc_protocol_support_scene_rpc_on_event,
-        .on_exit = nfc_protocol_support_scene_rpc_on_exit,
-    },
+    nfc_protocol_support_scenes[NfcProtocolSupportSceneCount] = {
+        [NfcProtocolSupportSceneInfo] =
+            {
+                .on_enter = nfc_protocol_support_scene_info_on_enter,
+                .on_event = nfc_protocol_support_scene_info_on_event,
+                .on_exit = nfc_protocol_support_scene_info_on_exit,
+            },
+        [NfcProtocolSupportSceneMoreInfo] =
+            {
+                .on_enter = nfc_protocol_support_scene_more_info_on_enter,
+                .on_event = nfc_protocol_support_scene_more_info_on_event,
+                .on_exit = nfc_protocol_support_scene_more_info_on_exit,
+            },
+        [NfcProtocolSupportSceneRead] =
+            {
+                .on_enter = nfc_protocol_support_scene_read_on_enter,
+                .on_event = nfc_protocol_support_scene_read_on_event,
+                .on_exit = nfc_protocol_support_scene_read_on_exit,
+            },
+        [NfcProtocolSupportSceneReadMenu] =
+            {
+                .on_enter = nfc_protocol_support_scene_read_menu_on_enter,
+                .on_event = nfc_protocol_support_scene_read_menu_on_event,
+                .on_exit = nfc_protocol_support_scene_read_saved_menu_on_exit,
+            },
+        [NfcProtocolSupportSceneReadSuccess] =
+            {
+                .on_enter = nfc_protocol_support_scene_read_success_on_enter,
+                .on_event = nfc_protocol_support_scene_read_success_on_event,
+                .on_exit = nfc_protocol_support_scene_read_success_on_exit,
+            },
+        [NfcProtocolSupportSceneSavedMenu] =
+            {
+                .on_enter = nfc_protocol_support_scene_saved_menu_on_enter,
+                .on_event = nfc_protocol_support_scene_saved_menu_on_event,
+                .on_exit = nfc_protocol_support_scene_read_saved_menu_on_exit,
+            },
+        [NfcProtocolSupportSceneSaveName] =
+            {
+                .on_enter = nfc_protocol_support_scene_save_name_on_enter,
+                .on_event = nfc_protocol_support_scene_save_name_on_event,
+                .on_exit = nfc_protocol_support_scene_save_name_on_exit,
+            },
+        [NfcProtocolSupportSceneEmulate] =
+            {
+                .on_enter = nfc_protocol_support_scene_emulate_on_enter,
+                .on_event = nfc_protocol_support_scene_emulate_on_event,
+                .on_exit = nfc_protocol_support_scene_emulate_on_exit,
+            },
+        [NfcProtocolSupportSceneRpc] =
+            {
+                .on_enter = nfc_protocol_support_scene_rpc_on_enter,
+                .on_event = nfc_protocol_support_scene_rpc_on_event,
+                .on_exit = nfc_protocol_support_scene_rpc_on_exit,
+            },
 };

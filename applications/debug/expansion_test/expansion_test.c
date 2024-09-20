@@ -143,11 +143,11 @@ static size_t expansion_test_app_receive_callback(uint8_t* data, size_t data_siz
 
     while(true) {
         received_size += furi_stream_buffer_receive(
-                             instance->buf, data + received_size, data_size - received_size, 0);
+            instance->buf, data + received_size, data_size - received_size, 0);
         if(received_size == data_size) break;
 
         const uint32_t flags = furi_thread_flags_wait(
-                                   EXPANSION_TEST_APP_ALL_FLAGS, FuriFlagWaitAny, EXPANSION_PROTOCOL_TIMEOUT_MS);
+            EXPANSION_TEST_APP_ALL_FLAGS, FuriFlagWaitAny, EXPANSION_PROTOCOL_TIMEOUT_MS);
 
         // Exit on any error
         if(flags & FuriFlagError) break;
@@ -157,7 +157,7 @@ static size_t expansion_test_app_receive_callback(uint8_t* data, size_t data_siz
 }
 
 static size_t
-expansion_test_app_send_callback(const uint8_t* data, size_t data_size, void* context) {
+    expansion_test_app_send_callback(const uint8_t* data, size_t data_size, void* context) {
     ExpansionTestApp* instance = context;
 
     furi_hal_serial_tx(instance->handle, data, data_size);
@@ -172,7 +172,7 @@ static bool expansion_test_app_receive_frame(ExpansionTestApp* instance, Expansi
 }
 
 static bool
-expansion_test_app_send_status_response(ExpansionTestApp* instance, ExpansionFrameError error) {
+    expansion_test_app_send_status_response(ExpansionTestApp* instance, ExpansionFrameError error) {
     ExpansionFrame frame = {
         .header.type = ExpansionFrameTypeStatus,
         .content.status.error = error,
@@ -191,7 +191,7 @@ static bool expansion_test_app_send_heartbeat(ExpansionTestApp* instance) {
 }
 
 static bool
-expansion_test_app_send_baud_rate_request(ExpansionTestApp* instance, uint32_t baud_rate) {
+    expansion_test_app_send_baud_rate_request(ExpansionTestApp* instance, uint32_t baud_rate) {
     ExpansionFrame frame = {
         .header.type = ExpansionFrameTypeBaudRate,
         .content.baud_rate.baud = baud_rate,
@@ -268,7 +268,7 @@ static bool expansion_test_app_receive_rpc_request(ExpansionTestApp* instance, P
         if(!expansion_test_app_send_status_response(instance, ExpansionFrameErrorNone)) break;
         if(instance->frame.header.type != ExpansionFrameTypeData) break;
         pb_istream_t stream = pb_istream_from_buffer(
-                                  instance->frame.content.data.bytes, instance->frame.content.data.size);
+            instance->frame.content.data.bytes, instance->frame.content.data.size);
         if(!pb_decode_ex(&stream, &PB_Main_msg, message, PB_DECODE_DELIMITED)) break;
         success = true;
     } while(false);
@@ -316,8 +316,8 @@ static bool expansion_test_app_enable_otg(ExpansionTestApp* instance, bool enabl
 
     do {
         const ExpansionFrameControlCommand command = enable ?
-            ExpansionFrameControlCommandEnableOtg :
-            ExpansionFrameControlCommandDisableOtg;
+                                                         ExpansionFrameControlCommandEnableOtg :
+                                                         ExpansionFrameControlCommandDisableOtg;
         if(!expansion_test_app_send_control_request(instance, command)) break;
         if(!expansion_test_app_receive_frame(instance, &instance->frame)) break;
         if(!expansion_test_app_is_success_response(&instance->frame)) break;
@@ -383,7 +383,7 @@ static bool expansion_test_app_rpc_write(ExpansionTestApp* instance) {
         instance->msg.content.storage_write_request.file.data->size = file_size;
 
         const size_t bytes_read = storage_file_read(
-                                      file, instance->msg.content.storage_write_request.file.data->bytes, file_size);
+            file, instance->msg.content.storage_write_request.file.data->bytes, file_size);
 
         if(bytes_read != file_size) {
             pb_release(&PB_Main_msg, &instance->msg);
@@ -428,7 +428,7 @@ static bool expansion_test_app_rpc_enable_otg(ExpansionTestApp* instance, bool e
     instance->msg.command_status = PB_CommandStatus_OK;
     instance->msg.which_content = PB_Main_gpio_set_otg_mode_tag;
     instance->msg.content.gpio_set_otg_mode.mode = enable ? PB_Gpio_GpioOtgMode_ON :
-        PB_Gpio_GpioOtgMode_OFF;
+                                                            PB_Gpio_GpioOtgMode_OFF;
     instance->msg.has_next = false;
 
     do {

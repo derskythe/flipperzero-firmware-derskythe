@@ -185,9 +185,9 @@ static int json_get_escape_len(const char* s, int len) {
     case 'u':
         return len < 6 ? JSON_STRING_INCOMPLETE :
                json_isxdigit(s[1]) && json_isxdigit(s[2]) && json_isxdigit(s[3]) &&
-               json_isxdigit(s[4]) ?
-               5 :
-               JSON_STRING_INVALID;
+                       json_isxdigit(s[4]) ?
+                         5 :
+                         JSON_STRING_INVALID;
     case '"':
     case '\\':
     case '/':
@@ -208,7 +208,7 @@ static int json_parse_identifier(struct frozen* f) {
     {
         SET_STATE(f, f->cur, "", 0);
         while(f->cur < f->end &&
-                (*f->cur == '_' || json_isalpha(*f->cur) || json_isdigit(*f->cur))) {
+              (*f->cur == '_' || json_isalpha(*f->cur) || json_isdigit(*f->cur))) {
             f->cur++;
         }
         json_truncate_path(f, fstate.path_len);
@@ -687,7 +687,7 @@ int json_vprintf(struct json_out* out, const char* fmt, va_list xap) {
                 * 32-bit (linux or windows) passes va_list by value.
                 */
                 if((n + 1 == strlen("%" PRId64) && strcmp(fmt2, "%" PRId64) == 0) ||
-                        (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
+                   (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
                     (void)va_arg(ap, int64_t);
                 } else if(strcmp(fmt2, "%.*s") == 0) {
                     (void)va_arg(ap, int);
@@ -1011,7 +1011,7 @@ static void json_scanf_cb(
         buf[token->len] = '\0';
         /* NB: Use of base 0 for %d, %ld, %u and %lu is intentional. */
         if(info->fmt[1] == 'd' || (info->fmt[1] == 'l' && info->fmt[2] == 'd') ||
-                info->fmt[1] == 'i') {
+           info->fmt[1] == 'i') {
             char* endptr = NULL;
             long r = strtol(buf, &endptr, 0 /* base */);
             if(*endptr == '\0') {
@@ -1186,13 +1186,13 @@ static void json_vsetf_cb(
     * of the object or array
     */
     if(len < data->matched && data->pos == 0 &&
-            (t->type == JSON_TYPE_OBJECT_END || t->type == JSON_TYPE_ARRAY_END)) {
+       (t->type == JSON_TYPE_OBJECT_END || t->type == JSON_TYPE_ARRAY_END)) {
         data->pos = data->end = data->prev;
     }
 
     /* Exact path match. Set mutation position to the value of this token */
     if(strcmp(path, data->json_path) == 0 && t->type != JSON_TYPE_OBJECT_START &&
-            t->type != JSON_TYPE_ARRAY_START) {
+       t->type != JSON_TYPE_ARRAY_START) {
         data->pos = off;
         data->end = off + t->len;
     }
@@ -1317,7 +1317,7 @@ static void indent(struct json_out* out, int level) {
 
 static void print_key(struct prettify_data* pd, const char* path, const char* name, int name_len) {
     if(pd->last_token != JSON_TYPE_INVALID && pd->last_token != JSON_TYPE_ARRAY_START &&
-            pd->last_token != JSON_TYPE_OBJECT_START) {
+       pd->last_token != JSON_TYPE_OBJECT_START) {
         pd->out->printer(pd->out, ",", 1);
     }
     if(path[0] != '\0') pd->out->printer(pd->out, "\n", 1);
@@ -1348,7 +1348,7 @@ static void prettify_cb(
     case JSON_TYPE_ARRAY_END:
         pd->level--;
         if(pd->last_token != JSON_TYPE_INVALID && pd->last_token != JSON_TYPE_ARRAY_START &&
-                pd->last_token != JSON_TYPE_OBJECT_START) {
+           pd->last_token != JSON_TYPE_OBJECT_START) {
             pd->out->printer(pd->out, "\n", 1);
             indent(pd->out, pd->level);
         }

@@ -140,7 +140,7 @@ const InfraredMessage* infrared_signal_get_message(const InfraredSignal* signal)
  * @returns InfraredErrorCodeNone if a signal was successfully read, otherwise error code
  */
 InfraredErrorCode
-infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name);
+    infrared_signal_read(InfraredSignal* signal, FlipperFormat* ff, FuriString* name);
 
 /**
  * @brief Read a signal name from a FlipperFormat file.
@@ -208,7 +208,7 @@ InfraredErrorCode infrared_signal_search_by_index_and_read(
  * @returns InfraredErrorCodeNone if a signal was successfully saved, otherwise error code
  */
 InfraredErrorCode
-infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name);
+    infrared_signal_save(const InfraredSignal* signal, FlipperFormat* ff, const char* name);
 
 /**
  * @brief Transmit a signal contained in an InfraredSignal instance.

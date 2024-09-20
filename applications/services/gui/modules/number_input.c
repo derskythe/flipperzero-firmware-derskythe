@@ -166,7 +166,7 @@ static void number_input_handle_right(NumberInputModel* model) {
 static bool is_number_too_large(NumberInputModel* model) {
     int64_t value;
     if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
-            StrintParseNoError) {
+       StrintParseNoError) {
         return true;
     }
     if(value > (int64_t)model->max_value) {
@@ -178,7 +178,7 @@ static bool is_number_too_large(NumberInputModel* model) {
 static bool is_number_too_small(NumberInputModel* model) {
     int64_t value;
     if(strint_to_int64(furi_string_get_cstr(model->text_buffer), NULL, &value, 10) !=
-            StrintParseNoError) {
+       StrintParseNoError) {
         return true;
     }
     if(value < (int64_t)model->min_value) {
@@ -208,7 +208,7 @@ static void number_input_sign(NumberInputModel* model) {
 static void number_input_add_digit(NumberInputModel* model, char* newChar) {
     furi_string_cat_str(model->text_buffer, newChar);
     if((model->max_value >= 0 && is_number_too_large(model)) ||
-            (model->min_value < 0 && is_number_too_small(model))) {
+       (model->min_value < 0 && is_number_too_small(model))) {
         //you still need to be able to type invalid numbers in some cases to reach valid numbers on later keypress
         furi_string_printf(model->text_buffer, "%ld", model->current_number);
         return;
@@ -348,7 +348,7 @@ static bool number_input_view_input_callback(InputEvent* event, void* context) {
     NumberInputModel* model = view_get_model(number_input->view);
 
     if(event->type == InputTypeShort || event->type == InputTypeLong ||
-            event->type == InputTypeRepeat) {
+       event->type == InputTypeRepeat) {
         consumed = true;
         switch(event->key) {
         case InputKeyLeft:
@@ -389,11 +389,11 @@ NumberInput* number_input_alloc(void) {
     with_view_model(
         number_input->view,
         NumberInputModel * model,
-    {
-        model->header = furi_string_alloc();
-        model->text_buffer = furi_string_alloc();
-    },
-    true);
+        {
+            model->header = furi_string_alloc();
+            model->text_buffer = furi_string_alloc();
+        },
+        true);
 
     return number_input;
 }
@@ -403,11 +403,11 @@ void number_input_free(NumberInput* number_input) {
     with_view_model(
         number_input->view,
         NumberInputModel * model,
-    {
-        furi_string_free(model->header);
-        furi_string_free(model->text_buffer);
-    },
-    true);
+        {
+            furi_string_free(model->header);
+            furi_string_free(model->text_buffer);
+        },
+        true);
     view_free(number_input->view);
     free(number_input);
 }
@@ -433,19 +433,19 @@ void number_input_set_result_callback(
     with_view_model(
         number_input->view,
         NumberInputModel * model,
-    {
-        model->callback = callback;
-        model->callback_context = callback_context;
-        model->current_number = current_number;
-        if(current_number != 0) {
-            furi_string_printf(model->text_buffer, "%ld", current_number);
-        } else {
-            furi_string_set(model->text_buffer, "");
-        }
-        model->min_value = min_value;
-        model->max_value = max_value;
-    },
-    true);
+        {
+            model->callback = callback;
+            model->callback_context = callback_context;
+            model->current_number = current_number;
+            if(current_number != 0) {
+                furi_string_printf(model->text_buffer, "%ld", current_number);
+            } else {
+                furi_string_set(model->text_buffer, "");
+            }
+            model->min_value = min_value;
+            model->max_value = max_value;
+        },
+        true);
 }
 
 void number_input_set_header_text(NumberInput* number_input, const char* text) {
@@ -453,6 +453,6 @@ void number_input_set_header_text(NumberInput* number_input, const char* text) {
     with_view_model(
         number_input->view,
         NumberInputModel * model,
-    { furi_string_set(model->header, text); },
-    true);
+        { furi_string_set(model->header, text); },
+        true);
 }

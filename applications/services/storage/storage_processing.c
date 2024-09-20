@@ -146,7 +146,7 @@ bool storage_process_file_close(Storage* app, File* file) {
 }
 
 static uint16_t
-storage_process_file_read(Storage* app, File* file, void* buff, uint16_t const bytes_to_read) {
+    storage_process_file_read(Storage* app, File* file, void* buff, uint16_t const bytes_to_read) {
     uint16_t ret = 0;
     StorageData* storage = get_storage_by_file(file, app->storage);
 
@@ -331,7 +331,7 @@ bool storage_process_dir_rewind(Storage* app, File* file) {
 /******************* Common FS Functions *******************/
 
 static FS_Error
-storage_process_common_timestamp(Storage* app, FuriString* path, uint32_t* timestamp) {
+    storage_process_common_timestamp(Storage* app, FuriString* path, uint32_t* timestamp) {
     StorageData* storage;
     FS_Error ret = storage_get_data(app, path, &storage);
 
@@ -402,7 +402,7 @@ static FS_Error storage_process_common_fs_info(
 }
 
 static bool
-storage_process_common_equivalent_path(Storage* app, FuriString* path1, FuriString* path2) {
+    storage_process_common_equivalent_path(Storage* app, FuriString* path1, FuriString* path2) {
     bool ret = false;
 
     do {
@@ -533,7 +533,7 @@ void storage_process_alias(
 
         // Create app data folder if not exists
         if(create_folders &&
-                storage_process_common_stat(app, apps_data_path_with_appsid, NULL) != FSE_OK) {
+           storage_process_common_stat(app, apps_data_path_with_appsid, NULL) != FSE_OK) {
             furi_string_set(apps_data_path_with_appsid, APPS_DATA_PATH);
             storage_process_common_mkdir(app, apps_data_path_with_appsid);
             furi_string_cat(apps_data_path_with_appsid, "/");
@@ -578,11 +578,11 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         path = furi_string_alloc_set(message->data->fopen.path);
         storage_process_alias(app, path, message->data->fopen.thread_id, true);
         message->return_data->bool_value = storage_process_file_open(
-                                               app,
-                                               message->data->fopen.file,
-                                               path,
-                                               message->data->fopen.access_mode,
-                                               message->data->fopen.open_mode);
+            app,
+            message->data->fopen.file,
+            path,
+            message->data->fopen.access_mode,
+            message->data->fopen.open_mode);
         break;
     case StorageCommandFileClose:
         message->return_data->bool_value =
@@ -590,24 +590,24 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     case StorageCommandFileRead:
         message->return_data->uint16_value = storage_process_file_read(
-                app,
-                message->data->fread.file,
-                message->data->fread.buff,
-                message->data->fread.bytes_to_read);
+            app,
+            message->data->fread.file,
+            message->data->fread.buff,
+            message->data->fread.bytes_to_read);
         break;
     case StorageCommandFileWrite:
         message->return_data->uint16_value = storage_process_file_write(
-                app,
-                message->data->fwrite.file,
-                message->data->fwrite.buff,
-                message->data->fwrite.bytes_to_write);
+            app,
+            message->data->fwrite.file,
+            message->data->fwrite.buff,
+            message->data->fwrite.bytes_to_write);
         break;
     case StorageCommandFileSeek:
         message->return_data->bool_value = storage_process_file_seek(
-                                               app,
-                                               message->data->fseek.file,
-                                               message->data->fseek.offset,
-                                               message->data->fseek.from_start);
+            app,
+            message->data->fseek.file,
+            message->data->fseek.offset,
+            message->data->fseek.from_start);
         break;
     case StorageCommandFileTell:
         message->return_data->uint64_value =
@@ -642,11 +642,11 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     case StorageCommandDirRead:
         message->return_data->bool_value = storage_process_dir_read(
-                                               app,
-                                               message->data->dread.file,
-                                               message->data->dread.fileinfo,
-                                               message->data->dread.name,
-                                               message->data->dread.name_length);
+            app,
+            message->data->dread.file,
+            message->data->dread.fileinfo,
+            message->data->dread.name,
+            message->data->dread.name_length);
         break;
     case StorageCommandDirRewind:
         message->return_data->bool_value =
@@ -680,7 +680,7 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         path = furi_string_alloc_set(message->data->cfsinfo.fs_path);
         storage_process_alias(app, path, message->data->cfsinfo.thread_id, false);
         message->return_data->error_value = storage_process_common_fs_info(
-                                                app, path, message->data->cfsinfo.total_space, message->data->cfsinfo.free_space);
+            app, path, message->data->cfsinfo.total_space, message->data->cfsinfo.free_space);
         break;
     case StorageCommandCommonResolvePath:
         storage_process_alias(

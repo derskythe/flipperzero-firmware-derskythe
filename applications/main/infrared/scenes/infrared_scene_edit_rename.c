@@ -12,7 +12,7 @@ static int32_t infrared_scene_edit_rename_task_callback(void* context) {
     if(edit_target == InfraredEditTargetButton) {
         furi_assert(app_state->current_button_index != InfraredButtonIndexNone);
         error = infrared_remote_rename_signal(
-                    infrared->remote, app_state->current_button_index, infrared->text_store[0]);
+            infrared->remote, app_state->current_button_index, infrared->text_store[0]);
     } else if(edit_target == InfraredEditTargetRemote) {
         error = infrared_rename_current_remote(infrared, infrared->text_store[0]);
     } else {
@@ -57,9 +57,9 @@ void infrared_scene_edit_rename_on_enter(void* context) {
         }
 
         ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-                furi_string_get_cstr(folder_path),
-                INFRARED_APP_EXTENSION,
-                infrared_remote_get_name(remote));
+            furi_string_get_cstr(folder_path),
+            INFRARED_APP_EXTENSION,
+            infrared_remote_get_name(remote));
         text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
         furi_string_free(folder_path);
@@ -96,16 +96,16 @@ bool infrared_scene_edit_rename_on_event(void* context, SceneManagerEvent event)
                 scene_manager_next_scene(scene_manager, InfraredSceneEditRenameDone);
             } else {
                 bool long_signal = INFRARED_ERROR_CHECK(
-                                       task_error, InfraredErrorCodeSignalRawUnableToReadTooLongData);
+                    task_error, InfraredErrorCodeSignalRawUnableToReadTooLongData);
 
                 const char* format = "Failed to rename\n%s";
                 const char* target = infrared->app_state.edit_target == InfraredEditTargetButton ?
-                                     "button" :
-                                     "file";
+                                         "button" :
+                                         "file";
                 if(long_signal) {
                     format = "Failed to rename\n\"%s\" is too long.\nTry to edit file from pc";
                     target = infrared_remote_get_signal_name(
-                                 infrared->remote, INFRARED_ERROR_GET_INDEX(task_error));
+                        infrared->remote, INFRARED_ERROR_GET_INDEX(task_error));
                 }
 
                 infrared_show_error_message(infrared, format, target);

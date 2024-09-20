@@ -216,7 +216,7 @@ FuriHalVersionOtpVersion furi_hal_version_get_otp_version(void) {
         return FuriHalVersionOtpVersionEmpty;
     } else {
         if(((FuriHalVersionOTPv1*)FURI_HAL_VERSION_OTP_ADDRESS)->header_magic ==
-                FURI_HAL_VERSION_OTP_HEADER_MAGIC) {
+           FURI_HAL_VERSION_OTP_HEADER_MAGIC) {
             // Version 1+
             uint8_t version = ((FuriHalVersionOTPv1*)FURI_HAL_VERSION_OTP_ADDRESS)->header_version;
             if(version >= FuriHalVersionOtpVersion1 && version <= FuriHalVersionOtpVersion2) {

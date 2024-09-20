@@ -477,12 +477,12 @@ uint32_t furi_thread_flags_clear(uint32_t flags) {
         hTask = xTaskGetCurrentTaskHandle();
 
         if(xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &cflags) ==
-                pdPASS) {
+           pdPASS) {
             rflags = cflags;
             cflags &= ~flags;
 
             if(xTaskNotifyIndexed(hTask, THREAD_NOTIFY_INDEX, cflags, eSetValueWithOverwrite) !=
-                    pdPASS) {
+               pdPASS) {
                 rflags = (uint32_t)FuriStatusError;
             }
         } else {
@@ -504,7 +504,7 @@ uint32_t furi_thread_flags_get(void) {
         hTask = xTaskGetCurrentTaskHandle();
 
         if(xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &rflags) !=
-                pdPASS) {
+           pdPASS) {
             rflags = (uint32_t)FuriStatusError;
         }
     }
