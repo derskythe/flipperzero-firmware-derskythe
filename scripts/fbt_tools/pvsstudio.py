@@ -101,8 +101,7 @@ def generate(env):
                     [
                         Delete("${TARGET.dir}"),
                         # PlogConverter.exe and plog-converter have different behavior
-                        Mkdir(
-                            "${TARGET.dir}") if env["PLATFORM"] == "win32" else None,
+                        Mkdir("${TARGET.dir}") if env["PLATFORM"] == "win32" else None,
                         Action(_set_browser_action, None),
                         Action(
                             [
