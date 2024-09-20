@@ -39,12 +39,10 @@ class AppState:
     def get_original_elf_path(self) -> str:
         """ """
         if self.DEBUG_ELF_ROOT is None:
-            raise ValueError("DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
-        return (
-            posixpath.join(self.DEBUG_ELF_ROOT, self.debug_link_elf)
-            if self.DEBUG_ELF_ROOT
-            else self.debug_link_elf
-        )
+            raise ValueError(
+                "DEBUG_ELF_ROOT not set; call fap-set-debug-elf-root")
+        return (posixpath.join(self.DEBUG_ELF_ROOT, self.debug_link_elf)
+                if self.DEBUG_ELF_ROOT else self.debug_link_elf)
 
     def is_debug_available(self) -> bool:
         """ """
@@ -66,12 +64,10 @@ class AppState:
         load_path = self.get_original_elf_path()
         print(f"Loading debug information from {load_path}")
         load_command = (
-            f"add-symbol-file -readnow {load_path} 0x{self.text_address:08x} "
-        )
+            f"add-symbol-file -readnow {load_path} 0x{self.text_address:08x} ")
         load_command += " ".join(
             f"-s {name} 0x{address:08x}"
-            for name, address in self.other_sections.items()
-        )
+            for name, address in self.other_sections.items())
         return load_command
 
     def get_gdb_unload_command(self) -> str:
@@ -112,17 +108,13 @@ class AppState:
         state.entry_address = cls.get_gdb_app_ep(gdb_app)
 
         app_state = gdb_app["state"]
-        if debug_link_size := int(app_state["debug_link_info"]["debug_link_size"]):
-            debug_link_data = (
-                gdb.selected_inferior()
-                .read_memory(
-                    int(app_state["debug_link_info"]["debug_link"]), debug_link_size
-                )
-                .tobytes()
-            )
+        if debug_link_size := int(
+                app_state["debug_link_info"]["debug_link_size"]):
+            debug_link_data = (gdb.selected_inferior().read_memory(
+                int(app_state["debug_link_info"]["debug_link"]),
+                debug_link_size).tobytes())
             state.debug_link_elf, state.debug_link_crc = AppState.parse_debug_link_data(
-                debug_link_data
-            )
+                debug_link_data)
 
         for idx in range(app_state["mmap_entry_count"]):
             mmap_entry = app_state["mmap_entries"][idx]
@@ -140,9 +132,8 @@ class SetFapDebugElfRoot(gdb.Command):
     """Set path to original ELF files for debug info"""
 
     def __init__(self):
-        super().__init__(
-            "fap-set-debug-elf-root", gdb.COMMAND_FILES, gdb.COMPLETE_FILENAME
-        )
+        super().__init__("fap-set-debug-elf-root", gdb.COMMAND_FILES,
+                         gdb.COMPLETE_FILENAME)
         self.dont_repeat()
 
     def invoke(self, arg, from_tty):
@@ -155,16 +146,21 @@ class SetFapDebugElfRoot(gdb.Command):
         AppState.DEBUG_ELF_ROOT = arg
         try:
             global helper
-            print(f"Set '{arg}' as debug info lookup path for Flipper external apps")
+            print(
+                f"Set '{arg}' as debug info lookup path for Flipper external apps"
+            )
             helper.attach_to_fw()
             gdb.events.stop.connect(helper.handle_stop)
             gdb.events.gdb_exiting.connect(helper.handle_exit)
         except gdb.error as e:
-            print(f"Support for Flipper external apps debug is not available: {e}")
+            print(
+                f"Support for Flipper external apps debug is not available: {e}"
+            )
 
 
 class FlipperAppStateHelper:
     """ """
+
     def __init__(self):
         self.app_type_ptr = None
         self.app_list_ptr = None
@@ -208,8 +204,7 @@ class FlipperAppStateHelper:
 
         loaded_apps: dict[int, gdb.Value] = dict(
             (AppState.get_gdb_app_ep(app), app)
-            for app in self._walk_app_list(app_list[0])
-        )
+            for app in self._walk_app_list(app_list[0]))
 
         for app in self._current_apps.copy():
             if app.entry_address not in loaded_apps:
@@ -219,10 +214,12 @@ class FlipperAppStateHelper:
                 self._current_apps.remove(app)
 
         for entry_point, app in loaded_apps.items():
-            if entry_point not in set(app.entry_address for app in self._current_apps):
+            if entry_point not in set(app.entry_address
+                                      for app in self._current_apps):
                 new_app_state = AppState.from_gdb(app)
                 print(f"New application loaded. Adding debug info")
-                if self._exec_gdb_command(new_app_state.get_gdb_load_command()):
+                if self._exec_gdb_command(
+                        new_app_state.get_gdb_load_command()):
                     self._current_apps.append(new_app_state)
                 else:
                     print(f"Failed to load debug info for {new_app_state}")
@@ -231,10 +228,10 @@ class FlipperAppStateHelper:
         """ """
         print("Attaching to Flipper firmware")
         self.app_list_ptr = gdb.lookup_global_symbol(
-            "flipper_application_loaded_app_list"
-        )
+            "flipper_application_loaded_app_list")
         self.app_type_ptr = gdb.lookup_type("FlipperApplication").pointer()
-        self.app_list_entry_type = gdb.lookup_type("struct FlipperApplicationList_s")
+        self.app_list_entry_type = gdb.lookup_type(
+            "struct FlipperApplicationList_s")
         self._sync_apps()
 
     def handle_stop(self, event) -> None:
@@ -260,7 +257,9 @@ class FlipperAppStateHelper:
 
         """
         try:
-            gdb.execute(f"set variable furi_hal_debug_gdb_session_active = {int(mode)}")
+            gdb.execute(
+                f"set variable furi_hal_debug_gdb_session_active = {int(mode)}"
+            )
         except gdb.error as e:
             print(f"Failed to set debug mode: {e}")
 

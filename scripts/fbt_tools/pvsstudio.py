@@ -50,7 +50,8 @@ def atexist_handler():
 
     for bf in GetBuildFailures():
         for node in Flatten(bf.node):
-            if node.exists and "pvs" in node.path and node.name.endswith(".html"):
+            if node.exists and "pvs" in node.path and node.name.endswith(
+                    ".html"):
                 # macOS
                 if sys.platform == "darwin":
                     subprocess.run(["open", node.abspath])
@@ -101,50 +102,46 @@ def generate(env):
 
     env.Append(
         BUILDERS={
-            "PVSCheck": Builder(
+            "PVSCheck":
+            Builder(
                 action=Action(
-                    [
-                        [
-                            "${PVSCHECKBIN}",
-                            "analyze",
-                            "${PVSOPTIONS}",
-                            "-f",
-                            "${SOURCE}",
-                            "-o",
-                            "${TARGET}",
-                        ]
-                    ],
+                    [[
+                        "${PVSCHECKBIN}",
+                        "analyze",
+                        "${PVSOPTIONS}",
+                        "-f",
+                        "${SOURCE}",
+                        "-o",
+                        "${TARGET}",
+                    ]],
                     "${PVSCHECKCOMSTR}",
                 ),
                 suffix=".log",
                 src_suffix=".json",
             ),
-            "PVSReport": Builder(
+            "PVSReport":
+            Builder(
                 action=Action(
                     [
                         Delete("${TARGET.dir}"),
                         # PlogConverter.exe and plog-converter have different behavior
-                        Mkdir("${TARGET.dir}") if env["PLATFORM"] == "win32" else None,
+                        Mkdir("${TARGET.dir}") if env["PLATFORM"] ==
+                        "win32" else None,
                         Action(_set_browser_action, None),
-                        Action(
-                            [
-                                [
-                                    "${PVSCONVBIN}",
-                                    "${PVSCONVOPTIONS}",
-                                    "${SOURCE}",
-                                    "-o",
-                                    "${REPORT_DIR}",
-                                ]
-                            ]
-                        ),
+                        Action([[
+                            "${PVSCONVBIN}",
+                            "${PVSCONVOPTIONS}",
+                            "${SOURCE}",
+                            "-o",
+                            "${REPORT_DIR}",
+                        ]]),
                     ],
                     "${PVSCONVCOMSTR}",
                 ),
                 emitter=_emit_pvsreport,
                 src_suffix=".log",
             ),
-        }
-    )
+        })
     atexit.register(atexist_handler)
 
 
