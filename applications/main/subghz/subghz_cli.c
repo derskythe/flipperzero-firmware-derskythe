@@ -3,17 +3,19 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include <lib/toolbox/args.h>
-#include <lib/subghz/subghz_keystore.h>
+#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 
+#include <lib/subghz/subghz_keystore.h>
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
 #include <lib/subghz/protocols/protocol_items.h>
-#include <applications/drivers/subghz/cc1101_ext/cc1101_ext_interconnect.h>
 #include <lib/subghz/devices/cc1101_int/cc1101_int_interconnect.h>
 #include <lib/subghz/devices/devices.h>
 #include <lib/subghz/devices/cc1101_configs.h>
+
+#include <lib/toolbox/args.h>
+#include <lib/toolbox/strint.h>
 
 #include "helpers/subghz_chat.h"
 
@@ -35,15 +37,15 @@
 static void subghz_cli_radio_device_power_on(void) {
     uint8_t attempts = 5;
     while(--attempts > 0) {
-        if(furi_hal_power_enable_otg()) {
-            break;
-        }
+        if(furi_hal_power_enable_otg()) break;
     }
-    if(attempts == 0 && furi_hal_power_get_usb_voltage() < 4.5f) {
-        FURI_LOG_E(
-            "TAG",
-            "Error power otg enable. BQ2589 check otg fault = %d",
-            furi_hal_power_check_otg_fault() ? 1 : 0);
+    if(attempts == 0) {
+        if(furi_hal_power_get_usb_voltage() < 4.5f) {
+            FURI_LOG_E(
+                "TAG",
+                "Error power otg enable. BQ2589 check otg fault = %d",
+                furi_hal_power_check_otg_fault() ? 1 : 0);
+        }
     }
 }
 
@@ -73,12 +75,11 @@ static SubGhzEnvironment* subghz_cli_environment_init(void) {
 
 void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu", &frequency);
-        if(ret != 1) {
-            printf("sscanf returned %ld, frequency: %lu\r\n", ret, frequency);
+        if(strint_to_uint32(furi_string_get_cstr(args), NULL, &frequency, 10) !=
+           StrintParseNoError) {
             cli_print_usage("subghz tx_carrier", "<Frequency: in Hz>", furi_string_get_cstr(args));
             return;
         }
@@ -117,12 +118,11 @@ void subghz_cli_command_tx_carrier(Cli* cli, FuriString* args, void* context) {
 
 void subghz_cli_command_rx_carrier(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu", &frequency);
-        if(ret != 1) {
-            printf("sscanf returned %ld, frequency: %lu\r\n", ret, frequency);
+        if(strint_to_uint32(furi_string_get_cstr(args), NULL, &frequency, 10) !=
+           StrintParseNoError) {
             cli_print_usage("subghz rx_carrier", "<Frequency: in Hz>", furi_string_get_cstr(args));
             return;
         }
@@ -179,30 +179,21 @@ static const SubGhzDevice* subghz_cli_command_get_device(uint32_t* device_ind) {
 
 void subghz_cli_command_tx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     uint32_t repeat = 10;
     uint32_t te = 403;
     uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(
-            furi_string_get_cstr(args),
-            "%lx %lu %lu %lu %lu",
-            &key,
-            &frequency,
-            &te,
-            &repeat,
-            &device_ind);
-        if(ret != 5) {
-            printf(
-                "sscanf returned %ld, key: %lx, frequency: %lu, te: %lu, repeat: %lu, device: %lu\r\n ",
-                ret,
-                key,
-                frequency,
-                te,
-                repeat,
-                device_ind);
+        char* args_cstr = (char*)furi_string_get_cstr(args);
+        StrintParseError parse_err = StrintParseNoError;
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &key, 16);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &frequency, 10);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &te, 10);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &repeat, 10);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &device_ind, 10);
+        if(parse_err) {
             cli_print_usage(
                 "subghz tx",
                 "<3 Byte Key: in hex> <Frequency: in Hz> <Te us> <Repeat count> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
@@ -314,14 +305,15 @@ static void subghz_cli_command_rx_callback(
 
 void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
     uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu %lu", &frequency, &device_ind);
-        if(ret != 2) {
-            printf(
-                "sscanf returned %ld, frequency: %lu device: %lu\r\n", ret, frequency, device_ind);
+        char* args_cstr = (char*)furi_string_get_cstr(args);
+        StrintParseError parse_err = StrintParseNoError;
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &frequency, 10);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &device_ind, 10);
+        if(parse_err) {
             cli_print_usage(
                 "subghz rx",
                 "<Frequency: in Hz> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
@@ -368,7 +360,7 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
         device_ind);
     LevelDuration level_duration;
     while(!cli_cmd_interrupt_received(cli)) {
-        uint32_t ret = furi_stream_buffer_receive(
+        int ret = furi_stream_buffer_receive(
             instance->stream, &level_duration, sizeof(LevelDuration), 10);
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
@@ -402,12 +394,11 @@ void subghz_cli_command_rx(Cli* cli, FuriString* args, void* context) {
 
 void subghz_cli_command_rx_raw(Cli* cli, FuriString* args, void* context) {
     UNUSED(context);
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu", &frequency);
-        if(ret != 1) {
-            printf("sscanf returned %ld, frequency: %lu\r\n", ret, frequency);
+        if(strint_to_uint32(furi_string_get_cstr(args), NULL, &frequency, 10) !=
+           StrintParseNoError) {
             cli_print_usage("subghz rx", "<Frequency: in Hz>", furi_string_get_cstr(args));
             return;
         }
@@ -440,7 +431,7 @@ void subghz_cli_command_rx_raw(Cli* cli, FuriString* args, void* context) {
     LevelDuration level_duration;
     size_t counter = 0;
     while(!cli_cmd_interrupt_received(cli)) {
-        uint32_t ret = furi_stream_buffer_receive(
+        int ret = furi_stream_buffer_receive(
             instance->stream, &level_duration, sizeof(LevelDuration), 10);
         if(ret == 0) {
             continue;
@@ -624,9 +615,11 @@ void subghz_cli_command_tx_from_file(Cli* cli, FuriString* args, void* context) 
         }
 
         if(furi_string_size(args)) {
-            uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu %lu", &repeat, &device_ind);
-            if(ret != 2) {
-                printf("sscanf returned %ld, repeat: %lu device: %lu\r\n", ret, repeat, device_ind);
+            char* args_cstr = (char*)furi_string_get_cstr(args);
+            StrintParseError parse_err = StrintParseNoError;
+            parse_err |= strint_to_uint32(args_cstr, &args_cstr, &frequency, 10);
+            parse_err |= strint_to_uint32(args_cstr, &args_cstr, &device_ind, 10);
+            if(parse_err) {
                 cli_print_usage(
                     "subghz tx_from_file:",
                     "<file_name: path_file> <Repeat count> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
@@ -684,9 +677,8 @@ void subghz_cli_command_tx_from_file(Cli* cli, FuriString* args, void* context) 
         if(!strcmp(furi_string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
             uint8_t* custom_preset_data;
             uint32_t custom_preset_data_size;
-            if(!flipper_format_get_value_count(fff_data_file, "Custom_preset_data", &temp_data32)) {
+            if(!flipper_format_get_value_count(fff_data_file, "Custom_preset_data", &temp_data32))
                 break;
-            }
             if(!temp_data32 || (temp_data32 % 2)) {
                 printf("subghz tx_from_file: \033[0;31mCustom_preset_data size error\033[0m\r\n");
                 break;
@@ -936,14 +928,15 @@ static void subghz_cli_command_encrypt_raw(Cli* cli, FuriString* args) {
 }
 
 static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
-    uint32_t frequency = SUBGHZ_LAST_SETTING_DEFAULT_FREQUENCY;
+    uint32_t frequency = 433920000;
     uint32_t device_ind = 0; // 0 - CC1101_INT, 1 - CC1101_EXT
 
     if(furi_string_size(args)) {
-        uint32_t ret = sscanf(furi_string_get_cstr(args), "%lu %lu", &frequency, &device_ind);
-        if(ret != 2) {
-            printf("sscanf returned %ld, Frequency: %lu\r\n", ret, frequency);
-            printf("sscanf returned %ld, Device: %lu\r\n", ret, device_ind);
+        char* args_cstr = (char*)furi_string_get_cstr(args);
+        StrintParseError parse_err = StrintParseNoError;
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &frequency, 10);
+        parse_err |= strint_to_uint32(args_cstr, &args_cstr, &device_ind, 10);
+        if(parse_err) {
             cli_print_usage(
                 "subghz chat",
                 "<Frequency: in Hz> <Device: 0 - CC1101_INT, 1 - CC1101_EXT>",
@@ -961,6 +954,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
         return;
     }
 
+    // TODO
     if(!furi_hal_subghz_is_tx_allowed(frequency)) {
         printf(
             "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
@@ -1063,7 +1057,7 @@ static void subghz_cli_command_chat(Cli* cli, FuriString* args) {
                         furi_string_push_back(output, message[i]);
                         if(message[i] == '\n') {
                             printf("\r");
-                            for(i = 0; i < 80; i++) {
+                            for(uint8_t i = 0; i < 80; i++) {
                                 printf(" ");
                             }
                             printf("\r %s", furi_string_get_cstr(output));
